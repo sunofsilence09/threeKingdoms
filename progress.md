@@ -9,4 +9,5 @@
 - Added unit tests for state and combat transitions: 9 tests passing.
 - Added browser smoke coverage for desktop prologue/map/battle and mobile route choice.
 - Verified `npm run build` and the Playwright smoke flow.
-- Final step: commit and push the playable slice.
+- Committed the playable slice locally and uploaded the complete project tree to GitHub through the authenticated browser session.
+- Started the local Vite server at `http://127.0.0.1:5173` for interactive follow-up.

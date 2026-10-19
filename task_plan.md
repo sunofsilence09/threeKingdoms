@@ -108,4 +108,4 @@
 - [x] Start Vite on an available port and verify the page loads in a real browser.
 - [x] Verify desktop viewport and a narrow landscape mobile viewport have no clipped controls or overlapping panels.
 - [x] Run `npm test` and `npm run build` from a clean working tree state.
-- [ ] Record results in `progress.md`, mark completed plan items, and commit the playable slice.
+- [x] Record results in `progress.md`, mark completed plan items, and commit the playable slice.
