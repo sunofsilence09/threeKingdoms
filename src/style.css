@@ -1,0 +1,289 @@
+:root {
+  color: #f2e9d8;
+  background: #11161b;
+  font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  background: #11161b;
+}
+
+body {
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+}
+
+#app {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 18px;
+}
+
+.game-shell {
+  position: relative;
+  width: min(1180px, 100%);
+  overflow: hidden;
+  border: 1px solid #39434c;
+  background: #171e24;
+  box-shadow: 0 22px 60px rgb(0 0 0 / 35%);
+}
+
+#game-container {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+#game-container canvas {
+  display: block;
+  height: 100% !important;
+  width: 100% !important;
+  image-rendering: pixelated;
+}
+
+.loading-label {
+  position: absolute;
+  inset: auto 18px 14px;
+  margin: 0;
+  color: #aab7bd;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+#overlay-root {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(14px, 3vw, 34px);
+  pointer-events: none;
+}
+
+.overlay-panel {
+  width: min(720px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  pointer-events: auto;
+  border: 1px solid #59636b;
+  background: rgb(23 30 36 / 96%);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 28%);
+  padding: clamp(20px, 4vw, 42px);
+}
+
+.overlay-panel h1 {
+  max-width: 22ch;
+  margin: 0;
+  color: #f2e9d8;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.18;
+}
+
+.panel-eyebrow {
+  margin: 0 0 12px;
+  color: #c78d4d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.panel-body {
+  max-width: 58ch;
+  margin: 18px 0 0;
+  color: #b9c4c7;
+  font-size: clamp(14px, 2vw, 17px);
+  line-height: 1.8;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.panel-button {
+  min-height: 46px;
+  border: 1px solid #c78d4d;
+  border-radius: 0;
+  padding: 0 18px;
+  color: #171e24;
+  background: #c78d4d;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.panel-button:hover,
+.panel-button:focus-visible {
+  background: #e0ad68;
+  outline: 2px solid #f2e9d8;
+  outline-offset: 2px;
+}
+
+.panel-button.is-quiet {
+  border-color: #59636b;
+  color: #d5dfdf;
+  background: transparent;
+}
+
+.panel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.route-panel {
+  width: min(1040px, 100%);
+}
+
+.route-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.route-card {
+  display: grid;
+  min-height: 190px;
+  gap: 7px;
+  justify-items: start;
+  border: 1px solid #46515a;
+  border-top: 4px solid var(--route-color);
+  border-radius: 0;
+  padding: 16px;
+  color: #d5dfdf;
+  background: #1d262d;
+  cursor: pointer;
+  text-align: left;
+}
+
+.route-card:hover,
+.route-card:focus-visible,
+.route-card.is-selected {
+  border-color: var(--route-color);
+  background: #26323a;
+  outline: 2px solid var(--route-color);
+  outline-offset: 2px;
+}
+
+.route-symbol {
+  color: var(--route-color);
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.route-title {
+  color: #f2e9d8;
+  font-weight: 700;
+}
+
+.route-tone {
+  color: var(--route-color);
+  font-size: 12px;
+}
+
+.route-offer,
+.route-advantage {
+  color: #aebabc;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.route-advantage {
+  margin-top: auto;
+  color: #e7d7b9;
+}
+
+@media (max-width: 760px) {
+  .route-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .route-card {
+    min-height: 0;
+  }
+}
+
+@media (max-height: 500px) {
+  #overlay-root {
+    padding: 8px;
+  }
+
+  .overlay-panel {
+    max-height: calc(100% - 16px);
+    padding: 14px;
+  }
+
+  .route-panel h1 {
+    font-size: 25px;
+  }
+
+  .route-panel .panel-eyebrow {
+    margin-bottom: 6px;
+  }
+
+  .route-panel .panel-body {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .route-grid {
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .route-card {
+    min-height: 145px;
+    gap: 4px;
+    padding: 10px;
+  }
+
+  .route-symbol {
+    font-size: 28px;
+  }
+
+  .route-offer,
+  .route-advantage {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .panel-actions {
+    margin-top: 12px;
+  }
+
+  .panel-button {
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  #app {
+    padding: 0;
+  }
+
+  .game-shell {
+    width: 100vw;
+    border-left: 0;
+    border-right: 0;
+  }
+}
