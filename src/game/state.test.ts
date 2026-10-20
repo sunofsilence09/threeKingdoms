@@ -36,6 +36,27 @@ class MemoryStorage implements Storage {
 }
 
 describe('game state', () => {
+  it('adds route rewards to earned supplies instead of replacing them', () => {
+    const initial = { ...createInitialState(), supplies: 7, morale: 5 };
+    expect(selectRoute(initial, 'cao')).toMatchObject({ supplies: 8, morale: 5 });
+    expect(selectRoute(initial, 'sun')).toMatchObject({ supplies: 7, morale: 6 });
+  });
+
+  it('keeps the game playable when browser storage is unavailable', () => {
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get() { throw new Error('storage disabled'); },
+    });
+    expect(() => saveState(createInitialState())).not.toThrow();
+    expect(loadState()).toBeNull();
+  });
+
+  it('rejects structurally invalid saves', () => {
+    for (const patch of [{ route: undefined }, { flags: [] }, { supplies: -1 }, { morale: 1.5 }]) {
+      localStorage.setItem('three-kingdoms-demo-state', JSON.stringify({ ...createInitialState(), ...patch }));
+      expect(loadState()).toBeNull();
+    }
+  });
   beforeEach(() => {
     Object.defineProperty(globalThis, 'localStorage', {
       configurable: true,

@@ -109,3 +109,13 @@
 - [x] Verify desktop viewport and a narrow landscape mobile viewport have no clipped controls or overlapping panels.
 - [x] Run `npm test` and `npm run build` from a clean working tree state.
 - [x] Record results in `progress.md`, mark completed plan items, and commit the playable slice.
+
+### 2026-10-20: Playability follow-up
+
+The first slice's per-action enemy response allowed three enemy actions for each ally action. This follow-up uses a party round instead: each living ally can move once, then attack or guard once; enemies respond after the party finishes or ends its round.
+
+- [x] Add regression tests for action limits, blocked movement, route bonuses, resource preservation, and unavailable storage.
+- [x] Integrate the round model and expose health, resources, and remaining actions in the battle HUD.
+- [x] Fix overlay input passing through to the game and restore the correct encounter on reload.
+- [x] Add a loss/retry flow and fit mobile landscape controls within the viewport.
+- [x] Play all three routes to their endings using real browser input; verify restart, reload, loss/retry, and additional narrow viewport layouts.

@@ -35,7 +35,7 @@ button {
 
 .game-shell {
   position: relative;
-  width: min(1180px, 100%);
+  width: min(1180px, 100%, calc((100svh - 38px) * 16 / 9));
   overflow: hidden;
   border: 1px solid #39434c;
   background: #171e24;
@@ -73,6 +73,10 @@ button {
   pointer-events: none;
 }
 
+#overlay-root:has(> *) {
+  pointer-events: auto;
+}
+
 .overlay-panel {
   width: min(720px, 100%);
   max-height: 100%;
@@ -89,7 +93,7 @@ button {
   margin: 0;
   color: #f2e9d8;
   font-family: "STKaiti", "KaiTi", serif;
-  font-size: clamp(24px, 4vw, 42px);
+  font-size: 32px;
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.18;
@@ -100,7 +104,7 @@ button {
   color: #c78d4d;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -108,8 +112,9 @@ button {
   max-width: 58ch;
   margin: 18px 0 0;
   color: #b9c4c7;
-  font-size: clamp(14px, 2vw, 17px);
+  font-size: 16px;
   line-height: 1.8;
+  white-space: pre-line;
 }
 
 .panel-actions {
@@ -249,12 +254,21 @@ button {
   .route-grid {
     gap: 8px;
     margin-top: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .route-card {
-    min-height: 145px;
+    min-height: 0;
     gap: 4px;
     padding: 10px;
+  }
+
+  .route-title {
+    font-size: 13px;
+  }
+
+  .route-tone {
+    font-size: 11px;
   }
 
   .route-symbol {
@@ -272,7 +286,7 @@ button {
   }
 
   .panel-button {
-    min-height: 40px;
+    min-height: 44px;
   }
 }
 

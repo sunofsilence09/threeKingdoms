@@ -13,9 +13,9 @@ export interface GameState {
 export const STORAGE_KEY = 'three-kingdoms-demo-state';
 
 const routeAdvantages: Record<RouteId, Pick<GameState, 'supplies' | 'morale'>> = {
-  cao: { supplies: 4, morale: 2 },
-  sun: { supplies: 3, morale: 3 },
-  liu: { supplies: 3, morale: 4 },
+  cao: { supplies: 1, morale: 0 },
+  sun: { supplies: 0, morale: 1 },
+  liu: { supplies: 0, morale: 2 },
 };
 
 export function createInitialState(): GameState {
@@ -33,12 +33,17 @@ export function selectRoute(state: GameState, route: RouteId): GameState {
     ...state,
     phase: 'route-choice',
     route,
-    ...routeAdvantages[route],
+    supplies: state.supplies + routeAdvantages[route].supplies,
+    morale: state.morale + routeAdvantages[route].morale,
   };
 }
 
 export function saveState(state: GameState): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Storage can be disabled in an embedded browser; retain the in-memory game.
+  }
 }
 
 export function loadState(): GameState | null {
@@ -71,11 +76,12 @@ function isGameState(value: unknown): value is GameState {
   return (
     typeof candidate.phase === 'string' &&
     phases.includes(candidate.phase as DemoPhase) &&
-    routes.includes(candidate.route ?? null) &&
-    typeof candidate.supplies === 'number' &&
-    typeof candidate.morale === 'number' &&
+    routes.includes(candidate.route as RouteId | null) &&
+    Number.isSafeInteger(candidate.supplies) && candidate.supplies! >= 0 &&
+    Number.isSafeInteger(candidate.morale) && candidate.morale! >= 0 &&
     !!candidate.flags &&
     typeof candidate.flags === 'object' &&
+    !Array.isArray(candidate.flags) &&
     Object.values(candidate.flags).every((flag) => typeof flag === 'boolean')
   );
 }

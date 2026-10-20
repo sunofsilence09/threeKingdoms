@@ -152,7 +152,7 @@ export class OverworldScene extends Phaser.Scene {
         eyebrow: '枯井村 · 短暂休整',
         title: '有人把最后一碗水递了过来。',
         body: '你们补回一点粮水，也听说临水镇里已经来了三方使者。',
-        actions: [{ label: '前往临水镇', onClick: clearOverlay }],
+        actions: [{ label: '前往临水镇', onClick: () => this.scene.start('RouteChoice') }],
       });
       return;
     }

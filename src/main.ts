@@ -15,6 +15,7 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: '#11161b',
   pixelArt: true,
   roundPixels: true,
+  input: { windowEvents: false },
   scene: [BootScene, PrologueScene, OverworldScene, RouteChoiceScene, BattleScene, EndingScene],
   callbacks: {
     postBoot: () => {
@@ -27,4 +28,4 @@ const config: Phaser.Types.Core.GameConfig = {
   },
 };
 
-const game = new Phaser.Game(config);
+export const game = new Phaser.Game(config);
