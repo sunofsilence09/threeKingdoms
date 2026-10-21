@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { MAP_NODES } from '../content';
+import { createHeroHud } from '../heroHud';
+import { addText } from '../text';
 import { getState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 
@@ -14,6 +16,8 @@ export class OverworldScene extends Phaser.Scene {
     setStatus('点击地点，继续寻找能容身的地方');
     this.drawMap();
     this.drawNodes();
+    const heroHud = createHeroHud(getState().route, undefined, getState().party);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => heroHud.destroy());
   }
 
   private drawMap(): void {
@@ -46,30 +50,30 @@ export class OverworldScene extends Phaser.Scene {
     graphics.lineTo(770, 320);
     graphics.strokePath();
 
-    this.add.text(42, 32, '临水以北 · 第三日', {
+    addText(this, 42, 32, '临水以北 · 第三日', {
       color: '#f2e9d8',
       fontFamily: 'STKaiti, KaiTi, serif',
       fontSize: '28px',
     });
-    this.add.text(44, 70, '选择一个地点。路会记得你经过的地方。', {
+    addText(this, 44, 70, '选择一个地点。路会记得你经过的地方。', {
       color: '#aab7bd',
       fontSize: '14px',
     });
 
     const state = getState();
-    this.add.text(730, 32, `粮 ${state.supplies}  ·  士气 ${state.morale}`, {
+    addText(this, 730, 32, `粮 ${state.supplies}  ·  士气 ${state.morale}`, {
       color: '#e7d7b9',
       fontSize: '14px',
       fontStyle: 'bold',
     });
-    this.add.text(730, 58, '队伍：旅人 / 阿满 / 陈达', {
+    addText(this, 730, 58, '队伍：姜垣 / 阿满 / 陈达', {
       color: '#aab7bd',
       fontSize: '12px',
     });
 
     const marker = this.add.rectangle(112, 396, 18, 18, 0xc78d4d);
     marker.setStrokeStyle(2, 0xf2e9d8, 1);
-    this.add.text(78, 425, '你们', { color: '#e7d7b9', fontSize: '12px' });
+    addText(this, 78, 365, '你们', { color: '#e7d7b9', fontSize: '12px' });
   }
 
   private drawNodes(): void {
@@ -86,12 +90,12 @@ export class OverworldScene extends Phaser.Scene {
       card.on('pointerout', () => card.setFillStyle(0x1d262d, 0.96));
       card.on('pointerdown', () => this.selectNode(node.id));
 
-      this.add.text(node.x - 70, node.y - 24, node.title, {
+      addText(this, node.x - 70, node.y - 24, node.title, {
         color: '#f2e9d8',
         fontFamily: 'STKaiti, KaiTi, serif',
         fontSize: '23px',
       });
-      this.add.text(node.x - 70, node.y + 10, completed ? '已走过 · 再看一眼' : node.subtitle, {
+      addText(this, node.x - 70, node.y + 10, completed ? '已走过 · 再看一眼' : node.subtitle, {
         color: '#aab7bd',
         fontSize: '12px',
       });
@@ -151,7 +155,7 @@ export class OverworldScene extends Phaser.Scene {
       showPanel({
         eyebrow: '枯井村 · 短暂休整',
         title: '有人把最后一碗水递了过来。',
-        body: '你们补回一点粮水，也听说临水镇里已经来了三方使者。',
+        body: '你们补回一点粮水，也听说临水镇里已经来了三方使者。若能找到庇护，或许就不必再赤手赶路。',
         actions: [{ label: '前往临水镇', onClick: () => this.scene.start('RouteChoice') }],
       });
       return;

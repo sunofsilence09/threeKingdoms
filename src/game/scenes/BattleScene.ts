@@ -1,305 +1,190 @@
 import Phaser from 'phaser';
 import {
-  applyGuard,
-  createCombatState,
-  isBattleOver,
-  moveUnit,
-  performAttack,
-  reachableTiles,
-  resolveEnemyTurn,
-  type CombatState,
-  type CombatUnit,
+  applyGuard, createCombatState, isBattleOver, movementRange, moveUnit,
+  performAttack, resolveEnemyTurn, terrainAt, WEAPONS, type CombatState,
 } from '../combat';
+import { BattleBoard, BATTLE_VIEW } from '../battleBoard';
+import { TERRAIN, type BattleMode } from '../battlefield';
 import { ROUTES } from '../content';
+import { createHeroHud } from '../heroHud';
+import { PARTY_IDS, experienceToNextLevel } from '../growth';
+import { rewardVictory } from '../state';
+import { addText } from '../text';
 import { getState, resetState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 
-interface BattleData {
-  mode?: 'ambush' | 'route';
-}
-
-const CELL_SIZE = 68;
-const GRID_LEFT = 88;
-const GRID_TOP = 136;
+interface BattleData { mode?: BattleMode }
 
 export class BattleScene extends Phaser.Scene {
   private combat!: CombatState;
-  private mode: 'ambush' | 'route' = 'route';
-  private boardLayer!: Phaser.GameObjects.Container;
+  private mode: BattleMode = 'route';
+  private board!: BattleBoard;
+  private roster!: Phaser.GameObjects.Container;
   private message!: Phaser.GameObjects.Text;
   private roundLabel!: Phaser.GameObjects.Text;
   private finished = false;
+  private heroHud!: ReturnType<typeof createHeroHud>;
 
-  constructor() {
-    super('Battle');
-  }
-
-  init(data: BattleData): void {
-    this.mode = data.mode ?? 'route';
-  }
-
+  constructor() { super('Battle'); }
+  init(data: BattleData): void { this.mode = data.mode ?? 'route'; }
   create(): void {
     this.finished = false;
     clearOverlay();
-    setState({ ...getState(), phase: 'battle' });
-    this.combat = createCombatState(getState().route);
-    this.boardLayer = this.add.container(0, 0).setDepth(10).setVisible(true);
-    setStatus(this.mode === 'ambush' ? '旧驿道 · 伏击' : '路线任务 · 关卡前');
+    const state = setState({ ...getState(), phase: 'battle' });
+    this.combat = createCombatState(state.route, state.party, this.mode);
     this.drawBackground();
-    this.roundLabel = this.add.text(610, 130, '', { color: '#e7d7b9', fontSize: '18px' });
-    this.message = this.add.text(610, 182, '旅人、阿满、陈达已就位。', {
-      color: '#b9c4c7',
-      fontSize: '14px',
-      lineSpacing: 8,
-      wordWrap: { width: 280 },
+    this.board = new BattleBoard(this, (x, y) => this.selectTile(x, y));
+    this.roster = this.add.container().setDepth(20);
+    this.heroHud = createHeroHud(state.route, () => this.selectUnit('traveler'), state.party);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.heroHud.destroy());
+    setStatus(this.mode === 'ambush' ? '旧驿道 · 流民求生' : '路线任务 · 第一次持械同行');
+    this.roundLabel = addText(this, 684, 226, '', { color: '#ead9b9', fontSize: '16px' });
+    this.message = addText(this, 684, 260, this.mode === 'ambush'
+      ? '姜垣握着菜刀，阿满和陈达赤手同行。\n先选队员，再点亮格移动或攻击敌人。'
+      : '姜垣获短刀，阿满持木枪，陈达用猎弓。\n弓箭需隔 2–3 格，留意墙后与桥头。', {
+      color: '#bdc7bf', fontSize: '12px', lineSpacing: 5, wordWrap: { width: 244 },
     });
     this.drawControls();
     this.renderBoard();
   }
-
   private drawBackground(): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x11161b, 1);
-    graphics.fillRect(0, 0, 960, 540);
-    graphics.fillStyle(0x2c3f43, 0.35);
-    graphics.fillRect(0, 0, 960, 98);
-    graphics.lineStyle(1, 0xd5dfdf, 0.12);
-    graphics.lineBetween(54, 98, 906, 98);
-
+    const g = this.add.graphics();
+    g.fillStyle(0x11191c).fillRect(0, 0, 960, 540);
+    g.fillStyle(0x283a37, 0.55).fillRect(0, 0, 960, 82);
+    g.lineStyle(1, 0xadbb9e, 0.22).lineBetween(24, 82, 936, 82);
+    g.fillStyle(0x1b2828).fillRect(BATTLE_VIEW.x, BATTLE_VIEW.y, BATTLE_VIEW.width, BATTLE_VIEW.height);
+    g.fillStyle(0x1b2426).fillRect(672, 112, 264, 400);
+    g.lineStyle(1, 0x6d8174, 0.55).strokeRect(BATTLE_VIEW.x - 1, BATTLE_VIEW.y - 1, BATTLE_VIEW.width + 2, BATTLE_VIEW.height + 2);
     const route = getState().route;
-    const routeLabel = route ? ROUTES[route].title : '共同序章 · 旧驿道';
-    this.add.text(54, 28, routeLabel, {
-      color: '#f2e9d8',
-      fontFamily: 'STKaiti, KaiTi, serif',
-      fontSize: '27px',
-    });
-    this.add.text(56, 68, this.mode === 'ambush' ? '击退山贼，清出前往临水镇的路。' : ROUTES[route ?? 'cao'].objective, {
-      color: '#aab7bd',
-      fontSize: '13px',
-    });
+    addText(this, 24, 20, route ? ROUTES[route].title : '旧驿道 · 姜垣一行', { color: '#f2e9d8', fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
+    addText(this, 26, 60, this.mode === 'ambush' ? '绕过倒车与巨石，击退拦路山贼。胜利后每人获得 30 经验。' : `${ROUTES[route ?? 'cao'].objective}  胜利后每人 +45 经验。`, { color: '#b3c1b6', fontSize: '12px' });
     const state = getState();
-    this.add.text(710, 36, `粮 ${state.supplies}  ·  士气 ${state.morale}`, { color: '#e7d7b9', fontSize: '14px' });
+    addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: '#e7d7b9', fontSize: '14px' });
+    addText(this, 26, 91, '16×10 · 拖动查看战场', { color: '#c8bea3', fontSize: '13px' });
+    addText(this, 26, 489, '绿点可移动 · 红框可攻击 · 白点守势', { color: '#b8c8b5', fontSize: '12px' });
+    addText(this, 26, 511, '树林耗 2 点移动并抵挡 1 点远程伤害；石、车、墙不可穿越。', { color: '#8fa79b', fontSize: '11px' });
   }
-
-  private renderBoard(): void {
-    this.boardLayer.removeAll(true);
-    const selected = this.combat.units.find((unit) => unit.id === this.combat.selectedId);
-    const reachable = selected ? reachableTiles(this.combat, selected.id) : [];
-    const remaining = this.combat.units.filter((unit) => unit.team === 'party' && unit.hp > 0 && !this.combat.actedIds.includes(unit.id)).length;
-    this.roundLabel.setText(`第 ${this.combat.round} 回合 · 待行动 ${remaining}`);
-    for (let y = 0; y < this.combat.height; y += 1) {
-      for (let x = 0; x < this.combat.width; x += 1) {
-        const isReachable = reachable.some((tile) => tile.x === x && tile.y === y);
-        const tile = this.add.rectangle(
-          GRID_LEFT + x * CELL_SIZE,
-          GRID_TOP + y * CELL_SIZE,
-          CELL_SIZE - 6,
-          CELL_SIZE - 6,
-          isReachable ? 0x344b4d : 0x202b31,
-          0.96,
-        );
-        tile.setStrokeStyle(1, isReachable ? 0x6b9c9a : 0x3a474e, 1);
-        tile.setInteractive({ useHandCursor: true });
-        tile.on('pointerdown', () => this.selectTile(x, y));
-        this.boardLayer.add(tile);
-      }
-    }
-
-    for (const unit of this.combat.units) {
-      if (unit.hp <= 0) continue;
-      this.drawUnit(unit);
-    }
+  private button(x: number, y: number, width: number, height: number, label: string, callback: () => void, primary = false): void {
+    const shape = this.add.rectangle(x, y, width, height, primary ? 0xc99c5a : 0x334c43).setDepth(25);
+    shape.setStrokeStyle(1, primary ? 0xe7c48c : 0x7a9b83).setInteractive({ useHandCursor: true });
+    shape.on('pointerdown', callback);
+    addText(this, x, y, label, { color: primary ? '#17201e' : '#e0e6d4', fontSize: height < 40 ? '12px' : '18px', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
   }
-
-  private drawUnit(unit: CombatUnit): void {
-    const x = GRID_LEFT + unit.x * CELL_SIZE;
-    const y = GRID_TOP + unit.y * CELL_SIZE;
-    const selected = this.combat.selectedId === unit.id;
-    const color = unit.team === 'party' ? 0xc78d4d : 0xa55b5a;
-    const unitShape = this.add.rectangle(x, y, 42, 42, color, 1);
-    unitShape.setStrokeStyle(selected ? 4 : 2, selected ? 0xf2e9d8 : 0x171e24, 1);
-    if (this.combat.actedIds.includes(unit.id)) unitShape.setAlpha(0.45);
-    unitShape.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-10, -10, CELL_SIZE - 6, CELL_SIZE - 6),
-      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
-      useHandCursor: true,
-    });
-    unitShape.on('pointerdown', () => {
-      if (unit.team === 'party') {
-        this.selectUnit(unit.id);
-      } else {
-        this.selectTile(unit.x, unit.y);
-      }
-    });
-    this.boardLayer.add(unitShape);
-
-    const label = this.add.text(x, y - 7, shortUnitLabel(unit), {
-      color: '#171e24',
-      fontSize: '16px',
-      fontStyle: 'bold',
-    });
-    label.setOrigin(0.5, 0.5);
-    this.boardLayer.add(label);
-    this.boardLayer.add(this.add.text(x, y + 11, `${unit.hp}/${unit.maxHp}`, {
-      color: '#171e24', fontSize: '12px', fontStyle: 'bold',
-    }).setOrigin(0.5));
-
-    const barWidth = 42;
-    const ratio = Math.max(0, unit.hp / unit.maxHp);
-    const bar = this.add.rectangle(x, y + 29, barWidth, 5, 0x171e24, 1);
-    const health = this.add.rectangle(x - barWidth / 2, y + 29, barWidth * ratio, 5, 0x6b9c9a, 1);
-    health.setOrigin(0, 0.5);
-    this.boardLayer.add(bar);
-    this.boardLayer.add(health);
-  }
-
   private drawControls(): void {
-    const guard = this.add.rectangle(740, 398, 136, 68, 0x344b4d, 1);
-    guard.setStrokeStyle(1, 0x6b9c9a, 1);
-    guard.setInteractive({ useHandCursor: true });
-    guard.on('pointerdown', () => this.guardSelected());
-    this.add.text(740, 398, '守势', { color: '#d5dfdf', fontSize: '20px', fontStyle: 'bold' }).setOrigin(0.5);
-
-    const endTurn = this.add.rectangle(740, 476, 136, 68, 0xc78d4d, 1);
-    endTurn.setInteractive({ useHandCursor: true });
-    endTurn.on('pointerdown', () => this.endPlayerTurn());
-    this.add.text(740, 476, '结束回合', { color: '#171e24', fontSize: '20px', fontStyle: 'bold' }).setOrigin(0.5);
-
-    const route = getState().route;
-    this.add.text(610, 298, '队伍状态', { color: '#c78d4d', fontSize: '14px', fontStyle: 'bold' });
-    this.add.text(610, 320, route ? ROUTES[route].advantage : '粮水紧缺，三人同行。', {
-      color: '#aab7bd',
-      fontSize: '12px',
-      lineSpacing: 6,
-      wordWrap: { width: 280 },
+    this.button(468, 98, 58, 28, '全图', () => this.board.zoom(false));
+    this.button(536, 98, 58, 28, '放大', () => this.board.zoom(true, this.combat.units.find(u => u.id === this.combat.selectedId)));
+    this.button(606, 98, 58, 28, '归位', () => {
+      const unit = this.combat.units.find(u => u.id === this.combat.selectedId) ?? this.combat.units.find(u => u.team === 'party' && u.hp > 0);
+      if (unit) { this.board.zoom(true, unit); this.board.focus(unit); }
+    });
+    this.button(741, 480, 112, 48, '守势', () => this.guardSelected());
+    this.button(870, 480, 112, 48, '结束回合', () => this.endPlayerTurn(), true);
+    addText(this, 684, 324, '同行队员 · 点击切换', { color: '#c99c5a', fontSize: '12px' });
+  }
+  private renderBoard(): void {
+    this.heroHud.update(this.combat);
+    this.board.render(this.combat);
+    this.roster.removeAll(true);
+    const remaining = this.combat.units.filter(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id)).length;
+    this.roundLabel.setText(`第 ${this.combat.round} 回合 · 待行动 ${remaining}`);
+    this.combat.units.filter(u => u.team === 'party').forEach((unit, index) => {
+      const y = 358 + index * 32;
+      const selected = this.combat.selectedId === unit.id;
+      const shape = this.add.rectangle(804, y, 240, 28, selected ? 0x3b5141 : 0x253432);
+      shape.setStrokeStyle(1, selected ? 0xd8c199 : 0x40554a).setInteractive({ useHandCursor: true });
+      shape.on('pointerdown', () => this.selectUnit(unit.id));
+      this.roster.add(shape);
+      const status = unit.hp <= 0 ? '倒地' : this.combat.actedIds.includes(unit.id) ? '已行动' : '待行动';
+      this.roster.add(addText(this, 688, y, `${unit.name} Lv.${unit.level} · ${WEAPONS[unit.weapon].name}`, { color: unit.hp > 0 ? '#e2d9bd' : '#918c81', fontSize: '12px' }).setOrigin(0, 0.5));
+      this.roster.add(addText(this, 920, y, status, { color: '#9eb49e', fontSize: '10px' }).setOrigin(1, 0.5));
     });
   }
-
-  private selectUnit(unitId: string): void {
+  private selectUnit(id: string): void {
     if (this.finished) return;
-    const unit = this.combat.units.find((candidate) => candidate.id === unitId);
-    if (!unit || unit.hp <= 0 || unit.team !== 'party') return;
-    if (this.combat.actedIds.includes(unitId)) {
-      this.message.setText(`${unit.name} 本回合已行动。`);
-      return;
-    }
-    this.combat = { ...this.combat, selectedId: unitId };
-    this.message.setText(`${unit.name} · 体力 ${unit.hp}/${unit.maxHp}\n攻击 ${unit.attack} · ${this.combat.movedIds.includes(unitId) ? '已移动，仍可攻击或守势' : '尚未移动'}`);
+    const unit = this.combat.units.find(u => u.id === id && u.team === 'party' && u.hp > 0);
+    if (!unit) return;
+    if (this.combat.actedIds.includes(id)) { this.message.setText(`${unit.name} 本回合已行动。`); return; }
+    this.combat = { ...this.combat, selectedId: id };
+    const weapon = WEAPONS[unit.weapon];
+    const threshold = experienceToNextLevel(unit.level);
+    this.message.setText(`${unit.name} Lv.${unit.level} · 流民 · ${weapon.name}\n体力 ${unit.hp}/${unit.maxHp} · 攻 ${unit.attack} · 移 ${movementRange(this.combat, unit)} · 距 ${weapon.min}–${weapon.max}\n经验 ${unit.xp}/${threshold || '满'} · ${this.combat.movedIds.includes(id) ? '已移动，仍可攻击或守势' : '每回合一次移动、一次攻击或守势'}`);
+    this.board.focus(unit);
     this.renderBoard();
   }
-
   private selectTile(x: number, y: number): void {
     if (this.finished) return;
-    const selected = this.combat.units.find((unit) => unit.id === this.combat.selectedId);
-    if (!selected || selected.team !== 'party' || selected.hp <= 0) {
-      this.message.setText('先选中一名队员。');
+    const target = this.combat.units.find(u => u.hp > 0 && u.x === x && u.y === y);
+    if (target?.team === 'party') { this.selectUnit(target.id); return; }
+    const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
+    const terrain = TERRAIN[terrainAt(this.combat, x, y)];
+    if (!selected) {
+      this.message.setText(target ? `${target.name} · ${WEAPONS[target.weapon].name}\n体力 ${target.hp}/${target.maxHp} · 攻击 ${target.attack}\n先选择一名同行队员。` : `${terrain.name} · ${x + 1},${y + 1}\n${terrain.description}\n先选择一名同行队员。`);
       return;
     }
-
-    const target = this.combat.units.find((unit) => unit.hp > 0 && unit.x === x && unit.y === y);
     if (target?.team === 'enemy') {
       const next = performAttack(this.combat, selected.id, target.id);
-      if (next === this.combat) {
-        this.message.setText('目标还不在攻击范围内。先走近一些。');
-        return;
-      }
-      this.combat = { ...next, selectedId: null };
-      this.message.setText(`${selected.name} 发起了攻击。`);
+      if (next === this.combat) { this.message.setText('目标不在有效射程或被障碍挡住。\n猎弓不能贴身射击，试着换个位置。'); return; }
+      this.combat = next;
+      this.message.setText(`${selected.name} 攻击${target.name}，造成 ${target.hp - next.units.find(u => u.id === target.id)!.hp} 点伤害。`);
       this.finishPlayerAction();
       return;
     }
-
     const next = moveUnit(this.combat, selected.id, x, y);
-    if (next === this.combat) {
-      this.message.setText('这一步走不过去，试试亮起的格子。');
-      return;
-    }
+    if (next === this.combat) { this.message.setText(`${terrain.name}：${terrain.description}\n这一步走不过去，试试带绿点的格子。`); return; }
     this.combat = { ...next, selectedId: selected.id };
-    this.message.setText(`${selected.name} 已移动，仍可攻击或守势。`);
+    this.message.setText(`${selected.name} 已移动到${terrain.name}。\n仍可攻击或守势。${terrainAt(next, x, y) === 'woods' ? '\n林下掩护：受到远程伤害减少 1。' : ''}`);
     this.renderBoard();
   }
-
   private guardSelected(): void {
     if (this.finished) return;
-    const selected = this.combat.units.find((unit) => unit.id === this.combat.selectedId);
-    if (!selected || selected.team !== 'party') {
-      this.message.setText('先选中一名队员，再让他进入守势。');
-      return;
-    }
-    this.combat = { ...applyGuard(this.combat, selected.id), selectedId: null };
+    const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
+    if (!selected) { this.message.setText('先选择一名队员，再进入守势。'); return; }
+    this.combat = applyGuard(this.combat, selected.id);
     this.message.setText(`${selected.name} 稳住了阵脚。`);
     this.finishPlayerAction();
   }
-
   private endPlayerTurn(): void {
     if (this.finished) return;
-    for (const unit of this.combat.units) {
-      if (unit.team === 'party' && unit.hp > 0 && !this.combat.actedIds.includes(unit.id)) {
-        this.combat = applyGuard(this.combat, unit.id);
-      }
-    }
+    for (const unit of this.combat.units.filter(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id))) this.combat = applyGuard(this.combat, unit.id);
     this.enemyTurn();
   }
-
   private finishPlayerAction(): void {
     const result = isBattleOver(this.combat);
-    if (result !== 'ongoing') {
-      this.finishBattle(result);
-      return;
-    }
-    const remaining = this.combat.units.some((unit) => unit.team === 'party' && unit.hp > 0 && !this.combat.actedIds.includes(unit.id));
-    if (remaining) this.renderBoard();
+    if (result !== 'ongoing') { this.finishBattle(result); return; }
+    if (this.combat.units.some(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id))) this.renderBoard();
     else this.enemyTurn();
   }
-
   private enemyTurn(): void {
     this.combat = resolveEnemyTurn(this.combat);
-    this.message.setText(`敌军行动完毕。第 ${this.combat.round} 回合，队伍重新就位。`);
+    this.message.setText(`敌军已绕行并行动。\n第 ${this.combat.round} 回合，队伍重新就位。`);
     this.renderBoard();
     const result = isBattleOver(this.combat);
     if (result !== 'ongoing') this.finishBattle(result);
   }
-
   private finishBattle(result: 'win' | 'loss'): void {
     this.finished = true;
+    this.renderBoard();
     const state = getState();
     if (result === 'loss') {
-      showPanel({
-        eyebrow: '队伍溃散',
-        title: '路还在，但你们走不动了。',
-        body: '重整队伍，再试着清出这段路。',
-        actions: [
-          { label: '重试这场战斗', onClick: () => this.scene.restart({ mode: this.mode }) },
-          { label: '从序章重新开始', variant: 'quiet', onClick: () => { resetState(); this.scene.start('Prologue'); } },
-        ],
-      });
+      showPanel({ eyebrow: '队伍溃散', title: '路还在，但你们走不动了。', body: '这次未获得经验。等级与装备进度保留，重整队伍再试。', actions: [
+        { label: '重试这场战斗', onClick: () => this.scene.restart({ mode: this.mode }) },
+        { label: '从序章重新开始', variant: 'quiet', onClick: () => { resetState(); this.scene.start('Prologue'); } },
+      ] });
       return;
     }
-
+    const rewarded = rewardVictory(state, this.mode);
+    const names = { traveler: '姜垣', aman: '阿满', 'chen-da': '陈达' };
+    const summary = PARTY_IDS.map(id => {
+      const before = state.party[id], after = rewarded.party[id];
+      const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
+      return `${names[id]}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''} · 经验 ${after.xp}/${experienceToNextLevel(after.level) || '满'}`;
+    }).join('\n');
     if (this.mode === 'ambush') {
-      setState({
-        ...state,
-        phase: 'overworld',
-        supplies: Math.max(0, state.supplies - 1),
-        flags: { ...state.flags, ambushWon: true },
-      });
-      showPanel({
-        eyebrow: '旧驿道 · 战斗结束',
-        title: '路口让开了。',
-        body: '你们从山贼手里夺回一小段路，也付出了一点粮食和力气。',
-        actions: [{ label: '继续前往临水镇', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }],
-      });
+      setState({ ...rewarded, phase: 'overworld', supplies: Math.max(0, state.supplies - 1), flags: { ...rewarded.flags, ambushWon: true } });
+      showPanel({ eyebrow: '旧驿道 · 战斗胜利', title: '路口让开了，你们也更坚韧了。', body: `三人各获 30 经验。\n${summary}\n\n菜刀和拳脚撑过了这段路。去临水镇寻找庇护与趁手的兵器。`, actions: [{ label: '继续前往临水镇', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
       return;
     }
-
-    setState({ ...state, phase: 'ending' });
-    this.scene.start('Ending');
+    setState({ ...rewarded, phase: 'ending' });
+    this.scene.start('Ending', { rewardSummary: summary });
   }
-}
-
-function shortUnitLabel(unit: CombatUnit): string {
-  if (unit.team === 'enemy') return unit.id === 'bandit-leader' ? '首' : '匪';
-  if (unit.id === 'traveler') return '旅';
-  if (unit.id === 'aman') return '满';
-  return '达';
 }

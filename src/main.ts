@@ -13,7 +13,7 @@ const config: Phaser.Types.Core.GameConfig = {
   width: 960,
   height: 540,
   backgroundColor: '#11161b',
-  pixelArt: true,
+  antialias: true,
   roundPixels: true,
   input: { windowEvents: false },
   scene: [BootScene, PrologueScene, OverworldScene, RouteChoiceScene, BattleScene, EndingScene],

@@ -119,3 +119,11 @@ The first slice's per-action enemy response allowed three enemy actions for each
 - [x] Fix overlay input passing through to the game and restore the correct encounter on reload.
 - [x] Add a loss/retry flow and fit mobile landscape controls within the viewport.
 - [x] Play all three routes to their endings using real browser input; verify restart, reload, loss/retry, and additional narrow viewport layouts.
+
+### 2026-10-21: 身份与地形扩展
+
+- [x] 检查现有规则，确认只有单位占格，没有地形或兵种系统。
+- [x] 将主角显示名改为姜垣，更新方案为流民成长、16×10 与障碍地形。
+- [x] 用户确认修订设计，并追加等级系统。
+- [x] 编写实施计划，实现成长存档、地形战斗与棋盘视口。
+- [x] 完成三路线回归、修复跨区域拖动按钮误触，并记录最终验证。

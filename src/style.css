@@ -51,7 +51,147 @@ button {
   display: block;
   height: 100% !important;
   width: 100% !important;
+  image-rendering: auto;
+}
+
+#hud-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-hud {
+  position: absolute;
+  left: 5.6%;
+  bottom: 4%;
+  width: 45%;
+  height: 22%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid #6b9c9a;
+  padding: 10px 0 0;
+  background: #11161b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hero-portrait {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 80px;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #526c68;
+  background: #263b3d;
+}
+
+button.hero-portrait {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.hero-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   image-rendering: pixelated;
+}
+
+button.hero-portrait:hover,
+button.hero-portrait:focus-visible,
+.is-selected .hero-portrait {
+  outline: 2px solid #f2e9d8;
+  outline-offset: 2px;
+}
+
+button.hero-portrait:disabled {
+  cursor: default;
+}
+
+.hero-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-heading,
+.hero-health,
+.hero-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hero-heading strong {
+  font-size: 20px;
+}
+
+.hero-allegiance,
+.hero-stats {
+  color: #aab7bd;
+}
+
+.hero-health {
+  margin-top: 3px;
+}
+
+.hero-health-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-health-meter {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin: 4px 0 8px;
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: #34434a;
+}
+
+.hero-health-meter::-webkit-meter-bar {
+  border: 0;
+  border-radius: 0;
+  background: #34434a;
+}
+
+.hero-health-meter::-webkit-meter-optimum-value {
+  background: #8fb79d;
+}
+
+.hero-health-meter::-moz-meter-bar {
+  background: #8fb79d;
+}
+
+.hero-action {
+  color: #8fb79d;
+}
+
+.is-unavailable .hero-action {
+  color: #c3a49a;
+}
+
+.is-traveling .hero-health,
+.is-traveling .hero-health-meter {
+  display: none;
+}
+
+.is-traveling .hero-footer {
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .hero-hud { gap: 10px; padding-top: 6px; font-size: 11px; }
+  .hero-portrait { width: 42px; height: 52px; }
+  .hero-heading strong { font-size: 16px; }
+  .hero-health { margin-top: 0; }
+  .hero-health-meter { height: 4px; margin: 2px 0 3px; }
 }
 
 .loading-label {
@@ -300,4 +440,59 @@ button {
     border-left: 0;
     border-right: 0;
   }
+
+  #hud-root:has(> *) {
+    position: static;
+    padding: 14px 18px;
+    background: #11161b;
+  }
+
+  .hero-hud {
+    position: static;
+    width: 100%;
+    height: 108px;
+    gap: 14px;
+    font-size: 13px;
+  }
+}
+
+/* Persistent character growth; battle HUD occupies the fixed command column. */
+.hero-heading { gap: 6px; }
+.hero-level { color: #d7b67c; font-size: 12px; white-space: nowrap; }
+.hero-allegiance { margin-left: auto; }
+.hero-growth { display: flex; justify-content: space-between; gap: 6px; margin-top: 4px; color: #d7b67c; font-size: 11px; }
+.hero-xp-meter { display: block; appearance: none; width: 100%; height: 4px; margin: 3px 0 0; border: 0; background: #34434a; }
+.hero-xp-meter::-webkit-meter-bar { border: 0; border-radius: 0; background: #34434a; }
+.hero-xp-meter::-webkit-meter-optimum-value { background: #d7b67c; }
+.hero-xp-meter::-moz-meter-bar { background: #d7b67c; }
+.hero-hud { height: 25%; }
+.hero-hud.is-battle { left: 71.25%; top: 21%; bottom: auto; width: 25%; height: 19%; gap: 8px; padding: 4px 0 0; font-size: 11px; background: #1b2426; }
+.is-battle .hero-portrait { width: 40px; height: 56px; }
+.is-battle .hero-heading strong { font-size: 18px; }
+.is-battle .hero-allegiance { display: none; }
+.is-battle .hero-health { margin-top: 0; }
+.is-battle .hero-health-meter { margin: 3px 0; height: 4px; }
+.is-battle .hero-footer { gap: 4px; font-size: 10px; }
+.is-battle .hero-growth { font-size: 10px; margin-top: 3px; }
+.is-battle .hero-next-level { display: none; }
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .hero-hud.is-battle { gap: 5px; padding-top: 2px; font-size: 8px; }
+  .is-battle .hero-portrait { width: 24px; height: 34px; }
+  .is-battle .hero-heading { gap: 3px; }
+  .is-battle .hero-heading strong { font-size: 12px; }
+  .is-battle .hero-level { font-size: 9px; }
+  .is-battle .hero-footer { font-size: 7px; gap: 2px; }
+  .is-battle .hero-growth { font-size: 8px; margin-top: 0; }
+  .is-battle .hero-health-meter { margin: 1px 0; height: 3px; }
+  .is-battle .hero-xp-meter { height: 2px; margin-top: 1px; }
+}
+@media (max-width: 700px) and (orientation: portrait) {
+  .hero-hud, .hero-hud.is-battle { position: static; width: 100%; height: 120px; gap: 14px; padding-top: 10px; font-size: 13px; background: #11161b; }
+  .is-battle .hero-portrait { width: 64px; height: 80px; }
+  .is-battle .hero-heading strong { font-size: 20px; }
+  .is-battle .hero-footer, .is-battle .hero-growth { font-size: 12px; }
+  .is-battle .hero-health-meter { height: 6px; margin: 4px 0; }
+  .is-battle .hero-next-level { display: inline; }
+  .is-battle .hero-allegiance { display: inline; }
 }

@@ -1,116 +1,178 @@
 import { describe, expect, it } from 'vitest';
 import {
-  applyGuard,
-  createCombatState,
-  isBattleOver,
-  moveUnit,
-  reachableTiles,
-  resolveEnemyTurn,
-  performAttack,
-  type CombatState,
+  applyGuard, canAttack, createCombatState, isBattleOver, moveUnit,
+  reachableTiles, resolveEnemyTurn, performAttack, movementRange, terrainAt, type CombatState,
 } from './combat';
+import { createPartyProgress } from './growth';
 
-describe('compact tactical combat', () => {
-  it('allows movement then an attack, but prevents a second attack in the round', () => {
-    const initial = createCombatState(null);
-    const moved = moveUnit(initial, 'aman', 3, 2);
-    const attacked = performAttack(moved, 'aman', 'bandit-scout-a');
-    expect(attacked.units.find((u) => u.id === 'bandit-scout-a')?.hp).toBe(3);
-    expect(performAttack(attacked, 'aman', 'bandit-scout-a')).toBe(attacked);
-    expect(moveUnit(attacked, 'aman', 3, 1)).toBe(attacked);
-    expect(initial.units.find((u) => u.id === 'aman')?.x).toBe(1);
+function arena(): CombatState {
+  const state = createCombatState(null);
+  return {
+    ...state, width: 8, height: 6, terrain: [],
+    units: [
+      { ...state.units[0], x: 1, y: 2, attack: 3, hp: 10, maxHp: 10, weapon: 'cleaver' },
+      { ...state.units[1], x: 1, y: 3, attack: 2, hp: 9, maxHp: 9, weapon: 'fists' },
+      { ...state.units[3], x: 4, y: 2, attack: 3, hp: 7, maxHp: 7, weapon: 'knife' },
+    ],
+  };
+}
+
+const find = (state: CombatState, id: string) => state.units.find(u => u.id === id)!;
+
+describe('refugee tactical combat', () => {
+  it('starts a three-person refugee party with improvised weapons on a larger battlefield', () => {
+    const combat = createCombatState(null);
+    expect([combat.width, combat.height]).toEqual([16, 10]);
+    expect(combat.units.filter(u => u.team === 'party').map(u => u.weapon)).toEqual(['cleaver', 'fists', 'fists']);
+    expect(combat.units[0]).toMatchObject({ name: '姜垣', level: 1, xp: 0 });
+    expect(combat.terrain.length).toBeGreaterThan(10);
   });
 
-  it('does not let dead units move or guard', () => {
+  it('equips route companions later and applies earned level bonuses to actual attributes', () => {
+    const party = createPartyProgress();
+    party.traveler = { level: 3, xp: 25 };
     const initial = createCombatState(null);
-    const dead = { ...initial, units: initial.units.map((u) => u.id === 'aman' ? { ...u, hp: 0 } : u) };
-    expect(moveUnit(dead, 'aman', 2, 2)).toBe(dead);
-    expect(applyGuard(dead, 'aman')).toBe(dead);
+    const cao = createCombatState('cao', party, 'route');
+    expect(cao.units.slice(0, 3).map(u => u.weapon)).toEqual(['knife', 'spear', 'bow']);
+    const unlevelled = createCombatState('cao', createPartyProgress(), 'route');
+    expect(cao.units[0].attack).toBe(unlevelled.units[0].attack + 1);
+    expect(cao.units[0].maxHp).toBe(unlevelled.units[0].maxHp + 4);
+    expect(initial.units[0].weapon).toBe('cleaver');
+    const ambush = createCombatState('cao', party, 'ambush');
+    expect(ambush.units[0].weapon).toBe('cleaver');
   });
 
-  it('does not move through an occupied corridor or accept fractional coordinates', () => {
-    const initial = createCombatState(null);
-    const blocked = { ...initial, width: 4, height: 1, units: initial.units.slice(0, 4).map((u, x) => ({ ...u, x, y: 0 })) };
-    blocked.units[2].hp = 0;
-    expect(moveUnit(blocked, 'traveler', 2, 0)).toBe(blocked);
-    expect(reachableTiles(blocked, 'traveler')).toEqual([]);
-    expect(moveUnit(initial, 'aman', 1.5, 1)).toBe(initial);
+  it('allows movement then one attack and prevents subsequent movement or attack', () => {
+    const initial = arena();
+    const moved = moveUnit(initial, 'traveler', 3, 2);
+    expect(find(moved, 'traveler').x).toBe(3);
+    const attacked = performAttack(moved, 'traveler', 'bandit-leader');
+    expect(find(attacked, 'bandit-leader').hp).toBe(4);
+    expect(performAttack(attacked, 'traveler', 'bandit-leader')).toBe(attacked);
+    expect(moveUnit(attacked, 'traveler', 2, 2)).toBe(attacked);
+    expect(find(initial, 'traveler').x).toBe(1);
   });
 
-  it('gives Sun a longer movement range and Liu stronger guard', () => {
-    expect(moveUnit(createCombatState(null), 'aman', 3, 1).units[1].x).toBe(1);
-    expect(moveUnit(createCombatState('sun'), 'aman', 3, 1).units[1].x).toBe(3);
-    const liu = createCombatState('liu');
-    liu.units[3] = { ...liu.units[3], x: 1, y: 1 };
-    const guarded = applyGuard(liu, 'aman');
-    const enemy = { ...guarded, turn: 'enemy' as const };
-    expect(performAttack(enemy, 'bandit-leader', 'aman').units[1].hp).toBe(8);
+  it('does not let dead units act or accept fractional/out of bounds destinations', () => {
+    const state = arena();
+    state.units[0].hp = 0;
+    expect(moveUnit(state, 'traveler', 2, 2)).toBe(state);
+    expect(applyGuard(state, 'traveler')).toBe(state);
+    expect(moveUnit(state, 'aman', 1.5, 2)).toBe(state);
+    expect(moveUnit(state, 'aman', -1, 3)).toBe(state);
   });
 
-  it('resolves enemies once per round and restores party actions', () => {
-    const initial = createCombatState(null);
-    const guarded = applyGuard(initial, 'aman');
-    const next = resolveEnemyTurn(guarded);
+  it('cannot enter obstacles, water or occupied corridors', () => {
+    const state = arena();
+    state.terrain = [{ x: 2, y: 2, kind: 'rock' }, { x: 1, y: 1, kind: 'water' }];
+    expect(moveUnit(state, 'traveler', 2, 2)).toBe(state);
+    expect(moveUnit(state, 'traveler', 1, 1)).toBe(state);
+    state.width = 8;
+    state.height = 1;
+    state.terrain = [];
+    state.units = state.units.map((u, x) => ({ ...u, x, y: 0 }));
+    expect(reachableTiles(state, 'traveler')).toEqual([]);
+  });
+
+  it('finds paths around obstacles and charges extra movement for entering woods', () => {
+    const state = arena();
+    state.units = state.units.filter(u => u.id !== 'aman');
+    state.terrain = [{ x: 2, y: 2, kind: 'wall' }];
+    expect(reachableTiles(state, 'traveler')).not.toContainEqual({ x: 3, y: 2 });
+    expect(reachableTiles(state, 'traveler')).toContainEqual({ x: 2, y: 1 });
+    state.terrain = [{ x: 2, y: 2, kind: 'woods' }, { x: 3, y: 2, kind: 'woods' }];
+    expect(reachableTiles(state, 'traveler')).toContainEqual({ x: 2, y: 2 });
+    expect(reachableTiles(state, 'traveler')).not.toContainEqual({ x: 3, y: 2 });
+    state.terrain = [{ x: 2, y: 2, kind: 'bridge' }];
+    expect(reachableTiles(state, 'traveler')).toContainEqual({ x: 3, y: 2 });
+  });
+
+  it('preserves Sun movement and Liu guard bonuses', () => {
+    const state = arena();
+    expect(movementRange({ ...state, route: 'sun' }, state.units[0])).toBe(movementRange(state, state.units[0]) + 1);
+    state.route = 'liu';
+    state.units[2] = { ...state.units[2], x: 2, y: 2 };
+    const guarded = applyGuard(state, 'traveler');
+    const after = performAttack({ ...guarded, turn: 'enemy' }, 'bandit-leader', 'traveler');
+    expect(find(after, 'traveler').hp).toBe(9);
+  });
+
+  it('respects minimum/maximum range and solid line-of-sight, including corner blocks', () => {
+    const state = arena();
+    state.units[0].weapon = 'bow';
+    expect(canAttack(state, state.units[0], state.units[2])).toBe(true);
+    state.terrain = [{ x: 2, y: 2, kind: 'cart' }];
+    expect(performAttack(state, 'traveler', 'bandit-leader')).toBe(state);
+    state.terrain = [{ x: 2, y: 2, kind: 'water' }];
+    expect(canAttack(state, state.units[0], state.units[2])).toBe(true);
+    state.units[2].x = 2;
+    expect(canAttack(state, state.units[0], state.units[2])).toBe(false);
+    state.units[2] = { ...state.units[2], x: 5 };
+    expect(canAttack(state, state.units[0], state.units[2])).toBe(false);
+    state.units[2] = { ...state.units[2], x: 2, y: 3 };
+    state.terrain = [{ x: 2, y: 2, kind: 'rock' }];
+    expect(canAttack(state, state.units[0], state.units[2])).toBe(false);
+  });
+
+  it('reduces ranged damage in woods without reducing melee damage', () => {
+    const state = arena();
+    state.units[0].weapon = 'bow';
+    state.terrain = [{ x: 4, y: 2, kind: 'woods' }];
+    expect(find(performAttack(state, 'traveler', 'bandit-leader'), 'bandit-leader').hp).toBe(5);
+    state.units[0] = { ...state.units[0], x: 3, weapon: 'cleaver' };
+    expect(find(performAttack(state, 'traveler', 'bandit-leader'), 'bandit-leader').hp).toBe(4);
+  });
+
+  it('lets enemies use full movement and attack, then resets actions for the next round', () => {
+    const state = arena();
+    const next = resolveEnemyTurn(applyGuard(state, 'aman'));
+    expect(find(next, 'bandit-leader').x).toBe(2);
+    expect(find(next, 'traveler').hp).toBe(7);
     expect(next.round).toBe(2);
     expect(next.turn).toBe('party');
     expect(next.actedIds).toEqual([]);
     expect(next.movedIds).toEqual([]);
-    expect(applyGuard(next, 'aman')).not.toBe(next);
-    expect(initial.units[3].x).toBe(5);
-  });
-  it('creates a three-person party and three enemies on the grid', () => {
-    const combat = createCombatState(null);
-
-    expect(combat.units.filter((unit) => unit.team === 'party')).toHaveLength(3);
-    expect(combat.units.filter((unit) => unit.team === 'enemy')).toHaveLength(3);
-    expect(combat.width).toBe(6);
-    expect(combat.height).toBe(4);
+    expect(find(state, 'bandit-leader').x).toBe(4);
   });
 
-  it('deals attack damage only to an adjacent living target', () => {
-    const combat = createCombatState(null);
-    const adjacent = {
-      ...combat,
-      units: combat.units.map((unit) => {
-        if (unit.id === 'traveler') return { ...unit, x: 3, y: 2 };
-        if (unit.id === 'bandit-scout-a') return { ...unit, x: 4, y: 2 };
-        return unit;
-      }),
-    };
-    const target = adjacent.units.find((unit) => unit.id === 'bandit-scout-a');
-    if (!target) throw new Error('expected a bandit scout');
-
-    const next = performAttack(adjacent, 'traveler', target.id);
-
-    expect(next.units.find((unit) => unit.id === target.id)?.hp).toBe(2);
-    expect(performAttack(adjacent, 'traveler', 'bandit-leader')).toEqual(adjacent);
+  it('does not deadlock when the closest target is inaccessible', () => {
+    const state = arena();
+    state.units[0] = { ...state.units[0], x: 6, y: 0 };
+    state.units[1] = { ...state.units[1], x: 1, y: 3 };
+    state.units[2] = { ...state.units[2], x: 4, y: 0 };
+    state.terrain = [{ x: 5, y: 0, kind: 'rock' }, { x: 6, y: 1, kind: 'rock' }, { x: 7, y: 0, kind: 'rock' }];
+    const next = resolveEnemyTurn(state);
+    const moved = find(next, 'bandit-leader');
+    expect(Math.abs(moved.x - 1) + Math.abs(moved.y - 3)).toBeLessThan(6);
   });
 
-  it('reduces incoming damage while a unit is guarding', () => {
-    const combat = createCombatState(null);
-    const adjacent = {
-      ...combat,
-      units: combat.units.map((unit) => {
-        if (unit.id === 'traveler') return { ...unit, x: 3, y: 2 };
-        if (unit.id === 'bandit-scout-a') return { ...unit, x: 4, y: 2 };
-        return unit;
-      }),
-    };
-    const guarded = applyGuard(adjacent, 'traveler');
-    const after = performAttack({ ...guarded, turn: 'enemy' }, 'bandit-scout-a', 'traveler');
-
-    expect(after.units.find((unit) => unit.id === 'traveler')?.hp).toBe(8);
+  it.each(['ambush', 'route'] as const)('keeps %s spawns legal and connected around terrain', mode => {
+    const state = createCombatState(mode === 'route' ? 'sun' : null, createPartyProgress(), mode);
+    const walkable = (x: number, y: number) => !['rock', 'cart', 'wall', 'water'].includes(terrainAt(state, x, y));
+    const positions = state.units.map(u => `${u.x},${u.y}`);
+    expect(new Set(positions).size).toBe(positions.length);
+    for (const u of state.units) {
+      expect(u.x >= 0 && u.x < 16 && u.y >= 0 && u.y < 10 && walkable(u.x, u.y)).toBe(true);
+    }
+    const seen = new Set([positions[0]]);
+    const queue = [state.units[0]];
+    for (let i = 0; i < queue.length; i++) {
+      for (const [x, y] of [[queue[i].x + 1, queue[i].y], [queue[i].x - 1, queue[i].y], [queue[i].x, queue[i].y + 1], [queue[i].x, queue[i].y - 1]]) {
+        if (x < 0 || x >= 16 || y < 0 || y >= 10 || !walkable(x, y) || seen.has(`${x},${y}`)) continue;
+        seen.add(`${x},${y}`);
+        queue.push({ ...state.units[0], x, y });
+      }
+    }
+    for (const key of positions) expect(seen.has(key)).toBe(true);
   });
 
-  it('recognizes a win after all enemy units are defeated', () => {
-    const combat = createCombatState(null);
-    const won: CombatState = {
-      ...combat,
-      units: combat.units.map((unit) =>
-        unit.team === 'enemy' ? { ...unit, hp: 0 } : unit,
-      ),
-    };
-
-    expect(isBattleOver(won)).toBe('win');
+  it('recognizes wins and losses and disallows actions after the battle', () => {
+    const state = arena();
+    state.units[2].hp = 0;
+    expect(isBattleOver(state)).toBe('win');
+    expect(moveUnit(state, 'traveler', 2, 2)).toBe(state);
+    state.units[2].hp = 7;
+    state.units[0].hp = state.units[1].hp = 0;
+    expect(isBattleOver(state)).toBe('loss');
   });
 });

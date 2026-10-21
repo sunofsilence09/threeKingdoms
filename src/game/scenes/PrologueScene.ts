@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { PROLOGUE_LINES } from '../content';
+import { addText } from '../text';
 import { getState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 
@@ -48,16 +49,16 @@ export class PrologueScene extends Phaser.Scene {
       graphics.lineBetween(0, y, 960, y);
     }
 
-    this.add.text(54, 54, '乱世行旅', {
+    addText(this, 54, 54, '乱世行旅', {
       color: '#f2e9d8',
       fontFamily: 'STKaiti, KaiTi, serif',
       fontSize: '34px',
     });
-    this.add.text(57, 96, 'A SMALL LIFE IN A LARGE WAR', {
+    addText(this, 57, 96, 'A SMALL LIFE IN A LARGE WAR', {
       color: '#aab7bd',
       fontFamily: 'Microsoft YaHei, sans-serif',
       fontSize: '11px',
-      letterSpacing: 2,
+      letterSpacing: 0,
     });
   }
 }

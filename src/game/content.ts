@@ -24,7 +24,7 @@ export interface MapNodeDefinition {
 export const PROLOGUE_LINES = [
   { speaker: '旁白', text: '第三日，风从北面吹来，带着灰烬和一场还没结束的战乱。' },
   { speaker: '阿满', text: '再往前就是临水镇。只要进了镇，我们就能找到粮食。' },
-  { speaker: '旅人', text: '那就走。先把活着这件事，交给今天。' },
+  { speaker: '姜垣', text: '那就走。先把活着这件事，交给今天。' },
 ];
 
 export const ROUTES: Record<RouteId, RouteDefinition> = {

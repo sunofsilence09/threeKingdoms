@@ -4,6 +4,7 @@ import {
   loadState,
   saveState,
   selectRoute,
+  rewardVictory,
   type GameState,
 } from './state';
 
@@ -71,6 +72,11 @@ describe('game state', () => {
       supplies: 3,
       morale: 2,
       flags: {},
+      party: {
+        traveler: { level: 1, xp: 0 },
+        aman: { level: 1, xp: 0 },
+        'chen-da': { level: 1, xp: 0 },
+      },
     });
   });
 
@@ -96,6 +102,7 @@ describe('game state', () => {
       supplies: 5,
       morale: 3,
       flags: { foundMap: true },
+      party: createInitialState().party,
     };
 
     saveState(state);
@@ -103,5 +110,32 @@ describe('game state', () => {
 
     localStorage.setItem('three-kingdoms-demo-state', '{bad json');
     expect(loadState()).toBeNull();
+  });
+
+  it('migrates old saves to level one without losing their route or resources', () => {
+    const { party: _party, ...oldSave } = selectRoute(createInitialState(), 'sun');
+    localStorage.setItem('three-kingdoms-demo-state', JSON.stringify(oldSave));
+    expect(loadState()).toEqual({ ...oldSave, party: createInitialState().party });
+  });
+
+  it('rejects corrupt growth data instead of accepting impossible levels', () => {
+    for (const traveler of [{ level: 0, xp: 0 }, { level: 11, xp: 0 }, { level: 2, xp: -1 }, { level: 1, xp: 20 }]) {
+      const state = createInitialState();
+      localStorage.setItem('three-kingdoms-demo-state', JSON.stringify({ ...state, party: { ...state.party, traveler } }));
+      expect(loadState()).toBeNull();
+    }
+  });
+
+  it('rewards everyone once per victory and keeps progress through save and route choice', () => {
+    const initial = createInitialState();
+    const rewarded = rewardVictory(initial, 'ambush');
+    expect(rewarded.party.traveler).toEqual({ level: 2, xp: 10 });
+    expect(rewarded.party.aman).toEqual({ level: 2, xp: 10 });
+    expect(rewardVictory(rewarded, 'ambush')).toBe(rewarded);
+    expect(initial.party.traveler.level).toBe(1);
+    const route = rewardVictory(selectRoute(rewarded, 'liu'), 'route');
+    expect(route.party.traveler).toEqual({ level: 3, xp: 25 });
+    saveState(route);
+    expect(loadState()).toEqual(route);
   });
 });

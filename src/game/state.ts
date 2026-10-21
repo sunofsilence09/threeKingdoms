@@ -1,3 +1,5 @@
+import { createPartyProgress, grantExperience, isPartyProgress, PARTY_IDS, type PartyProgress } from './growth';
+
 export type RouteId = 'cao' | 'sun' | 'liu';
 
 export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | 'ending';
@@ -8,6 +10,7 @@ export interface GameState {
   supplies: number;
   morale: number;
   flags: Record<string, boolean>;
+  party: PartyProgress;
 }
 
 export const STORAGE_KEY = 'three-kingdoms-demo-state';
@@ -25,6 +28,7 @@ export function createInitialState(): GameState {
     supplies: 3,
     morale: 2,
     flags: {},
+    party: createPartyProgress(),
   };
 }
 
@@ -58,7 +62,7 @@ export function loadState(): GameState | null {
       return null;
     }
 
-    return parsed;
+    return { ...parsed, party: parsed.party ?? createPartyProgress() };
   } catch {
     return null;
   }
@@ -82,6 +86,15 @@ function isGameState(value: unknown): value is GameState {
     !!candidate.flags &&
     typeof candidate.flags === 'object' &&
     !Array.isArray(candidate.flags) &&
-    Object.values(candidate.flags).every((flag) => typeof flag === 'boolean')
+    Object.values(candidate.flags).every((flag) => typeof flag === 'boolean') &&
+    (candidate.party === undefined || isPartyProgress(candidate.party))
   );
+}
+
+export function rewardVictory(state: GameState, encounter: 'ambush' | 'route'): GameState {
+  const key = `xp:${encounter}`;
+  if (state.flags[key]) return state;
+  const party = { ...state.party };
+  for (const id of PARTY_IDS) party[id] = grantExperience(party[id], encounter === 'ambush' ? 30 : 45);
+  return { ...state, party, flags: { ...state.flags, [key]: true } };
 }
