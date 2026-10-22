@@ -1,3 +1,4 @@
+import { showCharacterPanel } from '../characterPanel';
 import Phaser from 'phaser';
 import { ROUTES } from '../content';
 import { getState, resetState } from '../runtime';
@@ -24,13 +25,14 @@ export class EndingScene extends Phaser.Scene {
     const names = { traveler: '姜垣', aman: '阿满', 'chen-da': '陈达' };
     const growth = PARTY_IDS.map(id => {
       const progress = getState().party[id];
-      return `${names[id]} Lv.${progress.level} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'}`;
+      return `${names[id]} Lv.${progress.level} · 剩余技能点 ${progress.points} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'}`;
     }).join('\n');
     showPanel({
       eyebrow: `${definition.title} · Demo 结尾`,
       title: '你们暂时找到了容身之处。',
-      body: `${definition.ending}\n\n战斗胜利 · 三人各获 45 经验\n${this.rewardSummary || growth}\n\n从拳脚菜刀，到短刀、木枪与猎弓，下一段路有了些底气。\n升级：每级体力 +2，每两级攻击 +1。`,
+      body: `${definition.ending}\n\n战斗胜利 · 基础经验45，魅力加成按个人计算\n${this.rewardSummary || growth}\n\n从拳脚菜刀，到短刀、木枪与猎弓，下一段路有了些底气。\n升级：每级体力 +2，每两级攻击 +1，每级另获3点技能点。`,
       actions: [
+        { label: '分配技能点', onClick: () => showCharacterPanel() },
         {
           label: '从头再走一遍',
           onClick: () => {

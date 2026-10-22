@@ -1,4 +1,5 @@
-import { createPartyProgress, grantExperience, isPartyProgress, PARTY_IDS, type PartyProgress } from './growth';
+import { ATTRIBUTE_IDS, attributeBonuses, victoryExperience, type AttributeId } from './attributes';
+import { createPartyProgress, grantExperience, migratePartyProgress, PARTY_IDS, type PartyId, type PartyProgress } from './growth';
 
 export type RouteId = 'cao' | 'sun' | 'liu';
 
@@ -62,7 +63,7 @@ export function loadState(): GameState | null {
       return null;
     }
 
-    return { ...parsed, party: parsed.party ?? createPartyProgress() };
+    return { ...parsed, party: parsed.party === undefined ? createPartyProgress() : migratePartyProgress(parsed.party)! };
   } catch {
     return null;
   }
@@ -87,7 +88,7 @@ function isGameState(value: unknown): value is GameState {
     typeof candidate.flags === 'object' &&
     !Array.isArray(candidate.flags) &&
     Object.values(candidate.flags).every((flag) => typeof flag === 'boolean') &&
-    (candidate.party === undefined || isPartyProgress(candidate.party))
+    (candidate.party === undefined || migratePartyProgress(candidate.party) !== null)
   );
 }
 
@@ -95,6 +96,25 @@ export function rewardVictory(state: GameState, encounter: 'ambush' | 'route'): 
   const key = `xp:${encounter}`;
   if (state.flags[key]) return state;
   const party = { ...state.party };
-  for (const id of PARTY_IDS) party[id] = grantExperience(party[id], encounter === 'ambush' ? 30 : 45);
-  return { ...state, party, flags: { ...state.flags, [key]: true } };
+  for (const id of PARTY_IDS) {
+    const base = encounter === 'ambush' ? 30 : 45;
+    party[id] = grantExperience(party[id], victoryExperience(base, party[id].attributes));
+  }
+  const supplies = state.supplies + PARTY_IDS.reduce((sum, id) => sum + attributeBonuses(party[id].attributes).supplies, 0);
+  return { ...state, party, supplies, flags: { ...state.flags, [key]: true } };
+}
+
+
+export function spendSkillPoints(state: GameState, id: PartyId, allocation: Partial<Record<AttributeId, number>>): GameState {
+  if (state.phase === 'battle' || !PARTY_IDS.includes(id) || !allocation || typeof allocation !== 'object') return state;
+  const current = state.party[id];
+  const attrs = { ...current.attributes };
+  let cost = 0;
+  for (const [key, value] of Object.entries(allocation)) {
+    if (!ATTRIBUTE_IDS.includes(key as AttributeId) || !Number.isSafeInteger(value) || value! < 0 || attrs[key as AttributeId] + value! > 30) return state;
+    cost += value!;
+    attrs[key as AttributeId] += value!;
+  }
+  if (!Number.isSafeInteger(cost) || cost <= 0 || cost > current.points) return state;
+  return { ...state, party: { ...state.party, [id]: { ...current, points: current.points - cost, attributes: attrs } } };
 }

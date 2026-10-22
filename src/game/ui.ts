@@ -1,3 +1,7 @@
+import { showCharacterPanel } from './characterPanel';
+import { showCharacterDetails } from './characterDetails';
+import { getRouteLeader } from './historicalCharacters';
+import type { RouteId } from './state';
 export interface OverlayAction {
   label: string;
   onClick: () => void;
@@ -51,7 +55,7 @@ export function showPanel(options: {
   return panel;
 }
 
-export function showRouteChoice<T extends { id: string; symbol: string; title: string; tone: string; offer: string; advantage: string; colorHex: string }>(
+export function showRouteChoice<T extends { id: RouteId; symbol: string; title: string; tone: string; offer: string; advantage: string; colorHex: string }>(
   routes: T[],
   onConfirm: (route: T) => void,
 ): void {
@@ -82,11 +86,13 @@ export function showRouteChoice<T extends { id: string; symbol: string; title: s
   const cards = new Map<string, HTMLButtonElement>();
 
   for (const route of routes) {
+    const leader = getRouteLeader(route.id);
+    const item = document.createElement('div'); item.className = 'route-choice-item';
     const card = document.createElement('button');
     card.className = 'route-card';
     card.type = 'button';
     card.style.setProperty('--route-color', route.colorHex);
-    card.innerHTML = `<span class="route-symbol">${route.symbol}</span><span class="route-title">${route.title}</span><span class="route-tone">${route.tone}</span><span class="route-offer">${route.offer}</span><span class="route-advantage">${route.advantage}</span>`;
+    card.innerHTML = `<span class="route-leader"><span class="route-leader-portrait"><img src="${leader.appearance.portrait}" alt="${leader.name}头像"></span><span><span class="route-symbol">${route.symbol}</span><span class="route-leader-name">${leader.name}</span></span></span><span class="route-title">${route.title}</span><span class="route-tone">${route.tone}</span><span class="route-offer">${route.offer}</span><span class="route-advantage">${route.advantage}</span>`;
     card.addEventListener('click', () => {
       selected = route;
       for (const item of cards.values()) item.classList.remove('is-selected');
@@ -95,7 +101,10 @@ export function showRouteChoice<T extends { id: string; symbol: string; title: s
       confirm.textContent = `走 ${route.symbol} 方的路`;
     });
     cards.set(route.id, card);
-    grid.append(card);
+    const detail = document.createElement('button');
+    detail.type = 'button'; detail.className = 'route-leader-details'; detail.textContent = `查看${leader.name}详情`;
+    detail.addEventListener('click', () => showCharacterDetails(leader.id));
+    item.append(card, detail); grid.append(item);
   }
   panel.append(grid);
 
@@ -106,6 +115,14 @@ export function showRouteChoice<T extends { id: string; symbol: string; title: s
   }, 'primary');
   confirm.disabled = true;
   actions.append(confirm);
+  const growth = document.createElement('button');
+  growth.type = 'button'; growth.className = 'growth-entry'; growth.textContent = '角色成长';
+  growth.addEventListener('click', () => showCharacterPanel());
+  actions.append(growth);
+  const details = document.createElement('button');
+  details.type = 'button'; details.className = 'character-detail-open'; details.textContent = '人物详情';
+  details.addEventListener('click', () => showCharacterDetails());
+  actions.append(details);
   panel.append(actions);
   root.append(panel);
 }

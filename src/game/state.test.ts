@@ -66,7 +66,7 @@ describe('game state', () => {
   });
 
   it('starts in the refugee prologue with a small shared resource pool', () => {
-    expect(createInitialState()).toEqual({
+    expect(createInitialState()).toMatchObject({
       phase: 'prologue',
       route: null,
       supplies: 3,
@@ -129,13 +129,34 @@ describe('game state', () => {
   it('rewards everyone once per victory and keeps progress through save and route choice', () => {
     const initial = createInitialState();
     const rewarded = rewardVictory(initial, 'ambush');
-    expect(rewarded.party.traveler).toEqual({ level: 2, xp: 10 });
-    expect(rewarded.party.aman).toEqual({ level: 2, xp: 10 });
+    expect(rewarded.party.traveler).toMatchObject({ level: 2, xp: 10 });
+    expect(rewarded.party.aman).toMatchObject({ level: 2, xp: 10 });
     expect(rewardVictory(rewarded, 'ambush')).toBe(rewarded);
     expect(initial.party.traveler.level).toBe(1);
     const route = rewardVictory(selectRoute(rewarded, 'liu'), 'route');
-    expect(route.party.traveler).toEqual({ level: 3, xp: 25 });
+    expect(route.party.traveler).toMatchObject({ level: 3, xp: 25 });
     saveState(route);
     expect(loadState()).toEqual(route);
   });
+  it('backfills earned points for old level-only saves exactly once', () => {
+    const state = createInitialState();
+    const party = { traveler: { level: 3, xp: 25 }, aman: { level: 2, xp: 10 }, 'chen-da': { level: 1, xp: 0 } };
+    localStorage.setItem('three-kingdoms-demo-state', JSON.stringify({ ...state, party }));
+    const migrated = loadState()!;
+    expect(migrated.party.traveler).toMatchObject({ level: 3, xp: 25, points: 6 });
+    expect(migrated.party.aman.points).toBe(3);
+    expect(migrated.party['chen-da'].points).toBe(0);
+    saveState(migrated);
+    expect(loadState()).toEqual(migrated);
+  });
+
+  it('rejects forged or partially present training data', () => {
+    const state = createInitialState();
+    for (const patch of [{ points: 99 }, { attributes: undefined }, { points: -1 }]) {
+      const party = { ...state.party, traveler: { ...state.party.traveler, ...patch } };
+      localStorage.setItem('three-kingdoms-demo-state', JSON.stringify({ ...state, party }));
+      expect(loadState()).toBeNull();
+    }
+  });
+
 });

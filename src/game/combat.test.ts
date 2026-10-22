@@ -30,7 +30,7 @@ describe('refugee tactical combat', () => {
 
   it('equips route companions later and applies earned level bonuses to actual attributes', () => {
     const party = createPartyProgress();
-    party.traveler = { level: 3, xp: 25 };
+    party.traveler = { ...party.traveler, level: 3, xp: 25, points: 6 };
     const initial = createCombatState(null);
     const cao = createCombatState('cao', party, 'route');
     expect(cao.units.slice(0, 3).map(u => u.weapon)).toEqual(['knife', 'spear', 'bow']);

@@ -37,7 +37,7 @@ def wait_scene(page, name):
 
 
 def click_canvas(page, x, y, touch=False):
-    box = page.locator('canvas').bounding_box()
+    box = page.locator('#game-container canvas').bounding_box()
     assert box
     px = box['x'] + box['width'] * x / 960
     py = box['y'] + box['height'] * y / 540
@@ -67,7 +67,10 @@ def assert_hero(page):
       const box = panel.getBoundingClientRect();
       return [...panel.querySelectorAll('strong, span, img, meter')].every(element => {
         if (!element.getClientRects().length) return true;
-        const rect = element.getBoundingClientRect();
+        let rect = element.getBoundingClientRect();
+        // A portrait deliberately zooms its source image inside a clipped frame.
+        const frame = element.tagName === 'IMG' ? element.closest('.hero-portrait') : null;
+        if (frame && getComputedStyle(frame).overflow === 'hidden') rect = frame.getBoundingClientRect();
         return rect.left >= box.left - 1 && rect.right <= box.right + 1 &&
           rect.top >= box.top - 1 && rect.bottom <= box.bottom + 1;
       });
@@ -79,11 +82,11 @@ def assert_hero(page):
         assert page.locator('.hero-health-meter').evaluate('meter => meter.value') == hero['hp']
         weapon = {'cleaver': '菜刀', 'fists': '拳脚', 'knife': '短刀', 'spear': '木枪', 'bow': '猎弓'}[hero['weapon']]
         movement = 4 if state['route'] == 'sun' else 3
-        expect(page.locator('.hero-stats')).to_have_text(f"{weapon} · 攻 {hero['attack']} · 移 {movement}")
+        expect(page.locator('.hero-stats')).to_have_text(f"{weapon} · 攻 {hero['attack'] * (1.5 if hero.get('empowered') else 1):g} · 移 {movement}")
         expect(page.locator('.hero-level')).to_have_text(f"Lv.{hero['level']}")
         threshold = 20 + (hero['level'] - 1) * 10
         expect(page.locator('.hero-experience')).to_have_text(f"经验 {hero['xp']} / {threshold}")
-        status = '无法行动' if hero['hp'] <= 0 else '守势中' if hero['guarded'] else '已行动' if hero['id'] in state['actedIds'] else '已移动' if hero['id'] in state['movedIds'] else '待行动'
+        status = '无法行动' if hero['hp'] <= 0 else '攻击强化' if hero.get('empowered') else '守势中' if hero['guarded'] else '已行动' if hero['id'] in state['actedIds'] else '已移动' if hero['id'] in state['movedIds'] else '待行动'
         expect(page.locator('.hero-action')).to_have_text(status)
 
 
@@ -258,13 +261,13 @@ def main():
                 page.get_by_role('button', name='重试这场战斗').click()
                 wait_scene(page, 'Battle')
                 assert battle(page)['round'] == 1
-                assert all(progress == {'level': 1, 'xp': 0} for progress in page.evaluate("JSON.parse(localStorage.getItem('three-kingdoms-demo-state')).party").values())
+                assert all((progress['level'],progress['xp'],progress['points']) == (1,0,0) for progress in page.evaluate("JSON.parse(localStorage.getItem('three-kingdoms-demo-state')).party").values())
                 assert all(u['hp'] == u['maxHp'] for u in battle(page)['units'])
             win_battle(page, touch)
             expect(page.get_by_role('button', name='继续前往临水镇')).to_be_visible()
             expect(page.locator('.panel-body')).to_contain_text('升级！')
             saved = page.evaluate("JSON.parse(localStorage.getItem('three-kingdoms-demo-state'))")
-            assert all(p == {'level': 2, 'xp': 10} for p in saved['party'].values()), saved
+            assert all((p['level'],p['xp'],p['points']) == (2,10,3) for p in saved['party'].values()), saved
             page.screenshot(path=str(ARTIFACTS / f'h5-{route}-level-up.png'))
             page.get_by_role('button', name='继续前往临水镇').click()
             wait_scene(page, 'Overworld')
@@ -291,7 +294,7 @@ def main():
             win_battle(page, touch)
             wait_scene(page, 'Ending')
             saved = page.evaluate("JSON.parse(localStorage.getItem('three-kingdoms-demo-state'))")
-            assert all(p == {'level': 3, 'xp': 25} for p in saved['party'].values()), saved
+            assert all((p['level'],p['xp'],p['points']) == (3,25,6) for p in saved['party'].values()), saved
             expect(page.locator('.panel-body')).to_contain_text('Lv.2 → Lv.3')
             expect(page.locator('.panel-body')).to_contain_text('攻击 +1')
             expect(page.locator('.hero-hud')).to_have_count(0)

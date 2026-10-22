@@ -87,6 +87,7 @@ button {
   padding: 0;
   border: 1px solid #526c68;
   background: #263b3d;
+  overflow: hidden;
 }
 
 button.hero-portrait {
@@ -98,8 +99,11 @@ button.hero-portrait {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
+  object-fit: cover;
+  object-position: 50% 8%;
+  image-rendering: auto;
+  transform: scale(2.7);
+  transform-origin: 50% 9%;
 }
 
 button.hero-portrait:hover,
@@ -495,4 +499,149 @@ button.hero-portrait:disabled {
   .is-battle .hero-health-meter { height: 6px; margin: 4px 0; }
   .is-battle .hero-next-level { display: inline; }
   .is-battle .hero-allegiance { display: inline; }
+}
+
+/* Six-attribute growth uses the viewport so portrait phones retain readable controls. */
+.growth-open { pointer-events: auto; display: inline-flex; align-items: baseline; gap: 5px; border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer; white-space: nowrap; }
+.growth-hint { color: #d7b67c; font-size: 10px; text-decoration: underline; }
+.growth-open:focus-visible { outline: 2px solid #f2e9d8; outline-offset: 2px; }
+.growth-entry { border: 1px solid #718674; background: transparent; color: #d7e1cd; font: inherit; padding: 8px 16px; cursor: pointer; }
+#overlay-root:has(.training-panel) { position: fixed; inset: 0; z-index: 50; padding: 16px; background: rgb(7 15 17 / 75%); }
+.training-panel { width: min(760px, 100%); max-height: calc(100svh - 32px); padding: 24px; border-color: #81957a; background: #192624; }
+.training-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.training-header h1 { font-size: 28px; }
+.training-note { color: #acbdac; font-size: 12px; margin: 8px 0 0; }
+.training-points { color: #e2bd80; white-space: nowrap; font-size: 15px; }
+.training-tabs { display: flex; gap: 8px; margin: 18px 0; }
+.training-tabs button { flex: 1; min-height: 36px; border: 1px solid #506950; color: #bdcbb9; background: #20312d; font: inherit; cursor: pointer; }
+.training-tabs button[aria-pressed="true"] { border-color: #dab980; color: #f1dbb4; background: #364638; }
+.training-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.training-row { display: grid; grid-template-columns: minmax(0, 1fr) 30px 66px 30px; align-items: center; gap: 4px; padding: 10px; background: #22362e; border: 1px solid #455c47; }
+.training-row strong { display: block; font-size: 16px; color: #e8ddc2; }
+.training-row small { display: block; color: #a9bda5; font-size: 10px; margin-top: 3px; }
+.training-row button { width: 30px; height: 32px; border: 1px solid #98ab83; background: #3d5540; color: #efe0bc; font: inherit; font-size: 20px; cursor: pointer; }
+.training-row button:disabled { opacity: 0.3; cursor: default; }
+.attribute-value { text-align: center; color: #efce95; font-size: 13px; white-space: nowrap; }
+.training-ultimate { font-size: 12px; color: #d7b67c; line-height: 1.6; margin: 14px 0; }
+.ability-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 10px 0; border-top: 1px solid #4a6452; }
+.ability-preview small { display: block; color: #a6b8aa; font-size: 11px; }
+.ability-preview strong { display: block; margin-top: 4px; color: #e3d8bb; font-size: 15px; }
+.training-feedback { color: #e9a48c; font-size: 12px; margin: 0; }
+.training-panel .panel-actions { margin-top: 12px; }
+.training-confirm:disabled { opacity: 0.35; cursor: default; }
+.character-detail-open { pointer-events: auto; border: 1px solid #667861; padding: 2px 7px; color: #e0c390; background: #28382e; font-size: 11px; cursor: pointer; white-space: nowrap; }
+.route-choice-item { display: flex; flex-direction: column; min-width: 0; }
+.route-choice-item .route-card { flex: 1; width: 100%; }
+.route-leader { display: flex; align-items: center; gap: 12px; }
+.route-leader-portrait { display: block; width: 48px; height: 58px; overflow: hidden; background: #182622; border: 1px solid #5d705d; }
+.route-leader-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transform: scale(2.8); transform-origin: 50% 0; }
+.route-leader-name { display: block; margin-top: 5px; font-size: 12px; color: #e3d8bc; }
+.route-leader-details { width: 100%; min-height: 32px; margin-top: 6px; border: 1px solid #52644f; color: #d4c194; background: #23342b; font-size: 12px; cursor: pointer; }
+.route-leader-details:focus-visible { outline: 2px solid #dbc597; outline-offset: 2px; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .route-leader { gap: 7px; }
+  .route-leader-portrait { width: 30px; height: 36px; }
+  .route-leader .route-symbol { display: inline; font-size: 22px; margin-right: 6px; }
+  .route-leader-name { display: inline; font-size: 11px; }
+  .route-leader-details { min-height: 28px; margin-top: 4px; font-size: 11px; }
+  .route-panel .panel-actions { position: sticky; bottom: -14px; z-index: 2; margin-top: 8px; padding: 8px 0 6px; background: #171e24; }
+}
+.character-categories { display: flex; gap: 18px; padding: 10px 22px 0; background: #192521; }
+.character-categories button { min-height: 32px; padding: 0 2px 8px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #9eae96; cursor: pointer; font-size: 12px; }
+.character-categories button[aria-pressed="true"] { color: #e0c28b; border-bottom-color: #ba9b64; }
+.character-details [hidden] { display: none; }
+.character-model-slot { display: flex; justify-content: center; margin-top: 10px; width: 100%; border-top: 1px solid #374a3d; }
+.character-model-preview { display: block; width: 96px; height: 80px; }
+.character-art { position: relative; }
+.character-details.is-npc .character-stats { grid-template-columns: 1fr; }
+.character-details.is-npc .character-stats > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.character-details.is-npc .character-stats dt { margin: 0; }
+.character-details.is-npc .character-stats dd { white-space: normal; text-align: right; line-height: 1.7; }
+.character-detail-open:hover { background: #3b4b38; }
+.character-detail-open:focus-visible { outline: 2px solid #f1ddb9; outline-offset: 2px; }
+@media (max-width: 900px) and (orientation: landscape) {
+  .is-battle .character-detail-open { font-size: 9px; line-height: 1.1; padding: 1px 3px; }
+}
+.training-detail-open { display: block; margin: -6px 0 12px auto; min-height: 30px; }
+#overlay-root:has(.character-details) { position: fixed; inset: 0; z-index: 60; padding: 20px; background: rgb(8 14 16 / 88%); }
+.character-details { width: min(1050px, 100%); max-height: calc(100svh - 40px); padding: 0; background: #1c2927; border-color: #879076; overscroll-behavior: contain; }
+.character-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 12px 22px; border-bottom: 1px solid #52604d; color: #b9bd9f; background: #202d29; font-size: 12px; letter-spacing: 2px; }
+.character-header-divider { margin: 0 12px; color: #826f4f; }
+.character-close { border: 1px solid #71816b; padding: 8px 12px; background: #2d3b31; color: #e0d8be; cursor: pointer; }
+.character-close span { font-size: 16px; margin-left: 12px; }
+.character-details button:focus-visible { outline: 2px solid #e2c389; outline-offset: -3px; }
+.character-tabs { display: flex; gap: 6px; padding: 12px 22px; overflow-x: auto; border-bottom: 1px solid #465543; background: #192521; }
+.character-tabs button { flex: 0 0 auto; min-height: 34px; padding: 5px 14px; border: 1px solid #53664f; color: #b8c5b0; background: transparent; cursor: pointer; }
+.character-tabs button[aria-pressed="true"] { border-color: #c3a56c; color: #f0d3a0; background: #3a4430; }
+.character-tabs button.is-enemy { border-bottom-color: #a76b5b; }
+.character-layout { display: grid; grid-template-columns: minmax(0, 44%) minmax(0, 1fr); }
+.character-art { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 18px 24px 12px; background: #131f1d; border-right: 1px solid #475842; }
+.character-art img { display: block; width: 100%; height: min(62svh, 590px); min-height: 320px; object-fit: contain; }
+.character-art figcaption { padding-top: 10px; font-size: 11px; color: #929e89; letter-spacing: 1px; }
+.character-info { padding: 28px 30px 24px; }
+.character-identity { margin: 0 0 10px; color: #b5ad86; font-size: 12px; letter-spacing: 2px; }
+.character-name { display: flex; align-items: baseline; gap: 16px; }
+.character-details h1 { font-size: 44px; letter-spacing: 4px; }
+.character-level { color: #d9bc7c; font-size: 14px; }
+.character-bio { color: #b9c3b4; font-size: 13px; line-height: 1.9; margin: 16px 0 12px; }
+.character-battle-status { margin: 8px 0 18px; color: #d8b87d; font-size: 11px; line-height: 1.6; }
+.character-stats { margin: 0; padding: 16px 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 10px; border-top: 1px solid #57644e; border-bottom: 1px solid #57644e; }
+.character-stats dt { margin-bottom: 7px; color: #9dab96; font-size: 11px; }
+.character-stats dd { margin: 0; color: #e6dfc7; font-size: 14px; white-space: nowrap; }
+.character-attributes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 18px 0; color: #c2c6ac; font-size: 12px; }
+.character-ultimate { padding: 14px 16px; background: #2c382b; border-left: 2px solid #b39b60; }
+.character-ultimate h2 { margin: 0 0 8px; font: 600 19px 'STKaiti', 'KaiTi', serif; color: #e0c18a; }
+.character-ultimate p { margin: 0; font-size: 12px; line-height: 1.8; color: #b9c1ac; }
+.character-equipment-note { margin: 16px 0 0; color: #8e9b88; font-size: 11px; line-height: 1.7; }
+@media (max-width: 600px) and (orientation: portrait) {
+  #overlay-root:has(.character-details) { padding: 10px; }
+  .character-details { max-height: calc(100svh - 20px); }
+  .character-header { padding: 10px 14px; }
+  .character-tabs { padding: 10px 14px; }
+  .character-layout { grid-template-columns: 1fr; }
+  .character-art { border-right: 0; border-bottom: 1px solid #475842; padding: 18px 14px 12px; }
+  .character-art img { height: 460px; max-height: 58svh; min-height: 280px; }
+  .character-info { padding: 24px 20px; }
+  .character-details h1 { font-size: 38px; }
+  .character-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 8px; }
+  .character-stats dd { font-size: 12px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #overlay-root:has(.character-details) { padding: 10px 18px; }
+  .character-details { max-height: calc(100svh - 20px); }
+  .character-header { padding: 6px 16px; }
+  .character-close { padding: 5px 10px; }
+  .character-tabs { padding: 7px 16px; }
+  .character-tabs button { min-height: 28px; font-size: 12px; }
+  .character-art { position: sticky; top: 48px; align-self: start; }
+  .character-art img { height: 210px; min-height: 200px; }
+  .character-layout { grid-template-columns: minmax(0, 34%) minmax(0, 1fr); }
+  .character-info { padding: 20px; }
+  .character-details h1 { font-size: 32px; }
+}
+@media (max-width: 550px) {
+  .training-panel { padding: 16px; }
+  .training-header h1 { font-size: 24px; }
+  .training-header { align-items: start; }
+  .training-points { font-size: 12px; }
+  .training-note { font-size: 11px; }
+  .training-grid { grid-template-columns: 1fr; gap: 6px; }
+  .training-row { padding: 7px 10px; }
+  .training-row small { display: inline; margin-left: 8px; }
+  .training-row strong { display: inline; font-size: 15px; }
+}
+@media (max-height: 500px) {
+  .training-panel { padding: 12px 18px; }
+  .training-header h1 { font-size: 22px; }
+  .training-note { margin-top: 4px; }
+  .training-tabs { margin: 8px 0; }
+  .training-tabs button { min-height: 28px; font-size: 12px; }
+  .training-row { padding: 5px 8px; }
+  .training-row button { height: 28px; }
+  .training-row strong { font-size: 14px; }
+  .training-ultimate { margin: 8px 0; }
+  .ability-preview { gap: 5px; padding: 5px 0; }
+  .ability-preview strong { margin-top: 0; font-size: 13px; }
+  .training-panel .panel-actions { margin-top: 6px; }
+  .training-panel .panel-button { min-height: 32px; font-size: 13px; }
 }

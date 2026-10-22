@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { canAttack, reachableTiles, terrainAt, WEAPONS, type CombatState, type CombatUnit } from './combat';
 import { TERRAIN, type TerrainKind } from './battlefield';
 import { addText } from './text';
+import { drawUnitModel } from './unitModel';
 
 export const BATTLE_VIEW = { x: 24, y: 118, width: 630, height: 360 };
 const BASE_CELL = 48;
@@ -14,6 +15,8 @@ export class BattleBoard {
   private state!: CombatState;
   private drag: { id: number; x: number; y: number; ox: number; oy: number; moved: boolean } | null = null;
   private maskGraphic: Phaser.GameObjects.Graphics;
+  private previousUnits = new Map<string, { x: number; y: number; hp: number }>();
+  private previousEvent: CombatState['lastEvent'];
 
   constructor(private scene: Phaser.Scene, onTile: (x: number, y: number) => void) {
     this.layer = scene.add.container().setDepth(10);
@@ -85,6 +88,7 @@ export class BattleBoard {
   }
   render(state: CombatState): void {
     this.state = state;
+    for (const child of this.layer.list) this.scene.tweens.killTweensOf(child);
     this.layer.removeAll(true);
     const selected = state.units.find(u => u.id === state.selectedId);
     const reachable = new Set((selected ? reachableTiles(state, selected.id) : []).map(t => `${t.x},${t.y}`));
@@ -107,17 +111,38 @@ export class BattleBoard {
       const x = (unit.x + 0.5) * BASE_CELL, y = (unit.y + 0.5) * BASE_CELL;
       const acted = state.actedIds.includes(unit.id);
       const attackable = selected && canAttack(state, selected, unit) && !state.actedIds.includes(selected.id);
-      const color = unit.team === 'party' ? 0xd4a361 : 0xba7770;
-      const shape = this.scene.add.rectangle(x, y - 1, 38, 34, color, acted ? 0.4 : 1);
-      shape.setStrokeStyle(unit.id === state.selectedId || attackable ? 3 : 1, attackable ? 0xffb2a2 : unit.id === state.selectedId ? 0xffedc3 : 0x1a2227);
+      const color = unit.team === 'party' ? 0x8fae95 : 0xba7770;
+      const shape = this.scene.add.ellipse(x, y + 12, 39, 15, color, acted ? 0.15 : 0.35);
+      shape.setStrokeStyle(unit.id === state.selectedId || attackable ? 3 : 1, attackable ? 0xffb2a2 : unit.id === state.selectedId ? 0xffedc3 : color);
       this.layer.add(shape);
+      const model = drawUnitModel(this.scene, unit, x, y - 1, acted);
+      this.layer.add(model);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const previous = this.previousUnits.get(unit.id);
+        const event = state.lastEvent !== this.previousEvent ? state.lastEvent : undefined;
+        if (previous && (previous.x !== unit.x || previous.y !== unit.y)) {
+          model.setPosition(x + (previous.x - unit.x) * BASE_CELL, y - 1 + (previous.y - unit.y) * BASE_CELL);
+          this.scene.tweens.add({ targets: model, x, y: y - 1, duration: unit.id === 'aman' ? 130 : 210, ease: 'Sine.easeOut' });
+        } else if (event?.actorId === unit.id && (event.kind === 'attack' || event.kind === 'dodge')) {
+          const target = state.units.find(u => u.id === event.targetId);
+          const dx = target ? Math.sign(target.x - unit.x) * 7 : 0;
+          const dy = target ? Math.sign(target.y - unit.y) * 5 : -4;
+          this.scene.tweens.add({ targets: model, x: x + dx, y: y - 1 + dy, duration: unit.weapon === 'bow' ? 130 : 90, yoyo: true });
+        } else if (event?.targetId === unit.id && event.kind === 'dodge') {
+          this.scene.tweens.add({ targets: model, x: x + 6, duration: 80, yoyo: true, repeat: 1 });
+        } else if (event?.actorId === unit.id && event.kind === 'ultimate') {
+          this.scene.tweens.add({ targets: model, scaleX: 1.16, scaleY: 1.16, duration: 160, yoyo: true });
+        }
+      }
       const name = unit.id === 'traveler' ? '姜' : unit.id === 'aman' ? '满' : unit.id === 'chen-da' ? '达' : unit.id === 'bandit-leader' ? '首' : '匪';
-      this.layer.add(addText(this.scene, x, y - 7, `${name}·${WEAPONS[unit.weapon].mark}`, { color: '#171e24', fontSize: '13px', fontStyle: 'bold' }).setOrigin(0.5));
-      this.layer.add(addText(this.scene, x, y + 8, `${unit.hp}/${unit.maxHp}`, { color: '#171e24', fontSize: '10px', fontStyle: 'bold' }).setOrigin(0.5));
+      this.layer.add(addText(this.scene, x, y + 25, `${name}·${WEAPONS[unit.weapon].mark} ${unit.hp}/${unit.maxHp}`, { color: '#e3e7d5', fontSize: '8px', backgroundColor: '#142423' }).setOrigin(0.5));
       this.layer.add(this.scene.add.rectangle(x, y + 20, 38, 3, 0x142423));
       this.layer.add(this.scene.add.rectangle(x - 19, y + 20, 38 * unit.hp / unit.maxHp, 3, 0x9dc5a2).setOrigin(0, 0.5));
+      if (unit.empowered) this.layer.add(this.scene.add.triangle(x - 16, y - 17, 0, 8, 4, 0, 8, 8, 0xffd487));
       if (unit.guarded) this.layer.add(this.scene.add.circle(x + 16, y - 17, 4, 0xd5e7dd));
     }
+    this.previousUnits = new Map(state.units.map(u => [u.id, { x: u.x, y: u.y, hp: u.hp }]));
+    this.previousEvent = state.lastEvent;
     this.applyTransform();
   }
   private drawTerrain(g: Phaser.GameObjects.Graphics, kind: TerrainKind, x: number, y: number): void {

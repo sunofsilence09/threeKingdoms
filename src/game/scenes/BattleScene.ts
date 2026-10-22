@@ -1,6 +1,9 @@
+import { showCharacterPanel } from '../characterPanel';
+import { showCharacterDetails } from '../characterDetails';
+import { victoryExperience } from '../attributes';
 import Phaser from 'phaser';
 import {
-  applyGuard, createCombatState, isBattleOver, movementRange, moveUnit,
+  activateUltimate, attackPower, ultimateAvailability, ULTIMATES, applyGuard, createCombatState, isBattleOver, movementRange, moveUnit,
   performAttack, resolveEnemyTurn, terrainAt, WEAPONS, type CombatState,
 } from '../combat';
 import { BattleBoard, BATTLE_VIEW } from '../battleBoard';
@@ -23,6 +26,8 @@ export class BattleScene extends Phaser.Scene {
   private message!: Phaser.GameObjects.Text;
   private roundLabel!: Phaser.GameObjects.Text;
   private finished = false;
+  private ultimateLabel!: Phaser.GameObjects.Text;
+  private ultimateButton!: Phaser.GameObjects.Rectangle;
   private heroHud!: ReturnType<typeof createHeroHud>;
 
   constructor() { super('Battle'); }
@@ -77,6 +82,10 @@ export class BattleScene extends Phaser.Scene {
       const unit = this.combat.units.find(u => u.id === this.combat.selectedId) ?? this.combat.units.find(u => u.team === 'party' && u.hp > 0);
       if (unit) { this.board.zoom(true, unit); this.board.focus(unit); }
     });
+    this.button(804, 98, 240, 28, '敌方详情', () => showCharacterDetails('bandit-leader', this.combat));
+    this.ultimateButton = this.add.rectangle(804, 444, 240, 20, 0x6b4937).setDepth(25).setStrokeStyle(1, 0xc59a65).setInteractive({ useHandCursor: true });
+    this.ultimateButton.on('pointerdown', () => this.useUltimate());
+    this.ultimateLabel = addText(this, 804, 444, '绝招 · 先选择队员', { color: '#f0d6a7', fontSize: '11px' }).setOrigin(0.5).setDepth(26);
     this.button(741, 480, 112, 48, '守势', () => this.guardSelected());
     this.button(870, 480, 112, 48, '结束回合', () => this.endPlayerTurn(), true);
     addText(this, 684, 324, '同行队员 · 点击切换', { color: '#c99c5a', fontSize: '12px' });
@@ -84,19 +93,28 @@ export class BattleScene extends Phaser.Scene {
   private renderBoard(): void {
     this.heroHud.update(this.combat);
     this.board.render(this.combat);
+    const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
+    const availability = selected ? ultimateAvailability(this.combat, selected) : null;
+    this.ultimateLabel.setText(selected ? `${ULTIMATES[selected.ultimate].name} · ${availability!.reason}` : '绝招 · 先选择队员');
+    this.ultimateButton.setAlpha(availability?.available ? 1 : 0.45);
     this.roster.removeAll(true);
     const remaining = this.combat.units.filter(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id)).length;
     this.roundLabel.setText(`第 ${this.combat.round} 回合 · 待行动 ${remaining}`);
     this.combat.units.filter(u => u.team === 'party').forEach((unit, index) => {
-      const y = 358 + index * 32;
+      const y = 354 + index * 32;
       const selected = this.combat.selectedId === unit.id;
-      const shape = this.add.rectangle(804, y, 240, 28, selected ? 0x3b5141 : 0x253432);
+      const shape = this.add.rectangle(784, y, 200, 28, selected ? 0x3b5141 : 0x253432);
       shape.setStrokeStyle(1, selected ? 0xd8c199 : 0x40554a).setInteractive({ useHandCursor: true });
       shape.on('pointerdown', () => this.selectUnit(unit.id));
       this.roster.add(shape);
-      const status = unit.hp <= 0 ? '倒地' : this.combat.actedIds.includes(unit.id) ? '已行动' : '待行动';
-      this.roster.add(addText(this, 688, y, `${unit.name} Lv.${unit.level} · ${WEAPONS[unit.weapon].name}`, { color: unit.hp > 0 ? '#e2d9bd' : '#918c81', fontSize: '12px' }).setOrigin(0, 0.5));
-      this.roster.add(addText(this, 920, y, status, { color: '#9eb49e', fontSize: '10px' }).setOrigin(1, 0.5));
+      const status = unit.hp <= 0 ? '倒地' : this.combat.actedIds.includes(unit.id) ? '已行动' : unit.empowered ? '强化中' : '待行动';
+      this.roster.add(addText(this, 688, y, `${unit.name} Lv.${unit.level} · ${WEAPONS[unit.weapon].name}`, { color: unit.hp > 0 ? '#e2d9bd' : '#918c81', fontSize: '11px' }).setOrigin(0, 0.5));
+      this.roster.add(addText(this, 880, y, status, { color: '#9eb49e', fontSize: '9px' }).setOrigin(1, 0.5));
+      const detail = this.add.rectangle(908, y, 36, 28, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
+      detail.setName(`detail:${unit.id}`);
+      detail.on('pointerdown', () => showCharacterDetails(unit.id, this.combat));
+      this.roster.add(detail);
+      this.roster.add(addText(this, 908, y, '详情', { color: '#e5d4ae', fontSize: '11px' }).setOrigin(0.5));
     });
   }
   private selectUnit(id: string): void {
@@ -106,8 +124,8 @@ export class BattleScene extends Phaser.Scene {
     if (this.combat.actedIds.includes(id)) { this.message.setText(`${unit.name} 本回合已行动。`); return; }
     this.combat = { ...this.combat, selectedId: id };
     const weapon = WEAPONS[unit.weapon];
-    const threshold = experienceToNextLevel(unit.level);
-    this.message.setText(`${unit.name} Lv.${unit.level} · 流民 · ${weapon.name}\n体力 ${unit.hp}/${unit.maxHp} · 攻 ${unit.attack} · 移 ${movementRange(this.combat, unit)} · 距 ${weapon.min}–${weapon.max}\n经验 ${unit.xp}/${threshold || '满'} · ${this.combat.movedIds.includes(id) ? '已移动，仍可攻击或守势' : '每回合一次移动、一次攻击或守势'}`);
+        const availability = ultimateAvailability(this.combat, unit);
+    this.message.setText(`${unit.name} Lv.${unit.level} · ${weapon.name}\n攻 ${attackPower(unit)} · 防 ${unit.defense} · 闪 ${Math.round(unit.dodgeRate * 100)}% · 移 ${movementRange(this.combat, unit)}\n体力 ${unit.hp}/${unit.maxHp} · 射程 ${weapon.min}–${weapon.max} · ${availability.available ? '绝招可用' : availability.reason}`);
     this.board.focus(unit);
     this.renderBoard();
   }
@@ -125,7 +143,7 @@ export class BattleScene extends Phaser.Scene {
       const next = performAttack(this.combat, selected.id, target.id);
       if (next === this.combat) { this.message.setText('目标不在有效射程或被障碍挡住。\n猎弓不能贴身射击，试着换个位置。'); return; }
       this.combat = next;
-      this.message.setText(`${selected.name} 攻击${target.name}，造成 ${target.hp - next.units.find(u => u.id === target.id)!.hp} 点伤害。`);
+      this.message.setText(next.lastEvent?.kind === 'dodge' ? `${target.name} 闪避了${selected.name}的攻击！\n本次攻击机会已消耗。` : `${selected.name} 攻击${target.name}，造成 ${next.lastEvent?.damage ?? 0} 点伤害。`);
       this.finishPlayerAction();
       return;
     }
@@ -133,6 +151,17 @@ export class BattleScene extends Phaser.Scene {
     if (next === this.combat) { this.message.setText(`${terrain.name}：${terrain.description}\n这一步走不过去，试试带绿点的格子。`); return; }
     this.combat = { ...next, selectedId: selected.id };
     this.message.setText(`${selected.name} 已移动到${terrain.name}。\n仍可攻击或守势。${terrainAt(next, x, y) === 'woods' ? '\n林下掩护：受到远程伤害减少 1。' : ''}`);
+    this.renderBoard();
+  }
+  private useUltimate(): void {
+    if (this.finished) return;
+    const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
+    if (!selected) { this.message.setText('先选择一名队员，再发动绝招。'); return; }
+    const next = activateUltimate(this.combat, selected.id);
+    if (next === this.combat) { this.message.setText(`${ULTIMATES[selected.ultimate].name}：${ultimateAvailability(this.combat, selected).reason}。\n${ULTIMATES[selected.ultimate].description}`); return; }
+    const hp = next.units.find(u => u.id === selected.id)!.hp;
+    this.combat = next;
+    this.message.setText(`${selected.name}发动${ULTIMATES[selected.ultimate].name}，体力 ${hp - selected.hp >= 0 ? '+' : ''}${hp - selected.hp}。\n下一击攻击 +50%，仍可行动。\n每场一次，本回合结束失效。`);
     this.renderBoard();
   }
   private guardSelected(): void {
@@ -156,7 +185,11 @@ export class BattleScene extends Phaser.Scene {
   }
   private enemyTurn(): void {
     this.combat = resolveEnemyTurn(this.combat);
-    this.message.setText(`敌军已绕行并行动。\n第 ${this.combat.round} 回合，队伍重新就位。`);
+    const names = (id: string) => this.combat.units.find(u => u.id === id)?.name ?? '';
+    const events = this.combat.turnEvents ?? [];
+    const used = events.filter(e => e.kind === 'ultimate').map(e => names(e.actorId));
+    const dodged = events.filter(e => e.kind === 'dodge').map(e => names(e.targetId!));
+    this.message.setText(`${used.length ? `${used.join('、')}发动拼命。` : '敌军行动完毕。'}\n${dodged.length ? `${[...new Set(dodged)].join('、')}闪避了攻击！\n` : ''}第 ${this.combat.round} 回合，队伍重新就位。`);
     this.renderBoard();
     const result = isBattleOver(this.combat);
     if (result !== 'ongoing') this.finishBattle(result);
@@ -177,14 +210,15 @@ export class BattleScene extends Phaser.Scene {
     const summary = PARTY_IDS.map(id => {
       const before = state.party[id], after = rewarded.party[id];
       const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
-      return `${names[id]}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''} · 经验 ${after.xp}/${experienceToNextLevel(after.level) || '满'}`;
+      const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, before.attributes);
+      return `${names[id]}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）`;
     }).join('\n');
     if (this.mode === 'ambush') {
-      setState({ ...rewarded, phase: 'overworld', supplies: Math.max(0, state.supplies - 1), flags: { ...rewarded.flags, ambushWon: true } });
-      showPanel({ eyebrow: '旧驿道 · 战斗胜利', title: '路口让开了，你们也更坚韧了。', body: `三人各获 30 经验。\n${summary}\n\n菜刀和拳脚撑过了这段路。去临水镇寻找庇护与趁手的兵器。`, actions: [{ label: '继续前往临水镇', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
+      setState({ ...rewarded, phase: 'overworld', supplies: Math.max(0, rewarded.supplies - 1), flags: { ...rewarded.flags, ambushWon: true } });
+      showPanel({ eyebrow: '旧驿道 · 战斗胜利', title: '路口让开了，你们也更坚韧了。', body: `基础经验 30，魅力可提供额外经验。\n${summary}${rewarded.supplies > state.supplies ? `\n政略带回额外补给 +${rewarded.supplies - state.supplies}` : ''}\n\n菜刀和拳脚撑过了这段路。去临水镇寻找庇护与趁手的兵器。`, actions: [{ label: '分配技能点', onClick: () => showCharacterPanel() }, { label: '继续前往临水镇', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
       return;
     }
     setState({ ...rewarded, phase: 'ending' });
-    this.scene.start('Ending', { rewardSummary: summary });
+    this.scene.start('Ending', { rewardSummary: summary + (rewarded.supplies > state.supplies ? `\n政略带回额外补给 +${rewarded.supplies - state.supplies}` : '') });
   }
 }
