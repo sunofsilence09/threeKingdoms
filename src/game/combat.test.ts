@@ -1,9 +1,94 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceTurn, applyGuard, canAttack, createCombatState, isBattleOver, moveUnit,
-  reachableTiles, resolveEnemyTurn, performAttack, movementRange, terrainAt, type CombatState,
+  reachableTiles, resolveEnemyTurn, performAttack, movementRange, terrainAt, WEAPONS, makePartyUnit, actionOrder, type CombatState,
 } from './combat';
-import { createPartyProgress } from './growth';
+import { createPartyProgress, createProgress } from './growth';
+import { getCharacterAppearance, getUnitAppearance, getUnitModel } from './characters';
+import { RECRUIT_PROFILES } from './recruitmentCatalog';
+
+describe('deployed recruitment combat', () => {
+  const deployed = ['traveler', 'aman', 'chen-da', 'lu-bu', 'cai-yan'];
+  const roster = () => ({ ...createPartyProgress(), 'lu-bu': createProgress(2), 'cai-yan': createProgress(), 'guan-yu': createProgress(4), 'bandit-leader': createProgress() });
+
+  it('creates the actual five deployed members and leaves the reserve out', () => {
+    const state = createCombatState(null, roster(), 'ambush', deployed);
+    expect(state.units.filter(u => u.team === 'party').map(u => u.id)).toEqual(deployed);
+    expect(state.units.some(u => u.id === 'guan-yu')).toBe(false);
+    expect(state.units.find(u => u.id === 'lu-bu')).toMatchObject({ name: '吕布', speed: 20, weapon: 'halberd', level: 2 });
+    expect(state.units.find(u => u.id === 'cai-yan')).toMatchObject({ name: '蔡琰', speed: 10, weapon: 'scroll' });
+  });
+
+  it.each(['ambush', 'route'] as const)('scales %s enemies and preserves legal unique reachable spawns for one through five allies', mode => {
+    for (let count = 1; count <= 5; count++) {
+      const state = createCombatState('sun', roster(), mode, deployed.slice(0, count));
+      expect(state.units.filter(u => u.team === 'party')).toHaveLength(count);
+      expect(state.units.filter(u => u.team === 'enemy')).toHaveLength(Math.max(3, count));
+      expect(new Set(state.units.map(u => u.id)).size).toBe(state.units.length);
+      expect(new Set(state.units.map(u => `${u.x},${u.y}`)).size).toBe(state.units.length);
+      for (const u of state.units) {
+        expect(u.x >= 0 && u.x < state.width && u.y >= 0 && u.y < state.height).toBe(true);
+        expect(['water', 'rock', 'cart', 'wall']).not.toContain(terrainAt(state, u.x, u.y));
+      }
+      const reached = new Set([`${state.units[0].x},${state.units[0].y}`]);
+      const queue = [{ x: state.units[0].x, y: state.units[0].y }];
+      for (let i = 0; i < queue.length; i++) {
+        for (const [x, y] of [[queue[i].x + 1, queue[i].y], [queue[i].x - 1, queue[i].y], [queue[i].x, queue[i].y + 1], [queue[i].x, queue[i].y - 1]]) {
+          if (x < 0 || x >= state.width || y < 0 || y >= state.height || reached.has(`${x},${y}`) || ['water', 'rock', 'cart', 'wall'].includes(terrainAt(state, x, y))) continue;
+          reached.add(`${x},${y}`);
+          queue.push({ x, y });
+        }
+      }
+      for (const u of state.units) expect(reached.has(`${u.x},${u.y}`)).toBe(true);
+      const win = { ...state, units: state.units.map(u => ({ ...u, hp: u.team === 'enemy' ? 0 : u.hp })) };
+      const loss = { ...state, units: state.units.map(u => ({ ...u, hp: u.team === 'party' ? 0 : u.hp })) };
+      expect(isBattleOver(win)).toBe('win');
+      expect(isBattleOver(loss)).toBe('loss');
+    }
+  });
+
+  it('gives the enemy an instance ID when its recruited identity is deployed', () => {
+    const state = createCombatState(null, roster(), 'ambush', ['traveler', 'bandit-leader']);
+    expect(state.units.find(u => u.id === 'bandit-leader')?.team).toBe('party');
+    expect(state.units.find(u => u.id === 'enemy:bandit-leader')?.team).toBe('enemy');
+    expect(new Set(state.units.map(u => u.id)).size).toBe(state.units.length);
+    expect(getUnitAppearance(state.units.find(u => u.id === 'enemy:bandit-leader')!)).toEqual(getCharacterAppearance('bandit-leader'));
+  });
+
+  it('supports long weapons and literary abilities with their own combat ranges', () => {
+    expect(WEAPONS).toMatchObject({ halberd: { min: 1, max: 2 }, scroll: { min: 1, max: 3 }, fan: { min: 1, max: 2 } });
+    const state = createCombatState(null, roster(), 'ambush', ['traveler', 'cai-yan']);
+    const scholar = state.units.find(u => u.id === 'cai-yan')!;
+    const enemy = state.units.find(u => u.team === 'enemy')!;
+    expect(canAttack({ ...state, terrain: [] }, { ...scholar, x: 1, y: 1 }, { ...enemy, x: 4, y: 1 })).toBe(true);
+  });
+
+  it('previews every catalog member with the same earned stats used in battle', () => {
+    expect(RECRUIT_PROFILES.length).toBe(31);
+    for (const profile of RECRUIT_PROFILES) {
+      const progress = createProgress(3, 5);
+      const preview = makePartyUnit(profile.id, progress, 'liu', 'route');
+      const party = { ...createPartyProgress(), [profile.id]: progress };
+      const deployed = profile.id === 'traveler' ? ['traveler'] : ['traveler', profile.id];
+      const actual = createCombatState('liu', party, 'route', deployed).units.find(u => u.id === profile.id)!;
+      expect({ ...actual, x: 0, y: 0 }).toEqual(preview);
+      expect(getUnitModel(actual).weapon).toBe(actual.weapon);
+      expect(getUnitAppearance(actual).portrait).toBeTruthy();
+      expect(WEAPONS[actual.weapon]).toBeDefined();
+      expect(preview.attack).toBeLessThanOrEqual(5);
+      expect(preview.speed).toBe(profile.speed);
+    }
+    const state = createCombatState(null, roster(), 'ambush', deployed);
+    expect(actionOrder(state)[0].id).toBe('lu-bu');
+  });
+
+  it('rejects unknown, duplicate, unowned, empty and excessive deployments', () => {
+    for (const ids of [[], ['traveler', 'traveler'], ['traveler', 'unknown'], ['traveler', 'sun-ce'], [...deployed, 'guan-yu']]) {
+      expect(() => createCombatState(null, roster(), 'ambush', ids)).toThrow();
+    }
+    expect(() => makePartyUnit('unknown', createProgress(), null, 'ambush')).toThrow();
+  });
+});
 
 function arena(): CombatState {
   const state = createCombatState(null);

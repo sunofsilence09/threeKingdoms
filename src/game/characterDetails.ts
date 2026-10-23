@@ -1,8 +1,9 @@
 import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
 import { getUnitAppearance } from './characters';
-import { attackPower, createCombatState, movementRange, ULTIMATES, WEAPONS, type CombatState } from './combat';
-import { experienceToNextLevel, PARTY_IDS, type PartyId } from './growth';
+import { attackPower, createCombatState, makePartyUnit, movementRange, ULTIMATES, WEAPONS, type CombatState } from './combat';
+import { experienceToNextLevel } from './growth';
+import { recruitProfile } from './recruitmentCatalog';
 import { getState } from './runtime';
 import { HISTORICAL_CHARACTERS, getHistoricalCharacter } from './historicalCharacters';
 import { HERO_STAGES, HERO_WEAPONS, getHeroStage } from './heroVisuals';
@@ -14,11 +15,11 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   const root = document.querySelector<HTMLElement>('#overlay-root');
   if (!root || root.querySelector('.character-details')) return;
   const state = getState();
-  const encounter = combat ?? createCombatState(state.route, state.party);
-  const units = encounter.units.filter(u => combat || u.team === 'party');
+  const encounter = combat ?? createCombatState(state.route, state.party, state.route ? 'route' : 'ambush', state.deployed);
+  const units = combat ? encounter.units : Object.entries(state.party).map(([key, progress]) => makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'));
   let selected = units.find(u => u.id === id) ?? units[0];
   let visualPreview: { level: number; weapon: WeaponId } | undefined;
-  let historical = getHistoricalCharacter(id);
+  let historical = state.party[id] ? undefined : getHistoricalCharacter(id);
   let category: 'party' | 'people' | 'enemy' = historical ? 'people' : selected?.team === 'enemy' ? 'enemy' : 'party';
   if (!selected) return;
   const panel = document.createElement('section');
@@ -42,10 +43,11 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   for (const [key, label] of groups) {
     const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
     button.dataset.group = key;
+    button.disabled = key === 'people' ? HISTORICAL_CHARACTERS.every(person => Boolean(state.party[person.id])) : !units.some(unit => unit.team === key);
     button.addEventListener('click', () => {
       visualPreview = undefined;
       category = key as typeof category;
-      if (category === 'people') historical = HISTORICAL_CHARACTERS[0];
+      if (category === 'people') historical = HISTORICAL_CHARACTERS.find(person => !state.party[person.id]);
       else { historical = undefined; selected = units.find(u => u.team === category)!; }
       renderTabs(); render();
     });
@@ -53,14 +55,14 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   }
   function renderTabs(): void {
     tabs.replaceChildren();
-    const entries = category === 'people' ? HISTORICAL_CHARACTERS : units.filter(u => u.team === category);
+    const entries = category === 'people' ? HISTORICAL_CHARACTERS.filter(person => !state.party[person.id]) : units.filter(u => u.team === category);
     for (const entry of entries) {
       const tab = document.createElement('button');
       tab.type = 'button'; tab.textContent = entry.name; tab.dataset.character = entry.id;
       tab.classList.toggle('is-enemy', category === 'enemy');
       tab.addEventListener('click', () => {
         visualPreview = undefined;
-        historical = getHistoricalCharacter(entry.id);
+        historical = category === 'people' && !state.party[entry.id] ? getHistoricalCharacter(entry.id) : undefined;
         if (!historical) selected = units.find(u => u.id === entry.id)!;
         render();
       });
@@ -75,15 +77,16 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     const characterId = historical?.id ?? selected.id;
     const name = historical?.name ?? selected.name;
     const display = historical ? { id: characterId, weapon: historical.weapon, level: 1 } : { ...selected, ...(characterId === 'traveler' ? visualPreview : undefined) };
-    const appearance = getUnitAppearance(display);
+    const appearance = characterId === 'traveler' ? getUnitAppearance(display) : recruitProfile(characterId)?.appearance ?? getUnitAppearance(display);
+    const identity = selected.id === characterId && selected.team === 'party' && characterId !== 'traveler' ? `同行 · ${recruitProfile(characterId)?.role ?? appearance.identity}` : appearance.identity;
     panel.dataset.character = characterId;
     panel.classList.toggle('is-npc', Boolean(historical));
-    panel.querySelector('.character-identity')!.textContent = appearance.identity;
+    panel.querySelector('.character-identity')!.textContent = identity;
     panel.querySelector('h1')!.textContent = name;
     panel.querySelector('.character-bio')!.textContent = appearance.bio;
     portrait.src = appearance.portrait;
     portrait.alt = `${name}全身立绘`;
-    panel.querySelector('figcaption')!.textContent = `${appearance.identity} · 全身立绘`;
+    panel.querySelector('figcaption')!.textContent = `${identity} · 全身立绘`;
     const preview = createUnitPreview(characterId, display.weapon, name, display.level);
     panel.querySelector('.character-model-slot')!.replaceChildren(preview);
     renderGallery(characterId);
@@ -97,11 +100,11 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
       panel.querySelector('.character-battle-status')!.textContent = '人物志 · 尚未加入同行队伍';
       renderStats([['身份', historical.role], ['擅长', historical.specialty], ['随身', historical.equipment], ['速度', `${historical.speed}`]]);
       attributes.replaceChildren();
-      panel.querySelector('.character-equipment-note')!.textContent = '小人预览与棋盘共用外观。相遇与同行进度会在后续行旅中展开。';
+      panel.querySelector('.character-equipment-note')!.textContent = '可在城内寻访培养亲密度，达到60后邀请。须符合地点与年代窗口；长期同行为架空支线。';
       return;
     }
     panel.querySelector('.character-level')!.textContent = `Lv.${selected.level}`;
-    panel.querySelector('.character-battle-status')!.textContent = !combat ? '行旅中' :
+    panel.querySelector('.character-battle-status')!.textContent = !combat ? `${state.deployed.includes(selected.id) ? '出战' : '候补'} · 已同行 · 亲密 ${state.relationships[selected.id]?.affinity ?? 0}/100` :
       `${selected.hp <= 0 ? '倒地' : combat.actedIds.includes(selected.id) ? '已行动' : combat.movedIds.includes(selected.id) ? '已移动' : '待行动'} · ${selected.ultimateUsed ? '本场绝招已用' : '本场绝招未用'}${selected.empowered ? ' · 下一击强化中' : ''}${selected.guarded ? ' · 守势中' : ''}`;
     const threshold = experienceToNextLevel(selected.level);
     const weapon = WEAPONS[selected.weapon];
@@ -114,10 +117,10 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     renderStats(stats);
     const attrs = panel.querySelector('.character-attributes')!;
     attrs.replaceChildren();
-    if (PARTY_IDS.includes(selected.id as PartyId)) {
+    if (selected.team === 'party' && state.party[selected.id]) {
       for (const attr of ATTRIBUTE_IDS) {
         const item = document.createElement('span');
-        item.textContent = `${ATTRIBUTE_LABELS[attr]} ${state.party[selected.id as PartyId].attributes[attr]}`;
+        item.textContent = `${ATTRIBUTE_LABELS[attr]} ${state.party[selected.id].attributes[attr]}`;
         attrs.append(item);
       }
     } else attrs.textContent = '敌方能力以本场战斗数值为准';

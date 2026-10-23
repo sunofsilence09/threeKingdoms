@@ -1,0 +1,90 @@
+.world-map {
+  --map-paper: #e6e8d4;
+  --map-ink: #294b42;
+  --map-forest: #60816b;
+  --map-water: #729eaa;
+  --map-route: #a64d39;
+  position: relative;
+  min-width: 0;
+  color: var(--map-ink);
+  background: #e8ecde;
+  border: 1px solid #a2b29a;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 4px #e6e8d4, 0 7px 24px #16382b0b;
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', SimSun, serif;
+}
+.world-map-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px 12px; border-bottom: 1px solid #7d977949; }
+.world-map-heading > span { font-size: 21px; letter-spacing: .24em; font-weight: 700; }
+.world-map-heading small { font-size: 11px; letter-spacing: .12em; opacity: .66; }
+.world-map-viewport { position: relative; width: 100%; height: clamp(390px, 64vh, 740px); overflow: hidden; cursor: grab; background: #cbdfe0; }
+.world-map-viewport.is-dragging { cursor: grabbing; }
+.world-map-viewport > svg { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; }
+.world-map-sea { fill: #cedfdd; }
+.world-map-land { fill: var(--map-paper); stroke: #93afa2; stroke-width: 1.4; stroke-linejoin: round; }
+.world-map-range-wash { fill: none; stroke: var(--map-forest); stroke-width: 42; stroke-linecap: round; opacity: .15; }
+.world-map-peak { fill: #86a08755; stroke: var(--map-forest); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+.world-map-terrain-label { fill: #54745a; font-size: 12px; letter-spacing: .3em; opacity: .85; }
+.world-map-river { fill: none; stroke: var(--map-water); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.world-map-river.is-minor { stroke-width: 1.7; opacity: .65; }
+.world-map-river-label { fill: #547f8b; font-size: 13px; letter-spacing: .25em; paint-order: stroke; stroke: #e6e8d4; stroke-width: 3px; }
+.world-map-lake { fill: #9ebdc0; opacity: .8; }
+.world-map-sea-label { fill: #507c82; font-size: 24px; letter-spacing: .45em; opacity: .43; }
+.world-map-province { fill: #476747; font-size: 30px; letter-spacing: .15em; opacity: .24; pointer-events: none; }
+.world-map-road { fill: none; stroke: #8f8c6c; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: .6; }
+.world-map-road.is-water { stroke: #528997; stroke-dasharray: 5 4; }
+.world-map-road.is-mountain { stroke: #778265; stroke-dasharray: 2 4; stroke-width: 2; }
+.world-map-route-halo { fill: none; stroke: #f9f6df; stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; }
+.world-map-route { fill: none; stroke: var(--map-route); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.world-map-city { cursor: pointer; outline: none; pointer-events: bounding-box; }
+.world-map-city-hit { fill: transparent; stroke: none; }
+.world-map-city-dot { fill: #4e6b54; stroke: #f4f3df; stroke-width: 1.8; }
+.world-map-city-name { fill: #2c453b; font-weight: 600; font-size: 18px; paint-order: stroke; stroke: #eef0dc; stroke-width: 4px; stroke-linejoin: round; pointer-events: auto; }
+.world-map-city:not(.is-origin):not(.is-current):not(.is-selected):not(.is-path) .world-map-city-name { opacity: 0; }
+.world-map.is-zoomed .world-map-city .world-map-city-name, .world-map-city:hover .world-map-city-name, .world-map-city:focus .world-map-city-name { opacity: 1 !important; }
+.world-map-current-ring { fill: #e5edd6; stroke: #385e48; stroke-width: 1.5; }
+.world-map-city.is-current .world-map-city-dot { fill: #31563e; }
+.world-map-city.is-current .world-map-city-name { font-size: 20px; font-weight: 800; }
+.world-map-city.is-selected .world-map-city-dot, .world-map-city.is-path .world-map-city-dot { fill: var(--map-route); }
+.world-map-city.is-selected .world-map-city-name { fill: #934030; font-weight: 800; }
+.world-map-city:hover .world-map-city-hit, .world-map-city:focus .world-map-city-hit { fill: #e6d5a077; stroke: #8f653b; stroke-width: 1.4; }
+.world-map-city:focus .world-map-city-hit { stroke-width: 2.5; stroke-dasharray: 3 2; }
+.world-map-traveler { pointer-events: none; }
+.world-map-traveler circle { fill: #fff7de; stroke: var(--map-route); stroke-width: 2; }
+.world-map-traveler path { fill: var(--map-route); }
+.world-map-compass { stroke: #456b5b; stroke-width: 1.5; fill: #456b5b; opacity: .65; }
+.world-map-compass text { stroke: none; font-size: 15px; }
+.world-map-controls { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; border: 1px solid #8da48a; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 8px #34563b12; }
+.world-map-controls button { min-width: 38px; min-height: 38px; padding: 4px 10px; border: 0; border-radius: 0; border-right: 1px solid #9bad9677; background: #f2f2e4f2; color: #355c48; font-family: inherit; font-size: 15px; cursor: pointer; box-shadow: none; }
+.world-map-controls button:last-child { border-right: 0; font-size: 12px; }
+.world-map-controls button:hover { background: #d7e3cd; }
+.world-map-controls button:focus-visible { outline: 2px solid #7e5430; outline-offset: -3px; }
+.world-map-footer { padding: 11px 16px 10px; border-top: 1px solid #7d977949; }
+.world-map-legend { display: flex; flex-wrap: wrap; gap: 8px 15px; font-size: 11px; }
+.world-map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.world-map-legend i { display: inline-block; width: 17px; height: 0; border-top: 2px solid #8f8c6c; }
+.world-map-legend i.legend-city { width: 6px; height: 6px; border: 0; border-radius: 50%; background: #4e6b54; }
+.world-map-legend i.legend-current { width: 8px; height: 8px; border: 1px solid #385e48; border-radius: 50%; background: #b7ccb0; }
+.world-map-legend i.legend-water { border-top: 2px dashed #528997; }
+.world-map-legend i.legend-mountain { border-top: 2px dotted #778265; }
+.world-map-legend i.legend-route { border-color: var(--map-route); }
+.world-map-footer p { margin: 8px 0 0; font-family: system-ui, sans-serif; font-size: 10px; line-height: 1.7; color: #627565; }
+.world-map[data-season='winter'] { --map-paper: #e8ece3; --map-forest: #77968c; --map-water: #86a5b2; }
+.world-map[data-season='autumn'] { --map-paper: #ebe5cc; --map-forest: #8a8c60; --map-water: #7b9fa5; }
+.world-map[data-season='summer'] { --map-paper: #e0e7ce; --map-forest: #4d7b59; --map-water: #6498a3; }
+@media (max-width: 600px) {
+  .world-map-heading { padding: 11px 12px; }
+  .world-map-heading > span { font-size: 18px; }
+  .world-map-heading small { font-size: 10px; letter-spacing: .04em; }
+  .world-map-viewport { height: clamp(330px, 48vh, 440px); }
+  .world-map-controls { top: 8px; right: 8px; }
+  .world-map-controls button { min-width: 40px; min-height: 40px; }
+  .world-map-city-name { font-size: 25px; }
+  .world-map-city.is-current .world-map-city-name { font-size: 27px; }
+  .world-map:not(.is-zoomed) .world-map-city:not(.is-current):not(.is-selected):not(.is-path) .world-map-city-name { opacity: 0; }
+  .world-map.is-zoomed .world-map-city-name { font-size: 19px; }
+  .world-map.is-zoomed .world-map-city.is-current .world-map-city-name { font-size: 21px; }
+  .world-map-footer { padding: 10px 12px; }
+  .world-map-legend { gap: 8px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .world-map * { animation: none !important; transition: none !important; } }

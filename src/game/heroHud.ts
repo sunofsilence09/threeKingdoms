@@ -5,6 +5,7 @@ import { createPartyProgress, experienceToNextLevel, type PartyProgress } from '
 import type { RouteId } from './state';
 import { showCharacterDetails } from './characterDetails';
 import { getUnitAppearance } from './characters';
+import { recruitProfile } from './recruitmentCatalog';
 
 const allegiances = { cao: '曹方同行', sun: '孙方同行', liu: '刘方同行' };
 
@@ -69,7 +70,7 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
       const button = panel.querySelector<HTMLButtonElement>('button.hero-portrait');
       if (button) button.disabled = currentActor(combat)?.id !== hero.id;
     } else {
-      stats.textContent = '同行 · 阿满 / 陈达';
+      stats.textContent = `出战 · ${getState().deployed.filter(id => id !== 'traveler').map(id => recruitProfile(id)?.name ?? id).join(' / ') || '主角独行'}`;
       action.textContent = '行旅中';
     }
   }

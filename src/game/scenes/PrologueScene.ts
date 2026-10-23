@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
-import { PROLOGUE_LINES } from '../content';
+import { chapterAt, dateLabel, originAt } from '../history';
+import { hex, themeFor } from '../theme';
 import { addText } from '../text';
 import { getState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
+import { cityAt } from '../world';
 
 export class PrologueScene extends Phaser.Scene {
   constructor() {
@@ -15,9 +17,9 @@ export class PrologueScene extends Phaser.Scene {
     this.drawBackdrop();
 
     showPanel({
-      eyebrow: '东汉末年 · 流民序章',
+      eyebrow: `${dateLabel(getState().date)} · ${originAt(getState().originId).name}`,
       title: '先把活着这件事，交给今天。',
-      body: PROLOGUE_LINES.map((line) => `${line.speaker}：${line.text}`).join('\n\n'),
+      body: `${originAt(getState().originId).detail}\n\n${chapterAt(getState().date.year).context}\n\n你们从${cityAt(getState().currentCityId).name}开始行旅。选择城邑可以预览路线与耗时，途中可能遇到商旅、流民、雨阻和匪患。也可以先处理当地事务，帮同行的人站稳脚跟。\n\n阿满：先找些粮食，再想去哪里。`,
       actions: [
         {
           label: '踏上逃难路',
@@ -32,7 +34,8 @@ export class PrologueScene extends Phaser.Scene {
 
   private drawBackdrop(): void {
     const graphics = this.add.graphics();
-    graphics.fillGradientStyle(0x11161b, 0x11161b, 0x243139, 0x243139, 1);
+    const theme = themeFor(getState().date);
+    graphics.fillGradientStyle(theme.background, theme.background, theme.terrain.woods, theme.background, 1);
     graphics.fillRect(0, 0, 960, 540);
 
     graphics.fillStyle(0xc78d4d, 0.14);
@@ -50,12 +53,12 @@ export class PrologueScene extends Phaser.Scene {
     }
 
     addText(this, 54, 54, '乱世行旅', {
-      color: '#f2e9d8',
+      color: hex(theme.ink),
       fontFamily: 'STKaiti, KaiTi, serif',
       fontSize: '34px',
     });
     addText(this, 57, 96, 'A SMALL LIFE IN A LARGE WAR', {
-      color: '#aab7bd',
+      color: hex(theme.muted),
       fontFamily: 'Microsoft YaHei, sans-serif',
       fontSize: '11px',
       letterSpacing: 0,

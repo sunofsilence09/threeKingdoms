@@ -1,7 +1,8 @@
 import { ATTRIBUTE_IDS, createAttributes, isAttributes, type Attributes } from './attributes';
 
 export const PARTY_IDS = ['traveler', 'aman', 'chen-da'] as const;
-export type PartyId = typeof PARTY_IDS[number];
+/** The tuple is only the legacy starting party; recruited members use their catalog IDs. */
+export type PartyId = string;
 export interface Progress { level: number; xp: number; points: number; attributes: Attributes }
 export type PartyProgress = Record<PartyId, Progress>;
 export const MAX_LEVEL = 10;
@@ -29,7 +30,9 @@ export function grantExperience(progress: Progress, amount: number): Progress {
 export function migratePartyProgress(value: unknown): PartyProgress | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const party = {} as PartyProgress;
-  for (const id of PARTY_IDS) {
+  if (!PARTY_IDS.every(id => Object.hasOwn(value, id))) return null;
+  for (const id of Object.keys(value)) {
+    if (!/^[a-z][a-z0-9-]*$/.test(id)) return null;
     const entry = (value as PartyProgress)[id];
     if (!entry || !Number.isSafeInteger(entry.level) || entry.level < 1 || entry.level > MAX_LEVEL ||
       !Number.isSafeInteger(entry.xp) || entry.xp < 0 ||
@@ -44,5 +47,5 @@ export function migratePartyProgress(value: unknown): PartyProgress | null {
   return party;
 }
 export function isPartyProgress(value: unknown): value is PartyProgress {
-  return !!migratePartyProgress(value) && PARTY_IDS.every(id => (value as PartyProgress)[id].attributes !== undefined && (value as PartyProgress)[id].points !== undefined);
+  return !!migratePartyProgress(value) && Object.keys(value as PartyProgress).every(id => (value as PartyProgress)[id].attributes !== undefined && (value as PartyProgress)[id].points !== undefined);
 }

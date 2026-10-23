@@ -1,6 +1,7 @@
 import { attributeBonuses } from './attributes';
 import type { RouteId } from './state';
-import { createPartyProgress, type PartyId, type PartyProgress } from './growth';
+import { createPartyProgress, PARTY_IDS, type Progress, type PartyProgress } from './growth';
+import { recruitProfile } from './recruitmentCatalog';
 import { createTerrain, TERRAIN, type BattleMode, type TerrainKind, type TerrainTile } from './battlefield';
 
 export type CombatTeam = 'party' | 'enemy';
@@ -11,13 +12,22 @@ export const ULTIMATES: Record<UltimateId, { name: string; description: string }
 };
 export interface CombatEvent { kind: 'attack' | 'dodge' | 'ultimate'; actorId: string; targetId?: string; damage: number }
 
-export type WeaponId = 'fists' | 'cleaver' | 'knife' | 'spear' | 'bow';
+export type WeaponId = 'fists' | 'cleaver' | 'knife' | 'spear' | 'bow' | 'sword' | 'fan' | 'scroll' | 'halberd' | 'glaive' | 'jade' | 'serpentspear' | 'handkerchief' | 'swordshield';
 export const WEAPONS: Record<WeaponId, { name: string; mark: string; hp: number; attack: number; move: number; min: number; max: number }> = {
   fists: { name: '拳脚', mark: '拳', hp: 9, attack: 2, move: 3, min: 1, max: 1 },
   cleaver: { name: '菜刀', mark: '刀', hp: 10, attack: 3, move: 3, min: 1, max: 1 },
   knife: { name: '短刀', mark: '刃', hp: 11, attack: 4, move: 3, min: 1, max: 1 },
   spear: { name: '木枪', mark: '枪', hp: 10, attack: 3, move: 3, min: 1, max: 2 },
   bow: { name: '猎弓', mark: '弓', hp: 9, attack: 3, move: 3, min: 2, max: 3 },
+  sword: { name: '佩剑', mark: '剑', hp: 10, attack: 3, move: 3, min: 1, max: 1 },
+  fan: { name: '扇令', mark: '扇', hp: 9, attack: 2, move: 3, min: 1, max: 2 },
+  scroll: { name: '书卷号令', mark: '令', hp: 9, attack: 2, move: 3, min: 1, max: 3 },
+  halberd: { name: '画戟', mark: '戟', hp: 11, attack: 4, move: 3, min: 1, max: 2 },
+  glaive: { name: '长柄战刀', mark: '刀', hp: 11, attack: 3, move: 3, min: 1, max: 2 },
+  jade: { name: '玉佩援护', mark: '玉', hp: 9, attack: 2, move: 3, min: 1, max: 2 },
+  serpentspear: { name: '丈八蛇矛', mark: '矛', hp: 11, attack: 3, move: 3, min: 1, max: 2 },
+  handkerchief: { name: '丝帕援护', mark: '帕', hp: 9, attack: 2, move: 3, min: 1, max: 2 },
+  swordshield: { name: '剑盾', mark: '盾', hp: 12, attack: 3, move: 3, min: 1, max: 1 },
 };
 export interface CombatUnit {
   id: string; name: string; team: CombatTeam; x: number; y: number;
@@ -34,27 +44,38 @@ export type BattleResult = 'ongoing' | 'win' | 'loss';
 interface Tile { x: number; y: number }
 interface PathTile extends Tile { cost: number; path: Tile[] }
 
-export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush'): CombatState {
-  const makeAlly = (id: PartyId, name: string, x: number, y: number, weapon: WeaponId): CombatUnit => {
-    const { level, xp, attributes } = party[id];
-    const bonus = attributeBonuses(attributes);
-    const maxHp = WEAPONS[weapon].hp + (level - 1) * 2 + bonus.hp + (route === 'liu' ? 1 : 0);
-    return { id, name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp, speed: { traveler: 12, aman: 14, 'chen-da': 10 }[id],
-      attack: WEAPONS[weapon].attack + Math.floor((level - 1) / 2) + bonus.attack + (route === 'cao' && id === 'traveler' ? 1 : 0), guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
-      ultimate: id === 'traveler' ? 'survival' : 'desperation', ultimateUsed: false, empowered: false };
-  };
+/** Candidate previews and battle spawns share the same earned attributes and equipment. */
+export function makePartyUnit(id: string, progress: Progress, route: RouteId | null, mode: BattleMode, x = 0, y = 0): CombatUnit {
+  const profile = recruitProfile(id);
+  if (!profile) throw new Error(`Unknown party member: ${id}`);
+  const initialEquipment: Record<string, WeaponId> = mode === 'route'
+    ? { traveler: 'knife', aman: 'spear', 'chen-da': 'bow' }
+    : { traveler: 'cleaver', aman: 'fists', 'chen-da': 'fists' };
+  const weapon = initialEquipment[id] ?? profile.weapon;
+  const { level, xp, attributes } = progress;
+  const bonus = attributeBonuses(attributes);
+  const maxHp = WEAPONS[weapon].hp + (level - 1) * 2 + bonus.hp + (route === 'liu' ? 1 : 0);
+  return { id, name: profile.name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp, speed: profile.speed,
+    attack: WEAPONS[weapon].attack + Math.floor((level - 1) / 2) + bonus.attack + (route === 'cao' && id === 'traveler' ? 1 : 0), guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
+    ultimate: id === 'traveler' ? 'survival' : 'desperation', ultimateUsed: false, empowered: false };
+}
+
+export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS): CombatState {
+  if (deployed.length < 1 || deployed.length > 5 || new Set(deployed).size !== deployed.length ||
+      deployed.some(id => !recruitProfile(id) || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
   const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit =>
-    ({ id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
+    ({ id: deployed.includes(id) ? `enemy:${id}` : id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
   const advanced = mode === 'route';
+  const allyPositions = [[advanced ? 4 : 3, 4], [3, 5], [advanced ? 4 : 2, 6], [2, 3], [3, 7]];
   return advanceTurn({
     width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0)) >>> 0,
     units: [
-      makeAlly('traveler', '姜垣', advanced ? 4 : 3, 4, advanced ? 'knife' : 'cleaver'),
-      makeAlly('aman', '阿满', 3, 5, advanced ? 'spear' : 'fists'),
-      makeAlly('chen-da', '陈达', advanced ? 4 : 2, 6, advanced ? 'bow' : 'fists'),
+      ...deployed.map((id, index) => makePartyUnit(id, party[id], route, mode, allyPositions[index][0], allyPositions[index][1])),
       makeEnemy('bandit-leader', '山贼头目', 7, 4, advanced ? 'spear' : 'cleaver', advanced ? 9 : 7, 3),
       makeEnemy('bandit-scout-a', '拦路山贼', advanced ? 8 : 7, 6, 'cleaver', advanced ? 7 : 4, 2),
       makeEnemy('bandit-scout-b', advanced ? '山贼弓手' : '山贼喽啰', advanced ? 11 : 9, advanced ? 4 : 5, advanced ? 'bow' : 'fists', advanced ? 6 : 4, 2),
+      ...(deployed.length > 3 ? [makeEnemy('bandit-scout-c', '山贼喽啰', 8, 8, 'cleaver', advanced ? 7 : 4, 2)] : []),
+      ...(deployed.length > 4 ? [makeEnemy('bandit-scout-d', '山贼弓手', 11, 7, 'bow', advanced ? 6 : 4, 2)] : []),
     ],
   });
 }

@@ -1,22 +1,25 @@
 import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_EFFECTS, ATTRIBUTE_IDS, ATTRIBUTE_LABELS, type AttributeId } from './attributes';
-import { createCombatState, ULTIMATES } from './combat';
-import { PARTY_IDS, experienceToNextLevel, type PartyId } from './growth';
+import { makePartyUnit, ULTIMATES } from './combat';
+import { experienceToNextLevel, type PartyId } from './growth';
+import { recruitProfile } from './recruitmentCatalog';
+import { canManageParty } from './recruitment';
 import { getState, setState } from './runtime';
 import { spendSkillPoints } from './state';
 import { showCharacterDetails } from './characterDetails';
 import type { CombatState } from './combat';
 
-const NAMES: Record<PartyId, string> = { traveler: '姜垣', aman: '阿满', 'chen-da': '陈达' };
+const nameOf = (id: string) => recruitProfile(id)?.name ?? id;
 
 /** Preserve the previous screen's actual DOM, including route selection and callbacks. */
-export function showCharacterPanel(onClose?: () => void, combat?: CombatState): void {
+export function showCharacterPanel(onClose?: () => void, combat?: CombatState, initialId = 'traveler'): void {
   const root = document.querySelector('#overlay-root');
   if (!root || root.querySelector('.training-panel')) return;
   const original = getState();
-  const readOnly = original.phase === 'battle';
-  const drafts: Record<PartyId, Partial<Record<AttributeId, number>>> = { traveler: {}, aman: {}, 'chen-da': {} };
-  let selected: PartyId = 'traveler';
+  const readOnly = !canManageParty(original);
+  const memberIds = Object.keys(original.party);
+  const drafts: Record<PartyId, Partial<Record<AttributeId, number>>> = Object.fromEntries(memberIds.map(id => [id, {}]));
+  let selected: PartyId = original.party[initialId] ? initialId : 'traveler';
   const panel = document.createElement('section');
   panel.className = 'overlay-panel training-panel';
   panel.setAttribute('role', 'dialog');
@@ -31,11 +34,11 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState): 
     <div class="panel-actions"><button type="button" class="panel-button training-confirm">确认分配</button><button type="button" class="panel-button is-quiet training-cancel">取消</button></div>`;
   const close = openInspection(panel, onClose);
   panel.querySelector('.training-cancel')!.addEventListener('click', close);
-  panel.querySelector('.training-detail-open')!.addEventListener('click', () => showCharacterDetails(selected, combat));
+  panel.querySelector('.training-detail-open')!.addEventListener('click', () => showCharacterDetails(selected, combat?.units.some(unit => unit.team === 'party' && unit.id === selected) ? combat : undefined));
   const tabs = panel.querySelector('.training-tabs')!;
-  for (const id of PARTY_IDS) {
+  for (const id of memberIds) {
     const button = document.createElement('button');
-    button.type = 'button'; button.textContent = NAMES[id]; button.dataset.character = id;
+    button.type = 'button'; button.textContent = nameOf(id); button.dataset.character = id;
     button.addEventListener('click', () => { selected = id; render(); });
     tabs.append(button);
   }
@@ -61,10 +64,10 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState): 
   }
   function render(): void {
     const progress = original.party[selected];
-    panel.querySelector('.training-detail-open')!.textContent = `查看${NAMES[selected]}详情`;
+    panel.querySelector('.training-detail-open')!.textContent = `查看${nameOf(selected)}详情`;
     const attrs = { ...progress.attributes };
     for (const id of ATTRIBUTE_IDS) attrs[id] += drafts[selected][id] ?? 0;
-    panel.querySelector('.training-note')!.textContent = `${NAMES[selected]} Lv.${progress.level} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'} · ${readOnly ? '战斗中仅可查看，结束后可分配' : '每级获得3点技能点'}`;
+    panel.querySelector('.training-note')!.textContent = `${nameOf(selected)} Lv.${progress.level} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'} · ${readOnly ? '战斗或途中事件期间仅可查看' : '每级获得3点技能点'}`;
     panel.querySelector('.training-points')!.textContent = `剩余技能点 ${progress.points - cost(selected)}`;
     for (const [id, row] of rows) {
       row.score.textContent = `${progress.attributes[id]}${attrs[id] !== progress.attributes[id] ? ` → ${attrs[id]}` : ''}`;
@@ -73,9 +76,9 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState): 
     }
     for (const tab of tabs.querySelectorAll<HTMLButtonElement>('button')) tab.setAttribute('aria-pressed', String(tab.dataset.character === selected));
     const mode = original.route ? 'route' : 'ambush';
-    const before = createCombatState(original.route, original.party, mode).units.find(u => u.id === selected)!;
-    const party = { ...original.party, [selected]: { ...progress, attributes: attrs } };
-    const after = createCombatState(original.route, party, mode).units.find(u => u.id === selected)!;
+    const active = combat?.units.find(unit => unit.team === 'party' && unit.id === selected);
+    const before = active ?? makePartyUnit(selected, progress, original.route, mode);
+    const after = readOnly ? before : makePartyUnit(selected, { ...progress, attributes: attrs }, original.route, mode);
     const values: Array<[string, number, number, string]> = [
       ['攻击', before.attack, after.attack, ''], ['防御', before.defense, after.defense, ''],
       ['闪避', Math.round(before.dodgeRate * 100), Math.round(after.dodgeRate * 100), '%'],
@@ -92,14 +95,14 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState): 
       item.append(title, output); preview.append(item);
     }
     panel.querySelector('.training-ultimate')!.textContent = `绝招 · ${ULTIMATES[before.ultimate].name}：${ULTIMATES[before.ultimate].description}`;
-    panel.querySelector<HTMLButtonElement>('.training-confirm')!.disabled = readOnly || PARTY_IDS.every(id => cost(id) === 0);
-    panel.querySelector('.training-cancel')!.textContent = readOnly ? '返回战斗' : '取消';
+    panel.querySelector<HTMLButtonElement>('.training-confirm')!.disabled = readOnly || memberIds.every(id => cost(id) === 0);
+    panel.querySelector('.training-cancel')!.textContent = readOnly ? '返回' : '取消';
   }
   panel.querySelector('.training-confirm')!.addEventListener('click', () => {
     let next = getState();
-    if (readOnly || next.phase === 'battle') return;
+    if (readOnly || !canManageParty(next)) return;
     // Validate every character before saving once, so a failed edit cannot partially spend points.
-    for (const id of PARTY_IDS) {
+    for (const id of memberIds) {
       if (cost(id) === 0) continue;
       const updated = spendSkillPoints(next, id, drafts[id]);
       if (updated === next) { panel.querySelector('.training-feedback')!.textContent = '点数或角色状态发生变化，请取消后重新分配。'; return; }

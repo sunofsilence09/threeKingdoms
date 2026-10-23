@@ -10,12 +10,17 @@ import { BattleBoard, BATTLE_VIEW } from '../battleBoard';
 import { TERRAIN, type BattleMode } from '../battlefield';
 import { ROUTES } from '../content';
 import { createHeroHud } from '../heroHud';
-import { PARTY_IDS, experienceToNextLevel } from '../growth';
-import { rewardVictory } from '../state';
+import { completeJourneyTask, completeLocalEscort, rewardVictory } from '../state';
+import { dateLabel } from '../history';
+import { hex, themeFor } from '../theme';
 import { addText } from '../text';
 import { getState, resetState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 import { isInspecting } from '../inspectionOverlay';
+import { finishTravelBattle, journeyLeg } from '../travel';
+import { cityAt } from '../world';
+import { recruitProfile } from '../recruitmentCatalog';
+import { showPartyPanel } from '../partyPanel';
 
 interface BattleData { mode?: BattleMode }
 
@@ -31,44 +36,52 @@ export class BattleScene extends Phaser.Scene {
   private ultimateLabel!: Phaser.GameObjects.Text;
   private ultimateButton!: Phaser.GameObjects.Rectangle;
   private heroHud!: ReturnType<typeof createHeroHud>;
+  private queueStart = 0;
+  private queueLabel!: Phaser.GameObjects.Text;
 
   constructor() { super('Battle'); }
   init(data: BattleData): void { this.mode = data.mode ?? 'route'; }
   create(): void {
     this.finished = false;
     this.enemyPending = false;
+    this.queueStart = 0;
     clearOverlay();
-    const state = setState({ ...getState(), phase: 'battle' });
-    this.combat = createCombatState(state.route, state.party, this.mode);
+    // Leaving the tall world map can change scroll position after layout settles.
+    this.time.delayedCall(0, () => this.scale.refresh());
+    const previous = getState();
+    const fighters = previous.phase === 'battle' && previous.battleParty ? previous.battleParty : previous.deployed;
+    const state = setState({ ...previous, phase: 'battle', encounter: this.mode, battleParty: [...fighters] });
+    this.combat = createCombatState(state.route, state.party, this.mode, state.battleParty);
     this.drawBackground();
     this.board = new BattleBoard(this, (x, y) => this.selectTile(x, y));
     this.roster = this.add.container().setDepth(20);
     this.heroHud = createHeroHud(state.route, () => this.selectUnit('traveler'), state.party);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.heroHud.destroy());
-    setStatus(this.mode === 'ambush' ? '旧驿道 · 流民求生' : '路线任务 · 第一次持械同行');
-    this.roundLabel = addText(this, 684, 224, '', { color: '#ead9b9', fontSize: '18px' });
-    this.message = addText(this, 26, 487, this.mode === 'ambush'
-      ? '姜垣握着菜刀，阿满和陈达赤手同行。\n按速度依次行动，亮格移动或攻击敌人。'
-      : '姜垣获短刀，阿满持木枪，陈达用猎弓。\n弓箭需隔 2–3 格，留意墙后与桥头。', {
-      color: '#bdc7bf', fontSize: '12px', lineSpacing: 0, wordWrap: { width: 630 },
+    setStatus(`${dateLabel(state.date)} · ${this.mode === 'ambush' ? '流民求生' : '护送同行'}`);
+    this.roundLabel = addText(this, 684, 224, '', { color: hex(themeFor(state.date).ink), fontSize: '18px' });
+    this.message = addText(this, 26, 487, `${fighters.map(id => recruitProfile(id)!.name).join('、')}出战。\n按速度依次行动，亮格移动或攻击敌人。`, {
+      color: hex(themeFor(state.date).muted), fontSize: '12px', lineSpacing: 0, wordWrap: { width: 630 },
     });
     this.drawControls();
     this.continueTurns();
   }
   private drawBackground(): void {
     const g = this.add.graphics();
-    g.fillStyle(0x11191c).fillRect(0, 0, 960, 540);
-    g.fillStyle(0x283a37, 0.55).fillRect(0, 0, 960, 82);
+    const theme = themeFor(getState().date);
+    g.fillStyle(theme.background).fillRect(0, 0, 960, 540);
+    g.fillStyle(theme.paper, 0.7).fillRect(0, 0, 960, 82);
     g.lineStyle(1, 0xadbb9e, 0.22).lineBetween(24, 82, 936, 82);
-    g.fillStyle(0x1b2828).fillRect(BATTLE_VIEW.x, BATTLE_VIEW.y, BATTLE_VIEW.width, BATTLE_VIEW.height);
-    g.fillStyle(0x1b2426).fillRect(672, 112, 264, 400);
+    g.fillStyle(theme.terrain.road).fillRect(BATTLE_VIEW.x, BATTLE_VIEW.y, BATTLE_VIEW.width, BATTLE_VIEW.height);
+    g.fillStyle(theme.paper).fillRect(672, 112, 264, 400);
     g.lineStyle(1, 0x6d8174, 0.55).strokeRect(BATTLE_VIEW.x - 1, BATTLE_VIEW.y - 1, BATTLE_VIEW.width + 2, BATTLE_VIEW.height + 2);
     const route = getState().route;
-    addText(this, 24, 20, route ? ROUTES[route].title : '旧驿道 · 姜垣一行', { color: '#f2e9d8', fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
-    addText(this, 26, 60, this.mode === 'ambush' ? '绕过倒车与巨石，击退拦路山贼。胜利后每人获得 30 经验。' : `${ROUTES[route ?? 'cao'].objective}  胜利后每人 +45 经验。`, { color: '#b3c1b6', fontSize: '14px' });
+    const trip = getState().journey;
+    addText(this, 24, 20, trip ? `${cityAt(journeyLeg(trip).from).name}至${cityAt(journeyLeg(trip).to).name} · 途中匪患` : route ? ROUTES[route].title : `${cityAt(getState().currentCityId).name} · 姜垣一行`, { color: hex(theme.ink), fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
+    addText(this, 26, 60, this.mode === 'ambush' ? '击退拦路山贼，出战成员各获基础经验30；候补不分战斗经验。' : '护送乡民过桥，出战成员各获基础经验45；候补不分战斗经验。', { color: hex(theme.muted), fontSize: '14px' });
     const state = getState();
-    addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: '#e7d7b9', fontSize: '14px' });
-    addText(this, 26, 91, '16×10 · 拖动查看战场', { color: '#c8bea3', fontSize: '13px' });
+    addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: hex(theme.ink), fontSize: '14px' });
+    addText(this, 710, 55, `${state.date.year} 年 ${state.date.month} 月 · ${theme.season}`, { color: hex(theme.muted), fontSize: '12px' });
+    addText(this, 26, 91, '16×10 · 拖动查看战场', { color: hex(theme.muted), fontSize: '13px' });
   }
   private button(x: number, y: number, width: number, height: number, label: string, callback: () => void, primary = false): void {
     const shape = this.add.rectangle(x, y, width, height, primary ? 0xc99c5a : 0x334c43).setDepth(25);
@@ -77,21 +90,27 @@ export class BattleScene extends Phaser.Scene {
     addText(this, x, y, label, { color: primary ? '#17201e' : '#e0e6d4', fontSize: height < 40 ? '14px' : '20px', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
   }
   private drawControls(): void {
+    this.button(222, 98, 116, 28, '队伍 · 只读', () => showPartyPanel(undefined, this.combat));
+    if (getState().journey) this.button(350, 98, 120, 28, '撤退绕路', () => {
+      if (!this.finished) this.finishBattle('loss');
+    });
     this.button(468, 98, 58, 28, '全图', () => this.board.zoom(false));
     this.button(536, 98, 58, 28, '放大', () => this.board.zoom(true, this.combat.units.find(u => u.id === this.combat.selectedId)));
     this.button(606, 98, 58, 28, '归位', () => {
       const unit = this.combat.units.find(u => u.id === this.combat.selectedId) ?? this.combat.units.find(u => u.team === 'party' && u.hp > 0);
       if (unit) { this.board.zoom(true, unit); this.board.focus(unit); }
     });
-    this.button(804, 98, 240, 28, '敌方详情', () => showCharacterDetails('bandit-leader', this.combat));
+    this.button(804, 98, 240, 28, '敌方详情', () => showCharacterDetails(this.combat.units.find(u => u.team === 'enemy')!.id, this.combat));
     this.ultimateButton = this.add.rectangle(804, 444, 240, 20, 0x6b4937).setDepth(25).setStrokeStyle(1, 0xc59a65).setInteractive({ useHandCursor: true });
     this.ultimateButton.on('pointerdown', () => this.useUltimate());
     this.ultimateLabel = addText(this, 804, 444, '绝招 · 先选择队员', { color: '#f0d6a7', fontSize: '12px' }).setOrigin(0.5).setDepth(26);
     this.button(741, 480, 112, 48, '守势', () => this.guardSelected());
     this.button(870, 480, 112, 48, '结束行动', () => this.endPlayerTurn(), true);
-    addText(this, 684, 250, '行动次序 · 速度高者先行', { color: '#c99c5a', fontSize: '14px' });
+    this.queueLabel = addText(this, 684, 250, '', { color: hex(themeFor(getState().date).accent), fontSize: '12px' });
+    this.button(881, 250, 26, 24, '‹', () => { this.queueStart = Math.max(0, this.queueStart - 7); this.renderBoard(false); });
+    this.button(915, 250, 26, 24, '›', () => { this.queueStart = Math.min(Math.max(0, actionOrder(this.combat).length - 7), this.queueStart + 7); this.renderBoard(false); });
   }
-  private renderBoard(): void {
+  private renderBoard(focusActor = true): void {
     this.heroHud.update(this.combat);
     this.board.render(this.combat);
     const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
@@ -101,18 +120,22 @@ export class BattleScene extends Phaser.Scene {
     this.roster.removeAll(true);
     const actor = currentActor(this.combat);
     this.roundLabel.setText(`第 ${this.combat.round} 回合 · ${actor?.name ?? '战斗结束'}`);
-    actionOrder(this.combat).forEach((unit, index) => {
-      const y = 285 + index * 25;
+    const order = actionOrder(this.combat), actorIndex = order.findIndex(u => u.id === actor?.id);
+    if (focusActor && actorIndex >= 0 && (actorIndex < this.queueStart || actorIndex >= this.queueStart + 7)) this.queueStart = Math.min(actorIndex, Math.max(0, order.length - 7));
+    this.queueStart = Math.min(this.queueStart, Math.max(0, order.length - 7));
+    this.queueLabel.setText(`行动次序 ${this.queueStart + 1}—${Math.min(order.length, this.queueStart + 7)}/${order.length}`);
+    order.slice(this.queueStart, this.queueStart + 7).forEach((unit, index) => {
+      const y = 280 + index * 22;
       const active = actor?.id === unit.id;
       const acted = this.combat.actedIds.includes(unit.id);
-      const shape = this.add.rectangle(784, y, 200, 23, active ? 0x4c5039 : 0x253432);
+      const shape = this.add.rectangle(784, y, 200, 21, active ? 0x4c5039 : 0x253432);
       shape.setStrokeStyle(1, active ? 0xe4bd78 : 0x40554a).setInteractive({ useHandCursor: true });
       shape.on('pointerdown', () => unit.team === 'party' ? this.selectUnit(unit.id) : showCharacterDetails(unit.id, this.combat));
       this.roster.add(shape);
       const color = acted ? '#829087' : unit.team === 'party' ? '#c4dec3' : '#ecb3a4';
-      this.roster.add(addText(this, 688, y, `${active ? '▶' : index + 1} ${unit.name} · 速 ${unit.speed}`, { color, fontSize: '12px' }).setOrigin(0, 0.5));
+      this.roster.add(addText(this, 688, y, `${active ? '▶' : this.queueStart + index + 1} ${unit.name} · 速 ${unit.speed}`, { color, fontSize: '12px' }).setOrigin(0, 0.5));
       this.roster.add(addText(this, 880, y, acted ? '已行动' : active ? '当前' : '等待', { color, fontSize: '11px' }).setOrigin(1, 0.5));
-      const detail = this.add.rectangle(908, y, 36, 23, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
+      const detail = this.add.rectangle(908, y, 36, 21, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
       detail.setName(`detail:${unit.id}`);
       detail.on('pointerdown', () => showCharacterDetails(unit.id, this.combat));
       this.roster.add(detail);
@@ -188,6 +211,7 @@ export class BattleScene extends Phaser.Scene {
     this.continueTurns();
   }
   private continueTurns(): void {
+    if (this.finished) return;
     const result = isBattleOver(this.combat);
     if (result !== 'ongoing') { this.finishBattle(result); return; }
     const actor = currentActor(this.combat)!;
@@ -197,6 +221,7 @@ export class BattleScene extends Phaser.Scene {
     if (actor.team === 'party') { this.board.focus(actor); return; }
     this.message.setText(`${actor.name} · 速度 ${actor.speed}\n敌方正在行动…`);
     const act = () => {
+      if (this.finished) return;
       if (isInspecting()) { this.time.delayedCall(100, act); return; }
       this.combat = resolveEnemyTurn(this.combat);
       this.enemyPending = false;
@@ -208,9 +233,17 @@ export class BattleScene extends Phaser.Scene {
     this.time.delayedCall(650, act);
   }
   private finishBattle(result: 'win' | 'loss'): void {
+    if (this.finished) return;
     this.finished = true;
     this.renderBoard();
     const state = getState();
+    if (state.journey?.event?.inBattle) {
+      const settled = setState(finishTravelBattle(state, result === 'win'));
+      showPanel({ eyebrow: '途中战斗', title: result === 'win' ? '道路暂时安全了。' : '先保住同行的人。',
+        body: `${settled.travelNotice}\n\n${result === 'win' ? '出战成员获得基础经验30，魅力加成按个人计算。' : '本次没有获得经验。'}原目的地和路线保留。`,
+        actions: [{ label: '回到原行程', onClick: () => this.scene.start('Overworld') }] });
+      return;
+    }
     if (result === 'loss') {
       showPanel({ eyebrow: '队伍溃散', title: '路还在，但你们走不动了。', body: '这次未获得经验。等级与装备进度保留，重整队伍再试。', actions: [
         { label: '重试这场战斗', onClick: () => this.scene.restart({ mode: this.mode }) },
@@ -218,20 +251,19 @@ export class BattleScene extends Phaser.Scene {
       ] });
       return;
     }
-    const rewarded = rewardVictory(state, this.mode);
-    const names = { traveler: '姜垣', aman: '阿满', 'chen-da': '陈达' };
-    const summary = PARTY_IDS.map(id => {
+    const rewarded = this.mode === 'route' ? completeLocalEscort(state) : rewardVictory(state, 'ambush');
+    const summary = (state.battleParty ?? state.deployed).map(id => {
       const before = state.party[id], after = rewarded.party[id];
       const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
       const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, before.attributes);
-      return `${names[id]}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）`;
+      return `${recruitProfile(id)!.name}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）`;
     }).join('\n');
     if (this.mode === 'ambush') {
-      setState({ ...rewarded, phase: 'overworld', supplies: Math.max(0, rewarded.supplies - 1), flags: { ...rewarded.flags, ambushWon: true } });
-      showPanel({ eyebrow: '旧驿道 · 战斗胜利', title: '路口让开了，你们也更坚韧了。', body: `基础经验 30，魅力可提供额外经验。\n${summary}${rewarded.supplies > state.supplies ? `\n政略带回额外补给 +${rewarded.supplies - state.supplies}` : ''}\n\n菜刀和拳脚撑过了这段路。去临水镇寻找庇护与趁手的兵器。`, actions: [{ label: '分配技能点', onClick: () => showCharacterPanel() }, { label: '继续前往临水镇', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
+      setState(completeJourneyTask({ ...rewarded, phase: 'overworld', battleParty: undefined, supplies: Math.max(0, rewarded.supplies - (state.flags.ambushWon ? 0 : 1)) }, 'ambushWon'));
+      showPanel({ eyebrow: `${cityAt(state.currentCityId).name}城外 · 战斗胜利`, title: '路口让开了，你们也更坚韧了。', body: `基础经验 30，魅力可提供额外经验。\n${summary}\n\n菜刀和拳脚撑过了这段路。去村里换些粮水，再护送乡民。`, actions: [{ label: '分配技能点', onClick: () => showCharacterPanel() }, { label: '继续行旅', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
       return;
     }
-    setState({ ...rewarded, phase: 'ending' });
+    setState({ ...rewarded, phase: 'ending', battleParty: undefined });
     this.scene.start('Ending', { rewardSummary: summary + (rewarded.supplies > state.supplies ? `\n政略带回额外补给 +${rewarded.supplies - state.supplies}` : '') });
   }
 }

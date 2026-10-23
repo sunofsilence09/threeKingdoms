@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { currentActor, canAttack, reachableTiles, terrainAt, type CombatState, type CombatUnit } from './combat';
-import { TERRAIN, type TerrainKind } from './battlefield';
+import { type TerrainKind } from './battlefield';
+import { getState } from './runtime';
+import { themeFor, hex } from './theme';
 import { addText } from './text';
 import { drawUnitModel } from './unitModel';
 
@@ -87,6 +89,7 @@ export class BattleBoard {
     }
   }
   render(state: CombatState): void {
+    const theme = themeFor(getState().date);
     this.state = state;
     for (const child of this.layer.list) this.scene.tweens.killTweensOf(child);
     this.layer.removeAll(true);
@@ -99,12 +102,12 @@ export class BattleBoard {
         const kind = terrainAt(state, x, y);
         const lit = reachable.has(`${x},${y}`);
         const px = x * BASE_CELL, py = y * BASE_CELL;
-        g.fillStyle(TERRAIN[kind].color, kind === 'road' ? 0.9 : 1).fillRect(px + 1, py + 1, 46, 46);
-        if (kind === 'road' && (x + y) % 2 === 0) g.fillStyle(0x202e2d, 0.35).fillRect(px + 1, py + 1, 46, 46);
+        g.fillStyle(theme.terrain[kind]).fillRect(px + 1, py + 1, 46, 46);
+        if (kind === 'road' && (x + y) % 2 === 0) g.fillStyle(0xffffff, 0.12).fillRect(px + 1, py + 1, 46, 46);
         this.drawTerrain(g, kind, px + 24, py + 24);
-        if (lit) g.fillStyle(0x7dad99, 0.25).fillRect(px + 2, py + 2, 44, 44);
-        g.lineStyle(1, lit ? 0xa5c8ac : 0x6a746a, lit ? 0.85 : 0.2).strokeRect(px + 1, py + 1, 46, 46);
-        if (lit) g.fillStyle(0xb1ceaa, 0.6).fillCircle(px + 24, py + 24, 3);
+        if (lit) g.fillStyle(theme.move, 0.15).fillRect(px + 2, py + 2, 44, 44);
+        g.lineStyle(1, lit ? theme.move : theme.grid, lit ? 0.85 : 0.28).strokeRect(px + 1, py + 1, 46, 46);
+        if (lit) g.fillStyle(theme.move, 0.8).fillCircle(px + 24, py + 24, 3);
       }
     }
     for (const unit of state.units.filter(u => u.hp > 0)) {
@@ -113,7 +116,7 @@ export class BattleBoard {
       const attackable = selected && currentActor(state)?.id === selected.id && canAttack(state, selected, unit) && !state.actedIds.includes(selected.id);
       const color = unit.team === 'party' ? 0x8fae95 : 0xba7770;
       const shape = this.scene.add.ellipse(x, y + 12, 39, 15, color, acted ? 0.15 : 0.35);
-      shape.setStrokeStyle(unit.id === currentActor(state)?.id || attackable ? 3 : 1, attackable ? 0xffb2a2 : unit.id === currentActor(state)?.id ? 0xffedc3 : color);
+      shape.setStrokeStyle(unit.id === currentActor(state)?.id || attackable ? 3 : 1, attackable ? theme.enemy : unit.id === currentActor(state)?.id ? theme.accent : color);
       this.layer.add(shape);
       const model = drawUnitModel(this.scene, unit, x, y - 1, acted);
       this.layer.add(model);
@@ -134,8 +137,9 @@ export class BattleBoard {
           this.scene.tweens.add({ targets: model, scaleX: 1.16, scaleY: 1.16, duration: 160, yoyo: true });
         }
       }
-      const name = unit.id === 'traveler' ? '姜' : unit.id === 'aman' ? '满' : unit.id === 'chen-da' ? '达' : unit.id === 'bandit-leader' ? '首' : '匪';
-      this.layer.add(addText(this.scene, x, y + 27, `${name} ${unit.hp}/${unit.maxHp}`, { color: '#f2eedc', fontSize: '11px', backgroundColor: '#142423' }).setOrigin(0.5));
+      const name = unit.id === 'traveler' ? '姜' : unit.id === 'aman' ? '满' : unit.id === 'chen-da' ? '达'
+        : unit.team === 'party' ? unit.name.slice(-2) : unit.id.endsWith('bandit-leader') ? '首' : '匪';
+      this.layer.add(addText(this.scene, x, y + 27, `${name} ${unit.hp}/${unit.maxHp}`, { color: hex(theme.ink), fontSize: '11px', backgroundColor: hex(theme.paper) }).setOrigin(0.5));
       this.layer.add(this.scene.add.rectangle(x, y + 20, 38, 3, 0x142423));
       this.layer.add(this.scene.add.rectangle(x - 19, y + 20, 38 * unit.hp / unit.maxHp, 3, 0x9dc5a2).setOrigin(0, 0.5));
       if (unit.empowered) this.layer.add(this.scene.add.triangle(x - 16, y - 17, 0, 8, 4, 0, 8, 8, 0xffd487));

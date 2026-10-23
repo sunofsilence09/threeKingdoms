@@ -194,12 +194,14 @@ def plan_action(page):
     }''')
 
 
-def win_battle(page, touch=False):
+def win_battle(page, touch=False, on_turn=None):
     for _ in range(150):
         state = wait_player_turn(page)
         if state is None or state['finished']:
             assert '路还在，但你们走不动了' not in page.locator('#overlay-root').inner_text(), state
             return
+        if on_turn:
+            on_turn(page, state)
         assert_hero(page)
         assert_text_bounds(page)
         plan = plan_action(page)

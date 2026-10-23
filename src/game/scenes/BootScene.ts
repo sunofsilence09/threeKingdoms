@@ -8,7 +8,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    const { phase, route } = getState();
+    const { phase, route, encounter } = getState();
     const firstScene = phase === 'route-choice'
       ? 'RouteChoice'
       : phase === 'ending'
@@ -20,6 +20,6 @@ export class BootScene extends Phaser.Scene {
           : 'Prologue';
 
     setStatus('乱世行旅 · H5 Demo');
-    this.scene.start(firstScene, firstScene === 'Battle' ? { mode: route ? 'route' : 'ambush' } : undefined);
+    this.scene.start(firstScene, firstScene === 'Battle' ? { mode: encounter ?? (route ? 'route' : 'ambush') } : undefined);
   }
 }

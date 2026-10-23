@@ -4,8 +4,11 @@ import {
   saveState,
   type GameState,
 } from './state';
+import { applyCalendarTheme } from './theme';
 
 let currentState = loadState() ?? createInitialState();
+applyCalendarTheme(currentState.date);
+saveState(currentState);
 
 export function getState(): GameState {
   return currentState;
@@ -13,6 +16,7 @@ export function getState(): GameState {
 
 export function setState(next: GameState): GameState {
   currentState = next;
+  applyCalendarTheme(next.date);
   saveState(currentState);
   return currentState;
 }

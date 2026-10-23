@@ -33,7 +33,7 @@ export const ROUTES: Record<RouteId, RouteDefinition> = {
     symbol: '曹',
     title: '曹方 · 以令止乱',
     tone: '秩序、效率与服从',
-    offer: '军屯有粮，但每个人都要听令。',
+    offer: '营中有粮，但每个人都要听令。',
     advantage: '多一份补给，强攻更有力。',
     objective: '护送粮车穿过关卡，优先保证队伍效率。',
     ending: '你们换来了粮食，也第一次听见了军令落下的声音。',

@@ -5,3 +5,4 @@ dist/
 *.tsbuildinfo
 artifacts/
 __pycache__/
+release/

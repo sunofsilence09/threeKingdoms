@@ -1,8 +1,9 @@
 import type { CombatUnit, WeaponId } from './combat';
 import { getHeroVisual, HERO_WEAPONS } from './heroVisuals';
 import { getHistoricalCharacter } from './historicalCharacters';
+import { recruitProfile } from './recruitmentCatalog';
 
-export type ModelWeapon = WeaponId | 'sword' | 'fan' | 'scroll' | 'halberd' | 'glaive' | 'jade' | 'serpentspear' | 'handkerchief' | 'swordshield';
+export type ModelWeapon = WeaponId;
 
 export interface CharacterAppearance {
   identity: string;
@@ -25,12 +26,12 @@ export interface CharacterAppearance {
 const CHARACTERS: Record<string, CharacterAppearance> = {
   traveler: {
     identity: '流民 · 同行之首', portrait: '/assets/characters/jiang-yuan-refugee-v1.png',
-    bio: '乱世中离乡的年轻人，带着行囊与一把菜刀上路。姜垣眼下只想让同行的人活着走到临水镇。',
+    bio: '乱世中离乡的年轻人，带着行囊与一把菜刀上路。姜垣眼下只想让同行的人活着找到落脚处。',
     robe: 0x667067, headband: 0x536d68, skin: 0xcba27e, sash: 0x77604a, stocky: false, beard: false, pack: true, pose: 'calm',
   },
   aman: {
     identity: '流民 · 同行伙伴', portrait: '/assets/characters/aman-refugee-v2.png',
-    bio: '与姜垣同行的年轻伙伴，身形轻巧，眼神机警。走过几日荒路后，他仍惦记着临水镇里能找到的粮食。',
+    bio: '与姜垣同行的年轻伙伴，身形轻巧，眼神机警。走过几日荒路后，他仍惦记着前方村落里能找到的粮食。',
     robe: 0xa38a5c, headband: 0x975749, skin: 0xc89e75, sash: 0x67523e, stocky: false, beard: false, pack: true, pose: 'scout',
   },
   'chen-da': {
@@ -51,7 +52,7 @@ const CHARACTERS: Record<string, CharacterAppearance> = {
 };
 
 export function getCharacterAppearance(id: string): CharacterAppearance {
-  return CHARACTERS[id] ?? getHistoricalCharacter(id)?.appearance ?? CHARACTERS.bandit;
+  return CHARACTERS[id] ?? getHistoricalCharacter(id)?.appearance ?? recruitProfile(id)?.appearance ?? CHARACTERS.bandit;
 }
 
 /** Equipment is live battle data; the portrait supplies identity and clothing. */
@@ -61,9 +62,10 @@ export function getUnitModel(unit: Pick<CombatUnit, 'id'> & { weapon: ModelWeapo
 
 /** Pure display derivation; NPC identity records remain shared and unchanged. */
 export function getUnitAppearance(unit: { id: string; weapon: ModelWeapon; level?: number }): CharacterAppearance {
-  const base = getCharacterAppearance(unit.id);
-  if (unit.id !== 'traveler') return base;
-  const weapon = HERO_WEAPONS.includes(unit.weapon as WeaponId) ? unit.weapon as WeaponId : 'cleaver';
+  const id = unit.id.replace(/^enemy:/, '');
+  const base = getCharacterAppearance(id);
+  if (id !== 'traveler') return base;
+  const weapon = HERO_WEAPONS.find(weapon => weapon === unit.weapon) ?? 'cleaver';
   const visual = getHeroVisual(unit.level, weapon);
   return { ...base, ...visual.stage, portrait: visual.portrait,
     identity: `${visual.stage.label} · 同行之首`, pose: weapon === 'bow' ? 'archer' : 'calm' };

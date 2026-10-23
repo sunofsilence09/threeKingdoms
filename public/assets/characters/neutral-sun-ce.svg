@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" role="img" aria-labelledby="title desc">
+  <title id="title">孙策 · 中性身份头像</title><desc id="desc">原创青年武将剪影，供孙策独立画像补齐前识别本人身份，非历史肖像复原。</desc>
+  <circle cx="240" cy="248" r="174" fill="#b7c6c8" opacity=".25"/>
+  <path d="M225 105h30l13 42-7 25h-42l-7-25z" fill="#3c4042"/>
+  <path d="M208 168q32-15 64 0l-4 71-28 20-28-20z" fill="#5c5a58"/>
+  <path d="M182 272l35-18 23 32 23-32 35 18 46 70-24 24-22-35 18 180H164l18-180-22 35-24-24z" fill="#675455"/>
+  <path d="M181 300h118v102H181z" fill="#464a49"/>
+  <path d="M192 322h96m-96 24h96m-96 24h96m-72-60v82m24-82v82m24-82v82" stroke="#9c8564" stroke-width="3"/>
+  <path d="M176 407h128v18H176z" fill="#92794e"/>
+  <text x="240" y="560" text-anchor="middle" fill="#e6d7b8" font-size="46" font-family="serif">孙策</text>
+  <text x="240" y="599" text-anchor="middle" fill="#c6b69a" font-size="19" font-family="sans-serif">中性身份图 · 独立画像待补</text>
+</svg>

@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import { ROUTES } from '../content';
 import { getState, setState } from '../runtime';
-import { selectRoute } from '../state';
+import { availableRoutes, selectRoute } from '../state';
+import { dateLabel } from '../history';
+import { themeFor } from '../theme';
 import { clearOverlay, setStatus, showRouteChoice } from '../ui';
 
 export class RouteChoiceScene extends Phaser.Scene {
@@ -11,19 +13,22 @@ export class RouteChoiceScene extends Phaser.Scene {
 
   create(): void {
     clearOverlay();
+    const state = getState();
+    const available = availableRoutes(state);
+    if (state.route || !available.length) { this.scene.start('Overworld'); return; }
     setState({ ...getState(), phase: 'route-choice' });
-    setStatus('三方来使已经抵达临水镇');
+    setStatus(dateLabel(state.date));
     this.drawBackdrop();
 
     showRouteChoice(Object.values(ROUTES), (route) => {
       setState(selectRoute(getState(), route.id));
-      this.scene.start('Battle', { mode: 'route' });
-    });
+      this.scene.start('Overworld');
+    }, { available, year: state.date.year, onLeave: () => this.scene.start('Overworld') });
   }
 
   private drawBackdrop(): void {
     const graphics = this.add.graphics();
-    graphics.fillStyle(0x1b2328, 1);
+    graphics.fillStyle(themeFor(getState().date).background, 1);
     graphics.fillRect(0, 0, 960, 540);
     graphics.fillStyle(0xa55b5a, 0.16);
     graphics.fillRect(0, 0, 960, 140);

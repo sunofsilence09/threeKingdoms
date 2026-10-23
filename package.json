@@ -1,12 +1,14 @@
 {
   "name": "three-kingdoms-h5-demo",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:local": "node --test scripts/verify-local-server.cjs",
+    "build:local": "npm run build && node scripts/package-local.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

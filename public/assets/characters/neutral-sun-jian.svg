@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" role="img" aria-labelledby="title desc">
+  <title id="title">孙坚 · 中性身份头像</title><desc id="desc">原创武将剪影，供孙坚独立画像补齐前识别本人身份，非历史肖像复原。</desc>
+  <circle cx="240" cy="248" r="174" fill="#ddd0b4" opacity=".35"/>
+  <path d="M220 105h40l13 44-7 27h-52l-7-27z" fill="#444641"/>
+  <path d="M205 170q35-20 70 0l-3 68q-32 35-64 0z" fill="#605e52"/>
+  <path d="M211 231l29 17 29-17-7 48-22 25-22-25z" fill="#444641"/>
+  <path d="M181 275l36-15 23 44 23-44 36 15 49 70-24 30-24-36 17 172H163l17-172-24 36-24-30z" fill="#6e6250"/>
+  <path d="M181 309h118v93H181z" fill="#464a49"/>
+  <path d="M191 330h98m-98 23h98m-98 23h98m-74-58v73m25-73v73m25-73v73" stroke="#a28e67" stroke-width="3"/>
+  <path d="M175 407h130v19H175z" fill="#92794e"/>
+  <text x="240" y="560" text-anchor="middle" fill="#e6d7b8" font-size="46" font-family="serif">孙坚</text>
+  <text x="240" y="599" text-anchor="middle" fill="#c6b69a" font-size="19" font-family="sans-serif">中性身份图 · 独立画像待补</text>
+</svg>
