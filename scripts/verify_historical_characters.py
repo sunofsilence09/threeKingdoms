@@ -40,7 +40,7 @@ def main():
             dialog.get_by_role('button', name='乱世人物', exact=True).click()
             images = []
             previews = []
-            for name in ['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰']:
+            for name in ['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩']:
                 dialog.get_by_role('button', name=name, exact=True).click()
                 expect(dialog.locator('h1')).to_have_text(name)
                 expect(dialog.locator('.character-level')).to_have_text('尚未同行')
@@ -53,10 +53,18 @@ def main():
                 preview = dialog.get_by_role('img', name=f'{name}棋盘小人预览', exact=True)
                 assert preview.evaluate('(c)=>c.getContext("2d").getImageData(0,0,c.width,c.height).data.some((v,i)=>i%4===3 && v>0)')
                 previews.append(preview.evaluate('(c)=>c.toDataURL()'))
-                if name in ['孙尚香', '蔡琰']:
+                if name in ['董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩']:
+                    assert preview.evaluate('''c => {
+                      const {data}=c.getContext('2d').getImageData(0,0,c.width,c.height);
+                      for(let x=0;x<c.width;x++) if(data[x*4+3] || data[((c.height-1)*c.width+x)*4+3]) return false;
+                      for(let y=0;y<c.height;y++) if(data[(y*c.width)*4+3] || data[(y*c.width+c.width-1)*4+3]) return false;
+                      return true;
+                    }'''), f'{name} preview clips its silhouette'
+                if name in ['孙尚香', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩']:
                     dialog.locator('.character-art').scroll_into_view_if_needed()
                     page.screenshot(path=str(ARTIFACTS / f'h5-{name}-{width}x{height}.png'))
-            assert len(set(images)) == len(set(previews)) == 6
+            assert len(set(images)) == len(set(previews)) == 16
+            assert page.evaluate('localStorage.getItem("three-kingdoms-demo-state")') == saved
             dialog.get_by_role('button', name='同行', exact=True).click()
             dialog.get_by_role('button', name='阿满', exact=True).click()
             expect(dialog.locator('[data-detail-stat="武器"] strong')).to_have_text('拳脚')
@@ -65,9 +73,13 @@ def main():
             page.screenshot(path=str(ARTIFACTS / f'h5-leader-route-{width}x{height}.png'))
             page.get_by_role('button', name='走 曹 方的路', exact=True).click(); wait_scene(page, 'Battle')
             before = battle(page)
+            battle_saved = page.evaluate('localStorage.getItem("three-kingdoms-demo-state")')
             page.get_by_role('button', name='姜垣详情', exact=True).click()
             dialog.get_by_role('button', name='乱世人物', exact=True).click()
-            dialog.get_by_role('button', name='孙尚香', exact=True).click()
+            for name in ['张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩']:
+                dialog.get_by_role('button', name=name, exact=True).click()
+                assert battle(page) == before
+                assert page.evaluate('localStorage.getItem("three-kingdoms-demo-state")') == battle_saved
             click_canvas(page, 870, 480, width != 1280)
             assert battle(page) == before
             dialog.get_by_role('button', name='本场敌人', exact=True).click()

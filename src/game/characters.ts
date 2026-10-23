@@ -1,7 +1,8 @@
 import type { CombatUnit, WeaponId } from './combat';
+import { getHeroVisual, HERO_WEAPONS } from './heroVisuals';
 import { getHistoricalCharacter } from './historicalCharacters';
 
-export type ModelWeapon = WeaponId | 'sword' | 'fan' | 'scroll';
+export type ModelWeapon = WeaponId | 'sword' | 'fan' | 'scroll' | 'halberd' | 'glaive' | 'jade' | 'serpentspear' | 'handkerchief' | 'swordshield';
 
 export interface CharacterAppearance {
   identity: string;
@@ -14,10 +15,11 @@ export interface CharacterAppearance {
   stocky: boolean;
   beard: boolean;
   pack: boolean;
-  pose: 'calm' | 'scout' | 'guard' | 'leader' | 'skulker' | 'strategist' | 'greeting' | 'commander' | 'archer' | 'fan' | 'scholar';
-  outfit?: 'tunic' | 'robe' | 'dress';
+  pose: 'calm' | 'scout' | 'guard' | 'leader' | 'skulker' | 'strategist' | 'greeting' | 'commander' | 'archer' | 'fan' | 'scholar' | 'tyrant' | 'halberd' | 'bruiser' | 'jade' | 'sentinel' | 'longbeard' | 'serpent' | 'lancer' | 'protective' | 'shieldguard';
+  outfit?: 'tunic' | 'robe' | 'dress' | 'armor';
   hair?: 'bun' | 'long' | 'crown';
   accent?: number;
+  plume?: boolean;
 }
 
 const CHARACTERS: Record<string, CharacterAppearance> = {
@@ -53,6 +55,16 @@ export function getCharacterAppearance(id: string): CharacterAppearance {
 }
 
 /** Equipment is live battle data; the portrait supplies identity and clothing. */
-export function getUnitModel(unit: Pick<CombatUnit, 'id'> & { weapon: ModelWeapon }): { appearance: CharacterAppearance; weapon: ModelWeapon } {
-  return { appearance: getCharacterAppearance(unit.id), weapon: unit.weapon };
+export function getUnitModel(unit: Pick<CombatUnit, 'id'> & { weapon: ModelWeapon; level?: number }): { appearance: CharacterAppearance; weapon: ModelWeapon } {
+  return { appearance: getUnitAppearance(unit), weapon: unit.weapon };
+}
+
+/** Pure display derivation; NPC identity records remain shared and unchanged. */
+export function getUnitAppearance(unit: { id: string; weapon: ModelWeapon; level?: number }): CharacterAppearance {
+  const base = getCharacterAppearance(unit.id);
+  if (unit.id !== 'traveler') return base;
+  const weapon = HERO_WEAPONS.includes(unit.weapon as WeaponId) ? unit.weapon as WeaponId : 'cleaver';
+  const visual = getHeroVisual(unit.level, weapon);
+  return { ...base, ...visual.stage, portrait: visual.portrait,
+    identity: `${visual.stage.label} · 同行之首`, pose: weapon === 'bow' ? 'archer' : 'calm' };
 }

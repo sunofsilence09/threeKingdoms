@@ -35,6 +35,7 @@ button {
 
 .game-shell {
   position: relative;
+  container-type: inline-size;
   width: min(1180px, 100%, calc((100svh - 38px) * 16 / 9));
   overflow: hidden;
   border: 1px solid #39434c;
@@ -480,6 +481,21 @@ button.hero-portrait:disabled {
 .is-battle .hero-growth { font-size: 10px; margin-top: 3px; }
 .is-battle .hero-next-level { display: none; }
 
+/* Desktop fills the window; DOM status text scales with the Phaser canvas. */
+@media (min-width: 901px) {
+  #app { padding: 12px; }
+  .game-shell { width: min(1680px, 100%, calc((100svh - 26px) * 16 / 9)); }
+  .hero-hud.is-battle { gap: 0.8cqw; font-size: clamp(12px, 1.3cqw, 20px); }
+  .is-battle .hero-portrait { width: 4cqw; height: 6cqw; }
+  .is-battle .hero-heading { gap: 0.5cqw; }
+  .is-battle .hero-heading strong { font-size: clamp(18px, 1.9cqw, 30px); }
+  .is-battle .hero-level,
+  .is-battle .hero-footer,
+  .is-battle .hero-growth { font-size: clamp(11px, 1.15cqw, 18px); }
+  .is-battle .growth-hint { font-size: clamp(11px, 1.05cqw, 16px); }
+  .is-battle .character-detail-open { padding: 0.15cqw 0.4cqw; font-size: clamp(11px, 1.15cqw, 18px); }
+}
+
 @media (max-width: 900px) and (orientation: landscape) {
   .hero-hud.is-battle { gap: 5px; padding-top: 2px; font-size: 8px; }
   .is-battle .hero-portrait { width: 24px; height: 34px; }
@@ -645,3 +661,9 @@ button.hero-portrait:disabled {
   .training-panel .panel-actions { margin-top: 6px; }
   .training-panel .panel-button { min-height: 32px; font-size: 13px; }
 }
+
+.hero-gallery { padding: 12px; margin: 12px 0; border: 1px solid #657660; background: #1b2924; }
+.hero-gallery label { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 10px 8px 0; }
+.hero-gallery select, .hero-gallery button { color: #e2dac0; background: #293b31; border: 1px solid #71806b; border-radius: 4px; padding: 7px; font: inherit; max-width: 100%; }
+.hero-gallery-hint { margin: 0 0 8px; font-size: 13px; color: #c2b895; }
+.hero-gallery[hidden] { display: none; }

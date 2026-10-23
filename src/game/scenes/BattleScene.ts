@@ -43,7 +43,7 @@ export class BattleScene extends Phaser.Scene {
     this.heroHud = createHeroHud(state.route, () => this.selectUnit('traveler'), state.party);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.heroHud.destroy());
     setStatus(this.mode === 'ambush' ? '旧驿道 · 流民求生' : '路线任务 · 第一次持械同行');
-    this.roundLabel = addText(this, 684, 226, '', { color: '#ead9b9', fontSize: '16px' });
+    this.roundLabel = addText(this, 684, 224, '', { color: '#ead9b9', fontSize: '18px' });
     this.message = addText(this, 684, 260, this.mode === 'ambush'
       ? '姜垣握着菜刀，阿满和陈达赤手同行。\n先选队员，再点亮格移动或攻击敌人。'
       : '姜垣获短刀，阿满持木枪，陈达用猎弓。\n弓箭需隔 2–3 格，留意墙后与桥头。', {
@@ -62,18 +62,18 @@ export class BattleScene extends Phaser.Scene {
     g.lineStyle(1, 0x6d8174, 0.55).strokeRect(BATTLE_VIEW.x - 1, BATTLE_VIEW.y - 1, BATTLE_VIEW.width + 2, BATTLE_VIEW.height + 2);
     const route = getState().route;
     addText(this, 24, 20, route ? ROUTES[route].title : '旧驿道 · 姜垣一行', { color: '#f2e9d8', fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
-    addText(this, 26, 60, this.mode === 'ambush' ? '绕过倒车与巨石，击退拦路山贼。胜利后每人获得 30 经验。' : `${ROUTES[route ?? 'cao'].objective}  胜利后每人 +45 经验。`, { color: '#b3c1b6', fontSize: '12px' });
+    addText(this, 26, 60, this.mode === 'ambush' ? '绕过倒车与巨石，击退拦路山贼。胜利后每人获得 30 经验。' : `${ROUTES[route ?? 'cao'].objective}  胜利后每人 +45 经验。`, { color: '#b3c1b6', fontSize: '14px' });
     const state = getState();
     addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: '#e7d7b9', fontSize: '14px' });
     addText(this, 26, 91, '16×10 · 拖动查看战场', { color: '#c8bea3', fontSize: '13px' });
-    addText(this, 26, 489, '绿点可移动 · 红框可攻击 · 白点守势', { color: '#b8c8b5', fontSize: '12px' });
-    addText(this, 26, 511, '树林耗 2 点移动并抵挡 1 点远程伤害；石、车、墙不可穿越。', { color: '#8fa79b', fontSize: '11px' });
+    addText(this, 26, 487, '绿点可移动 · 红框可攻击 · 白点守势', { color: '#b8c8b5', fontSize: '14px' });
+    addText(this, 26, 511, '树林耗 2 点移动并抵挡 1 点远程伤害；石、车、墙不可穿越。', { color: '#a6b9ab', fontSize: '13px' });
   }
   private button(x: number, y: number, width: number, height: number, label: string, callback: () => void, primary = false): void {
     const shape = this.add.rectangle(x, y, width, height, primary ? 0xc99c5a : 0x334c43).setDepth(25);
     shape.setStrokeStyle(1, primary ? 0xe7c48c : 0x7a9b83).setInteractive({ useHandCursor: true });
     shape.on('pointerdown', callback);
-    addText(this, x, y, label, { color: primary ? '#17201e' : '#e0e6d4', fontSize: height < 40 ? '12px' : '18px', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
+    addText(this, x, y, label, { color: primary ? '#17201e' : '#e0e6d4', fontSize: height < 40 ? '14px' : '20px', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
   }
   private drawControls(): void {
     this.button(468, 98, 58, 28, '全图', () => this.board.zoom(false));
@@ -85,10 +85,10 @@ export class BattleScene extends Phaser.Scene {
     this.button(804, 98, 240, 28, '敌方详情', () => showCharacterDetails('bandit-leader', this.combat));
     this.ultimateButton = this.add.rectangle(804, 444, 240, 20, 0x6b4937).setDepth(25).setStrokeStyle(1, 0xc59a65).setInteractive({ useHandCursor: true });
     this.ultimateButton.on('pointerdown', () => this.useUltimate());
-    this.ultimateLabel = addText(this, 804, 444, '绝招 · 先选择队员', { color: '#f0d6a7', fontSize: '11px' }).setOrigin(0.5).setDepth(26);
+    this.ultimateLabel = addText(this, 804, 444, '绝招 · 先选择队员', { color: '#f0d6a7', fontSize: '12px' }).setOrigin(0.5).setDepth(26);
     this.button(741, 480, 112, 48, '守势', () => this.guardSelected());
     this.button(870, 480, 112, 48, '结束回合', () => this.endPlayerTurn(), true);
-    addText(this, 684, 324, '同行队员 · 点击切换', { color: '#c99c5a', fontSize: '12px' });
+    addText(this, 684, 320, '同行队员 · 点击切换', { color: '#c99c5a', fontSize: '14px' });
   }
   private renderBoard(): void {
     this.heroHud.update(this.combat);
@@ -108,13 +108,13 @@ export class BattleScene extends Phaser.Scene {
       shape.on('pointerdown', () => this.selectUnit(unit.id));
       this.roster.add(shape);
       const status = unit.hp <= 0 ? '倒地' : this.combat.actedIds.includes(unit.id) ? '已行动' : unit.empowered ? '强化中' : '待行动';
-      this.roster.add(addText(this, 688, y, `${unit.name} Lv.${unit.level} · ${WEAPONS[unit.weapon].name}`, { color: unit.hp > 0 ? '#e2d9bd' : '#918c81', fontSize: '11px' }).setOrigin(0, 0.5));
-      this.roster.add(addText(this, 880, y, status, { color: '#9eb49e', fontSize: '9px' }).setOrigin(1, 0.5));
+      this.roster.add(addText(this, 688, y, `${unit.name} Lv.${unit.level} · ${WEAPONS[unit.weapon].name}`, { color: unit.hp > 0 ? '#e2d9bd' : '#918c81', fontSize: '13px' }).setOrigin(0, 0.5));
+      this.roster.add(addText(this, 880, y, status, { color: '#b3c8b3', fontSize: '11px' }).setOrigin(1, 0.5));
       const detail = this.add.rectangle(908, y, 36, 28, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
       detail.setName(`detail:${unit.id}`);
       detail.on('pointerdown', () => showCharacterDetails(unit.id, this.combat));
       this.roster.add(detail);
-      this.roster.add(addText(this, 908, y, '详情', { color: '#e5d4ae', fontSize: '11px' }).setOrigin(0.5));
+      this.roster.add(addText(this, 908, y, '详情', { color: '#e5d4ae', fontSize: '13px' }).setOrigin(0.5));
     });
   }
   private selectUnit(id: string): void {

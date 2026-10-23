@@ -4,7 +4,7 @@ import { attackPower, movementRange, WEAPONS, type CombatState } from './combat'
 import { createPartyProgress, experienceToNextLevel, type PartyProgress } from './growth';
 import type { RouteId } from './state';
 import { showCharacterDetails } from './characterDetails';
-import { getCharacterAppearance } from './characters';
+import { getUnitAppearance } from './characters';
 
 const allegiances = { cao: '曹方同行', sun: '孙方同行', liu: '刘方同行' };
 
@@ -15,7 +15,7 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
   panel.className = `hero-hud${onSelect ? ' is-battle' : ''}`;
   panel.setAttribute('aria-label', '主角状态');
   panel.innerHTML = `
-    <div class="hero-portrait"><img src="${getCharacterAppearance('traveler').portrait}" alt="姜垣的头像" width="64" height="80"></div>
+    <div class="hero-portrait"><img src="${getUnitAppearance({ id: 'traveler', weapon: route ? 'knife' : 'cleaver', level: party.traveler.level }).portrait}" alt="姜垣的头像" width="64" height="80"></div>
     <div class="hero-details">
       <div class="hero-heading"><button type="button" class="growth-open" aria-label="角色成长"><strong>姜垣</strong><span class="growth-hint">成长</span></button><span class="hero-level"></span><button type="button" class="character-detail-open" aria-label="姜垣详情">详情</button><span class="hero-allegiance"></span></div>
       <div class="hero-health"><span>体力</span><span class="hero-health-value"></span></div>
@@ -50,6 +50,7 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
     const hero = combat?.units.find(unit => unit.id === 'traveler');
     const progress = hero ?? party.traveler;
     const threshold = experienceToNextLevel(progress.level);
+    panel.querySelector<HTMLImageElement>('.hero-portrait img')!.src = getUnitAppearance(hero ?? { id: 'traveler', level: progress.level, weapon: route ? 'knife' : 'cleaver' }).portrait;
     panel.querySelector('.hero-level')!.textContent = `Lv.${progress.level}`;
     panel.querySelector('.hero-experience')!.textContent = threshold ? `经验 ${progress.xp} / ${threshold}` : '经验已满';
     panel.querySelector('.hero-next-level')!.textContent = threshold ? `距升级 ${threshold - progress.xp}` : '等级上限';
