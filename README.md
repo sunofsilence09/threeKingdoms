@@ -18,6 +18,23 @@ npm test
 npm run build
 ```
 
+## Cloudflare Workers 部署
+
+当前仓库提供 `wrangler.jsonc`，直接部署 Vite 构建生成的 `dist` 静态资源，无需 Cloudflare Vite 插件或服务端入口。
+
+连接 GitHub 后，在 Cloudflare Workers 构建设置中填写：
+
+- 构建命令：`npm run build`
+- 部署命令：`npx wrangler deploy`
+- 根目录：仓库根目录
+- Worker 名称：`threekingdoms`（与 `wrangler.jsonc` 中的 `name` 一致）
+
+将配置提交并推送到 Cloudflare 监听的分支后，重新触发部署。若修改 Worker 名称，也应同步修改配置中的 `name`。
+
+本地可先运行 `npm run build`，再用 Node.js 22 或更新版本运行 `npx wrangler deploy --dry-run` 做部署预检；预检不会发布网站。实际部署需要 Cloudflare 登录授权。
+
+此配置适用于 Workers；如果创建的是 Pages 项目，则设置构建命令 `npm run build`、输出目录 `dist`，无需填写 Workers 部署命令。
+
 ## 当前玩法
 
 1. 在序章面板点击“踏上逃难路”。
