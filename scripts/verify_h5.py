@@ -59,6 +59,23 @@ def click_tile(page, tile, touch=False):
     click_canvas(page, point['x'], point['y'], touch)
 
 
+def current_actor(state):
+    if not state or state['finished']:
+        return None
+    return next((u for u in sorted(state['units'], key=lambda u: -u['speed'])
+                 if u['hp'] > 0 and u['id'] not in state['actedIds']), None)
+
+
+def wait_player_turn(page):
+    deadline = monotonic() + 8
+    while monotonic() < deadline:
+        state = battle(page)
+        if not state or state['finished'] or state['turn'] == 'party':
+            return state
+        page.wait_for_timeout(50)
+    raise AssertionError('enemy actions did not yield to the party')
+
+
 def assert_hero(page):
     expect(page.locator('.hero-hud')).to_be_visible()
     portrait = page.locator('.hero-portrait img')
@@ -82,11 +99,11 @@ def assert_hero(page):
         assert page.locator('.hero-health-meter').evaluate('meter => meter.value') == hero['hp']
         weapon = {'cleaver': '菜刀', 'fists': '拳脚', 'knife': '短刀', 'spear': '木枪', 'bow': '猎弓'}[hero['weapon']]
         movement = 4 if state['route'] == 'sun' else 3
-        expect(page.locator('.hero-stats')).to_have_text(f"{weapon} · 攻 {hero['attack'] * (1.5 if hero.get('empowered') else 1):g} · 移 {movement}")
+        expect(page.locator('.hero-stats')).to_have_text(f"{weapon} · 攻 {hero['attack'] * (1.5 if hero.get('empowered') else 1):g} · 速 {hero['speed']} · 移 {movement}")
         expect(page.locator('.hero-level')).to_have_text(f"Lv.{hero['level']}")
         threshold = 20 + (hero['level'] - 1) * 10
         expect(page.locator('.hero-experience')).to_have_text(f"经验 {hero['xp']} / {threshold}")
-        status = '无法行动' if hero['hp'] <= 0 else '攻击强化' if hero.get('empowered') else '守势中' if hero['guarded'] else '已行动' if hero['id'] in state['actedIds'] else '已移动' if hero['id'] in state['movedIds'] else '待行动'
+        status = '无法行动' if hero['hp'] <= 0 else '攻击强化' if hero.get('empowered') else '守势中' if hero['guarded'] else '已行动' if hero['id'] in state['actedIds'] else '已移动' if hero['id'] in state['movedIds'] else '当前行动' if current_actor(state) and current_actor(state)['id'] == hero['id'] else '等待顺序'
         expect(page.locator('.hero-action')).to_have_text(status)
 
 
@@ -126,7 +143,9 @@ def plan_action(page):
       const rules = await import('/src/game/combat.ts');
       const { TERRAIN } = await import('/src/game/battlefield.ts');
       const state = game.scene.getScene('Battle').combat;
-      const ready = state.units.filter(u => u.team === 'party' && u.hp > 0 && !state.actedIds.includes(u.id));
+      const actor = rules.currentActor(state);
+      if (!actor || actor.team !== 'party') return null;
+      const ready = [actor];
       const enemies = state.units.filter(u => u.team === 'enemy' && u.hp > 0);
       const attacks = [];
       for (const unit of ready) {
@@ -177,7 +196,7 @@ def plan_action(page):
 
 def win_battle(page, touch=False):
     for _ in range(150):
-        state = battle(page)
+        state = wait_player_turn(page)
         if state is None or state['finished']:
             assert '路还在，但你们走不动了' not in page.locator('#overlay-root').inner_text(), state
             return
@@ -191,7 +210,7 @@ def win_battle(page, touch=False):
             current = battle(page)
             moved = next(u for u in current['units'] if u['id'] == unit['id'])
             assert (moved['x'], moved['y']) == (plan['tile']['x'], plan['tile']['y']), current
-            assert current['round'] == state['round'], 'movement triggered enemies early'
+            assert current['round'] == state['round'], {'reason': 'movement triggered enemies early', 'plan': plan, 'before': state, 'after': current}
         if plan['target']:
             click_tile(page, next(e for e in state['units'] if e['id'] == plan['target']), touch)
         else:
@@ -238,6 +257,8 @@ def main():
             expect(page.get_by_role('button', name='进入战斗')).to_be_visible()
             page.get_by_role('button', name='进入战斗').click()
             wait_scene(page, 'Battle')
+            click_canvas(page, 741, 480, touch)  # Aman's faster turn.
+            wait_player_turn(page)
             page.get_by_role('button', name='选中主角姜垣').click()
             page.wait_for_timeout(60)
             assert battle(page)['selectedId'] == 'traveler'
@@ -245,15 +266,17 @@ def main():
             assert_hero(page)
             expect(page.locator('.hero-action')).to_have_text('守势中')
             if index == 0:
-                click_tile(page, {'x': 3, 'y': 5})
-                click_tile(page, {'x': 4, 'y': 5})
-                assert battle(page)['units'][1]['x'] == 4
+                wait_player_turn(page)
+                click_tile(page, {'x': 2, 'y': 6})
+                click_tile(page, {'x': 3, 'y': 6})
+                assert battle(page)['units'][2]['x'] == 3
                 page.reload(wait_until='networkidle')
                 wait_scene(page, 'Battle')
                 assert battle(page)['mode'] == 'ambush'
-                assert battle(page)['units'][1]['x'] == 3
+                assert battle(page)['units'][2]['x'] == 2
                 assert page.locator('#overlay-root').inner_text() == ''
                 for _ in range(40):
+                    wait_player_turn(page)
                     if battle(page)['finished']:
                         break
                     click_canvas(page, 870, 480)

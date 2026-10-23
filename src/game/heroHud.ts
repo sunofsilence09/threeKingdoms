@@ -1,6 +1,6 @@
 import { showCharacterPanel } from './characterPanel';
 import { getState } from './runtime';
-import { attackPower, movementRange, WEAPONS, type CombatState } from './combat';
+import { currentActor, attackPower, movementRange, WEAPONS, type CombatState } from './combat';
 import { createPartyProgress, experienceToNextLevel, type PartyProgress } from './growth';
 import type { RouteId } from './state';
 import { showCharacterDetails } from './characterDetails';
@@ -63,11 +63,11 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
       value.textContent = `${hero.hp} / ${hero.maxHp}`;
       meter.max = hero.maxHp;
       meter.value = Math.max(0, hero.hp);
-      stats.textContent = `${WEAPONS[hero.weapon].name} · 攻 ${attackPower(hero)} · 移 ${movementRange(combat, hero)}`;
-      action.textContent = hero.hp <= 0 ? '无法行动' : hero.empowered ? '攻击强化' : hero.guarded ? '守势中' : combat.actedIds.includes(hero.id) ? '已行动' : combat.movedIds.includes(hero.id) ? '已移动' : '待行动';
-      panel.classList.toggle('is-unavailable', hero.hp <= 0 || combat.actedIds.includes(hero.id));
+      stats.textContent = `${WEAPONS[hero.weapon].name} · 攻 ${attackPower(hero)} · 速 ${hero.speed} · 移 ${movementRange(combat, hero)}`;
+      action.textContent = hero.hp <= 0 ? '无法行动' : hero.empowered ? '攻击强化' : hero.guarded ? '守势中' : combat.actedIds.includes(hero.id) ? '已行动' : combat.movedIds.includes(hero.id) ? '已移动' : currentActor(combat)?.id === hero.id ? '当前行动' : '等待顺序';
+      panel.classList.toggle('is-unavailable', currentActor(combat)?.id !== hero.id);
       const button = panel.querySelector<HTMLButtonElement>('button.hero-portrait');
-      if (button) button.disabled = hero.hp <= 0 || combat.actedIds.includes(hero.id);
+      if (button) button.disabled = currentActor(combat)?.id !== hero.id;
     } else {
       stats.textContent = '同行 · 阿满 / 陈达';
       action.textContent = '行旅中';

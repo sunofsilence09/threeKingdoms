@@ -1,6 +1,6 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
-from verify_h5 import battle, click_canvas, click_tile, wait_scene, assert_hero, assert_text_bounds
+from verify_h5 import URL, wait_player_turn, battle, click_canvas, click_tile, wait_scene, assert_hero, assert_text_bounds
 
 ARTIFACTS = Path(__file__).resolve().parents[1] / 'artifacts'
 ARTIFACTS.mkdir(exist_ok=True)
@@ -16,10 +16,13 @@ def fixture(page, kind):
     page.evaluate('''async kind => {
       const { game } = await import([...document.scripts].find(s => s.src.includes('/src/main.ts')).src);
       const scene = game.scene.getScene('Battle');
+      scene.time.removeAllEvents();
+      scene.enemyPending = false;
       scene.combat = { ...scene.combat, terrain: [], round: 1, movedIds: [], actedIds: [], turn: 'party', selectedId: 'traveler', randomSeed: 1,
         units: scene.combat.units.map(u => ({...u, ultimateUsed:false, empowered:false, guarded:false})) };
       const hero = scene.combat.units.find(u => u.id === 'traveler');
       const enemy = scene.combat.units.find(u => u.id === 'bandit-leader');
+      hero.speed=20;
       hero.x=3; hero.y=4; enemy.x=4; enemy.y=4;
       if (kind === 'survival') hero.hp=Math.floor(hero.maxHp/2);
       if (kind === 'dodge') {
@@ -41,7 +44,7 @@ def main():
             page = context.new_page()
             page.set_default_timeout(8000)
             page.on('pageerror',lambda e: errors.append(str(e)))
-            page.goto('http://127.0.0.1:5173',wait_until='networkidle')
+            page.goto(URL,wait_until='networkidle')
             page.evaluate("localStorage.setItem('three-kingdoms-demo-state',JSON.stringify({phase:'overworld',route:null,supplies:3,morale:2,flags:{ambushWon:true},party:{traveler:{level:3,xp:25},aman:{level:3,xp:25},'chen-da':{level:3,xp:25}}}))")
             page.reload(wait_until='networkidle');wait_scene(page,'Overworld')
             def press(locator):
@@ -93,7 +96,6 @@ def main():
             expect(page.get_by_role('button',name='增加武力',exact=True)).to_be_disabled()
             expect(page.get_by_role('button',name='确认分配',exact=True)).to_be_disabled()
             press(page.get_by_role('button',name='返回战斗',exact=True))
-            click_canvas(page,804,390,touch)
             before=battle(page)
             aman=next(u for u in before['units'] if u['id']=='aman')
             click_canvas(page,804,440,touch)
@@ -115,6 +117,7 @@ def main():
             assert battle(page)['units'][0]['ultimateUsed']
             fixture(page,'dodge')
             click_canvas(page,870,480,touch)
+            wait_player_turn(page)
             state=battle(page)
             assert state['units'][0]['hp']==10 and state['lastEvent']['kind']=='dodge',state
             assert_text_bounds(page)

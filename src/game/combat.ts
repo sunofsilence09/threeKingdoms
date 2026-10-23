@@ -21,7 +21,7 @@ export const WEAPONS: Record<WeaponId, { name: string; mark: string; hp: number;
 };
 export interface CombatUnit {
   id: string; name: string; team: CombatTeam; x: number; y: number;
-  hp: number; maxHp: number; attack: number; guarded: boolean;
+  hp: number; maxHp: number; attack: number; speed: number; guarded: boolean;
   weapon: WeaponId; level: number; xp: number; defense: number; dodgeRate: number;
   ultimate: UltimateId; ultimateUsed: boolean; empowered: boolean;
 }
@@ -39,14 +39,14 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
     const { level, xp, attributes } = party[id];
     const bonus = attributeBonuses(attributes);
     const maxHp = WEAPONS[weapon].hp + (level - 1) * 2 + bonus.hp + (route === 'liu' ? 1 : 0);
-    return { id, name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp,
+    return { id, name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp, speed: { traveler: 12, aman: 14, 'chen-da': 10 }[id],
       attack: WEAPONS[weapon].attack + Math.floor((level - 1) / 2) + bonus.attack + (route === 'cao' && id === 'traveler' ? 1 : 0), guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
       ultimate: id === 'traveler' ? 'survival' : 'desperation', ultimateUsed: false, empowered: false };
   };
   const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit =>
-    ({ id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
+    ({ id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
   const advanced = mode === 'route';
-  return {
+  return advanceTurn({
     width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0)) >>> 0,
     units: [
       makeAlly('traveler', '姜垣', advanced ? 4 : 3, 4, advanced ? 'knife' : 'cleaver'),
@@ -56,7 +56,7 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
       makeEnemy('bandit-scout-a', '拦路山贼', advanced ? 8 : 7, 6, 'cleaver', advanced ? 7 : 4, 2),
       makeEnemy('bandit-scout-b', advanced ? '山贼弓手' : '山贼喽啰', advanced ? 11 : 9, advanced ? 4 : 5, advanced ? 'bow' : 'fists', advanced ? 6 : 4, 2),
     ],
-  };
+  });
 }
 
 export function terrainAt(state: CombatState, x: number, y: number): TerrainKind {
@@ -71,14 +71,28 @@ export function isBattleOver(state: CombatState): BattleResult {
   if (!state.units.some(u => u.team === 'enemy' && u.hp > 0)) return 'win';
   return 'ongoing';
 }
+/** Stable ties follow encounter placement; both teams share one initiative queue. */
+export function actionOrder(state: CombatState): CombatUnit[] {
+  return state.units.filter(u => u.hp > 0).sort((a, b) => b.speed - a.speed);
+}
+export function currentActor(state: CombatState): CombatUnit | undefined {
+  if (isBattleOver(state) !== 'ongoing') return undefined;
+  return actionOrder(state).find(u => !state.actedIds.includes(u.id));
+}
+export function advanceTurn(state: CombatState): CombatState {
+  if (isBattleOver(state) !== 'ongoing') return { ...state, selectedId: null };
+  const next = currentActor(state) ? state : { ...state, round: state.round + 1, actedIds: [], movedIds: [] };
+  const actor = currentActor(next)!;
+  return { ...next, turn: actor.team, selectedId: actor.team === 'party' ? actor.id : null };
+}
 function canAct(state: CombatState, unit: CombatUnit): boolean {
-  return unit.hp > 0 && unit.team === state.turn && !state.actedIds.includes(unit.id) && isBattleOver(state) === 'ongoing';
+  return currentActor(state)?.id === unit.id;
 }
 function updateUnit(state: CombatState, id: string, updater: (u: CombatUnit) => CombatUnit): CombatState {
   return { ...state, units: state.units.map(u => u.id === id ? updater(u) : u) };
 }
 function markActed(state: CombatState, id: string): CombatState {
-  return { ...state, selectedId: null, actedIds: [...state.actedIds, id] };
+  return { ...updateUnit(state, id, u => ({ ...u, empowered: false })), selectedId: null, actedIds: [...state.actedIds, id] };
 }
 export function applyGuard(state: CombatState, unitId: string): CombatState {
   const unit = state.units.find(u => u.id === unitId);
@@ -184,42 +198,41 @@ export function performAttack(state: CombatState, attackerId: string, targetId: 
   return { ...acted, randomSeed: random.seed, lastEvent: { kind: dodged ? 'dodge' : 'attack', actorId: attackerId, targetId, damage } };
 }
 export function resolveEnemyTurn(state: CombatState): CombatState {
-  if (state.turn !== 'party' || isBattleOver(state) !== 'ongoing') return state;
+  const actor = currentActor(state);
+  if (!actor || actor.team !== 'enemy') return state;
   const events: CombatEvent[] = [];
-  let next: CombatState = { ...state, turn: 'enemy', selectedId: null, units: state.units.map(u => ({ ...u, empowered: false })) };
-  for (const id of state.units.filter(u => u.team === 'enemy' && u.hp > 0).map(u => u.id)) {
-    if (isBattleOver(next) !== 'ongoing') break;
-    let enemy = next.units.find(u => u.id === id)!;
-    const targets = next.units.filter(u => u.team === 'party' && u.hp > 0);
-    let target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
-    if (!target) {
-      const paths = pathsFrom(next, enemy);
-      const goals = paths.flatMap(tile => targets.filter(u => canAttack(next, { ...enemy, x: tile.x, y: tile.y }, u)).map(u => ({ tile, target: u })));
-      goals.sort((a, b) => a.tile.cost - b.tile.cost || a.target.hp - b.target.hp);
-      const goal = goals[0];
-      if (goal) {
-        let spent = 0;
-        let destination: Tile | undefined;
-        for (const tile of goal.tile.path) {
-          spent += TERRAIN[terrainAt(next, tile.x, tile.y)].cost;
-          if (spent > movementRange(next, enemy)) break;
-          destination = tile;
-        }
-        if (destination) next = moveUnit(next, id, destination.x, destination.y);
-        enemy = next.units.find(u => u.id === id)!;
-        target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
+  let next: CombatState = { ...state, turn: 'enemy', selectedId: null };
+  const id = actor.id;
+  let enemy = next.units.find(u => u.id === id)!;
+  const targets = next.units.filter(u => u.team === 'party' && u.hp > 0);
+  let target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
+  if (!target) {
+    const paths = pathsFrom(next, enemy);
+    const goals = paths.flatMap(tile => targets.filter(u => canAttack(next, { ...enemy, x: tile.x, y: tile.y }, u)).map(u => ({ tile, target: u })));
+    goals.sort((a, b) => a.tile.cost - b.tile.cost || a.target.hp - b.target.hp);
+    const goal = goals[0];
+    if (goal) {
+      let spent = 0;
+      let destination: Tile | undefined;
+      for (const tile of goal.tile.path) {
+        spent += TERRAIN[terrainAt(next, tile.x, tile.y)].cost;
+        if (spent > movementRange(next, enemy)) break;
+        destination = tile;
       }
-    }
-    if (target) {
+      if (destination) next = moveUnit(next, id, destination.x, destination.y);
       enemy = next.units.find(u => u.id === id)!;
-      if (enemy.hp <= enemy.maxHp / 2) {
-        const activated = activateUltimate(next, id);
-        if (activated !== next) events.push(activated.lastEvent!);
-        next = activated;
-      }
-      next = performAttack(next, id, target.id);
-      events.push(next.lastEvent!);
+      target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
     }
   }
-  return { ...next, turn: 'party', round: state.round + 1, actedIds: [], movedIds: [], turnEvents: events, units: next.units.map(u => ({ ...u, empowered: false })) };
+  if (target) {
+    enemy = next.units.find(u => u.id === id)!;
+    if (enemy.hp <= enemy.maxHp / 2) {
+      const activated = activateUltimate(next, id);
+      if (activated !== next) events.push(activated.lastEvent!);
+      next = activated;
+    }
+    next = performAttack(next, id, target.id);
+    events.push(next.lastEvent!);
+  } else next = applyGuard(next, id);
+  return advanceTurn({ ...next, turnEvents: events });
 }

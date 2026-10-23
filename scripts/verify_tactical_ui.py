@@ -1,6 +1,6 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
-from verify_h5 import battle, click_canvas, click_tile, assert_hero, assert_text_bounds, assert_visible, wait_scene
+from verify_h5 import URL, wait_player_turn, battle, click_canvas, click_tile, assert_hero, assert_text_bounds, assert_visible, wait_scene
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / 'artifacts'
@@ -46,7 +46,7 @@ def main():
             context = browser.new_context(viewport={'width': width, 'height': height}, has_touch=touch)
             page = context.new_page()
             page.on('pageerror', lambda error: errors.append(str(error)))
-            page.goto('http://127.0.0.1:5173', wait_until='networkidle')
+            page.goto(URL, wait_until='networkidle')
             page.evaluate("localStorage.setItem('three-kingdoms-demo-state', JSON.stringify({phase:'battle',route:null,supplies:3,morale:2,flags:{}}))")
             page.reload(wait_until='networkidle')
             wait_scene(page, 'Battle')
@@ -56,6 +56,8 @@ def main():
             assert (battle(page)['width'], battle(page)['height']) == (16, 10)
             assert_hero(page)
             assert_text_bounds(page)
+            click_canvas(page, 741, 480, touch)
+            wait_player_turn(page)
             page.get_by_role('button', name='选中主角姜垣').click()
             page.wait_for_timeout(50)
             before = battle(page)

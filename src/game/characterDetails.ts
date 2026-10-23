@@ -1,3 +1,4 @@
+import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
 import { getUnitAppearance } from './characters';
 import { attackPower, createCombatState, movementRange, ULTIMATES, WEAPONS, type CombatState } from './combat';
@@ -12,8 +13,6 @@ import { createUnitPreview } from './unitPreview';
 export function showCharacterDetails(id: string = 'traveler', combat?: CombatState): void {
   const root = document.querySelector<HTMLElement>('#overlay-root');
   if (!root || root.querySelector('.character-details')) return;
-  const previous = [...root.childNodes];
-  const focus = document.activeElement as HTMLElement | null;
   const state = getState();
   const encounter = combat ?? createCombatState(state.route, state.party);
   const units = encounter.units.filter(u => combat || u.team === 'party');
@@ -34,32 +33,9 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     <p class="character-bio"></p><section class="hero-gallery" aria-label="姜垣外观图鉴" hidden></section><p class="character-battle-status"></p>
     <dl class="character-stats"></dl><div class="character-attributes" aria-label="六维属性"></div>
     <section class="character-ultimate"><h2></h2><p></p></section><p class="character-equipment-note"></p></div></div>`;
-  const inertTargets = [...document.querySelectorAll<HTMLElement>('#hud-root, #game-container')];
-  const previousInert = inertTargets.map(target => target.inert);
-  inertTargets.forEach(target => { target.inert = true; });
-  const scroll = root.scrollTop;
-  root.replaceChildren(panel);
-  const close = () => {
-    document.removeEventListener('keydown', escape);
-    root.replaceChildren(...previous);
-    inertTargets.forEach((target, index) => { target.inert = previousInert[index]; });
-    root.scrollTop = scroll;
-    if (focus?.isConnected) focus.focus({ preventScroll: true });
-  };
-  const escape = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); }
-  };
-  document.addEventListener('keydown', escape);
+  const close = openInspection(panel);
   const closeButton = panel.querySelector<HTMLButtonElement>('.character-close')!;
   closeButton.addEventListener('click', close);
-  panel.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); }
-    if (event.key !== 'Tab') return;
-    const controls = [...panel.querySelectorAll<HTMLButtonElement>('button:not(:disabled), select')];
-    const first = controls[0], last = controls[controls.length - 1];
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-  });
   const tabs = panel.querySelector('.character-tabs')!;
   const categories = panel.querySelector('.character-categories')!;
   const groups = [['party', '同行'], ['people', '乱世人物'], ...(combat ? [['enemy', '本场敌人']] : [])] as const;
@@ -119,7 +95,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     if (historical) {
       panel.querySelector('.character-level')!.textContent = '尚未同行';
       panel.querySelector('.character-battle-status')!.textContent = '人物志 · 尚未加入同行队伍';
-      renderStats([['身份', historical.role], ['擅长', historical.specialty], ['随身', historical.equipment]]);
+      renderStats([['身份', historical.role], ['擅长', historical.specialty], ['随身', historical.equipment], ['速度', `${historical.speed}`]]);
       attributes.replaceChildren();
       panel.querySelector('.character-equipment-note')!.textContent = '小人预览与棋盘共用外观。相遇与同行进度会在后续行旅中展开。';
       return;
@@ -131,7 +107,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     const weapon = WEAPONS[selected.weapon];
     const stats: Array<[string, string]> = [
       ['体力', `${selected.hp} / ${selected.maxHp}`], ['武器', weapon.name], ['攻击', `${attackPower(selected)}`],
-      ['防御', `${selected.defense}`], ['闪避', `${Math.round(selected.dodgeRate * 100)}%`],
+      ['速度', `${selected.speed}`], ['防御', `${selected.defense}`], ['闪避', `${Math.round(selected.dodgeRate * 100)}%`],
       ['移动', `${movementRange(encounter, selected)} 格`], ['射程', `${weapon.min}–${weapon.max} 格`],
       ['经验', selected.team === 'enemy' ? '—' : threshold ? `${selected.xp} / ${threshold}` : '等级已满'],
     ];

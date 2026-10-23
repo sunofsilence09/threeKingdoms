@@ -1,3 +1,4 @@
+import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_EFFECTS, ATTRIBUTE_IDS, ATTRIBUTE_LABELS, type AttributeId } from './attributes';
 import { createCombatState, ULTIMATES } from './combat';
 import { PARTY_IDS, experienceToNextLevel, type PartyId } from './growth';
@@ -12,8 +13,6 @@ const NAMES: Record<PartyId, string> = { traveler: '姜垣', aman: '阿满', 'ch
 export function showCharacterPanel(onClose?: () => void, combat?: CombatState): void {
   const root = document.querySelector('#overlay-root');
   if (!root || root.querySelector('.training-panel')) return;
-  const previous = [...root.childNodes];
-  const previousFocus = document.activeElement as HTMLElement | null;
   const original = getState();
   const readOnly = original.phase === 'battle';
   const drafts: Record<PartyId, Partial<Record<AttributeId, number>>> = { traveler: {}, aman: {}, 'chen-da': {} };
@@ -30,15 +29,9 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState): 
     <div class="ability-preview" aria-label="能力预览"></div>
     <p class="training-feedback" aria-live="polite"></p>
     <div class="panel-actions"><button type="button" class="panel-button training-confirm">确认分配</button><button type="button" class="panel-button is-quiet training-cancel">取消</button></div>`;
-  root.replaceChildren(panel);
-  const close = () => {
-    root.replaceChildren(...previous);
-    onClose?.();
-    if (previousFocus?.isConnected) previousFocus.focus();
-  };
+  const close = openInspection(panel, onClose);
   panel.querySelector('.training-cancel')!.addEventListener('click', close);
   panel.querySelector('.training-detail-open')!.addEventListener('click', () => showCharacterDetails(selected, combat));
-  panel.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); close(); } });
   const tabs = panel.querySelector('.training-tabs')!;
   for (const id of PARTY_IDS) {
     const button = document.createElement('button');

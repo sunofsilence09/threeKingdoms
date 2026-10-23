@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  applyGuard, canAttack, createCombatState, isBattleOver, moveUnit,
+  advanceTurn, applyGuard, canAttack, createCombatState, isBattleOver, moveUnit,
   reachableTiles, resolveEnemyTurn, performAttack, movementRange, terrainAt, type CombatState,
 } from './combat';
 import { createPartyProgress } from './growth';
@@ -10,9 +10,9 @@ function arena(): CombatState {
   return {
     ...state, width: 8, height: 6, terrain: [],
     units: [
-      { ...state.units[0], x: 1, y: 2, attack: 3, hp: 10, maxHp: 10, weapon: 'cleaver' },
-      { ...state.units[1], x: 1, y: 3, attack: 2, hp: 9, maxHp: 9, weapon: 'fists' },
-      { ...state.units[3], x: 4, y: 2, attack: 3, hp: 7, maxHp: 7, weapon: 'knife' },
+      { ...state.units[0], x: 1, y: 2, speed: 20, attack: 3, hp: 10, maxHp: 10, weapon: 'cleaver' },
+      { ...state.units[1], x: 1, y: 3, speed: 15, attack: 2, hp: 9, maxHp: 9, weapon: 'fists' },
+      { ...state.units[3], x: 4, y: 2, speed: 10, attack: 3, hp: 7, maxHp: 7, weapon: 'knife' },
     ],
   };
 }
@@ -93,7 +93,7 @@ describe('refugee tactical combat', () => {
     state.route = 'liu';
     state.units[2] = { ...state.units[2], x: 2, y: 2 };
     const guarded = applyGuard(state, 'traveler');
-    const after = performAttack({ ...guarded, turn: 'enemy' }, 'bandit-leader', 'traveler');
+    const after = performAttack(advanceTurn(applyGuard(guarded, 'aman')), 'bandit-leader', 'traveler');
     expect(find(after, 'traveler').hp).toBe(9);
   });
 
@@ -125,9 +125,9 @@ describe('refugee tactical combat', () => {
 
   it('lets enemies use full movement and attack, then resets actions for the next round', () => {
     const state = arena();
-    const next = resolveEnemyTurn(applyGuard(state, 'aman'));
+    const next = resolveEnemyTurn(advanceTurn(applyGuard(applyGuard(state, 'traveler'), 'aman')));
     expect(find(next, 'bandit-leader').x).toBe(2);
-    expect(find(next, 'traveler').hp).toBe(7);
+    expect(find(next, 'traveler').hp).toBe(8);
     expect(next.round).toBe(2);
     expect(next.turn).toBe('party');
     expect(next.actedIds).toEqual([]);
@@ -141,7 +141,8 @@ describe('refugee tactical combat', () => {
     state.units[1] = { ...state.units[1], x: 1, y: 3 };
     state.units[2] = { ...state.units[2], x: 4, y: 0 };
     state.terrain = [{ x: 5, y: 0, kind: 'rock' }, { x: 6, y: 1, kind: 'rock' }, { x: 7, y: 0, kind: 'rock' }];
-    const next = resolveEnemyTurn(state);
+    state.units[2].speed = 30;
+    const next = resolveEnemyTurn(advanceTurn(state));
     const moved = find(next, 'bandit-leader');
     expect(Math.abs(moved.x - 1) + Math.abs(moved.y - 3)).toBeLessThan(6);
   });

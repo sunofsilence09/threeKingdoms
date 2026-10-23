@@ -2,6 +2,7 @@ import { showCharacterPanel } from './characterPanel';
 import { showCharacterDetails } from './characterDetails';
 import { getRouteLeader } from './historicalCharacters';
 import type { RouteId } from './state';
+import { clearInspections } from './inspectionOverlay';
 export interface OverlayAction {
   label: string;
   onClick: () => void;
@@ -9,6 +10,7 @@ export interface OverlayAction {
 }
 
 export function clearOverlay(): void {
+  clearInspections();
   document.querySelector('#overlay-root')?.replaceChildren();
 }
 

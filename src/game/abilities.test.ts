@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activateUltimate, applyGuard, attackPower, createCombatState, performAttack, resolveEnemyTurn, ultimateAvailability, type CombatState } from './combat';
+import { advanceTurn, activateUltimate, applyGuard, attackPower, createCombatState, performAttack, resolveEnemyTurn, ultimateAvailability, type CombatState } from './combat';
 import { createPartyProgress } from './growth';
 
 function duel(ordinary = false): CombatState {
@@ -53,10 +53,10 @@ describe('character ultimates and real dodge', () => {
     expect(activateUltimate(state, 'traveler')).toBe(state);
   });
 
-  it('expires unused empowerment when the side ends its turn', () => {
+  it('expires unused empowerment when the actor ends its action', () => {
     const state = duel(true);
     const activated = activateUltimate(state, 'aman');
-    const next = resolveEnemyTurn(activated);
+    const next = applyGuard(activated, 'aman');
     expect(next.units[0].empowered).toBe(false);
     expect(next.units[0].ultimateUsed).toBe(true);
   });
@@ -104,7 +104,8 @@ describe('character ultimates and real dodge', () => {
     state.units[0].hp = state.units[0].maxHp = 20;
     state.units[1].hp = 4;
     state.units[1].maxHp = 10;
-    const next = resolveEnemyTurn(state);
+    state.units[1].speed = 30;
+    const next = resolveEnemyTurn(advanceTurn(state));
     expect(next.units[1]).toMatchObject({ hp: 2, ultimateUsed: true, empowered: false });
     expect(next.units[0].hp).toBe(14);
   });

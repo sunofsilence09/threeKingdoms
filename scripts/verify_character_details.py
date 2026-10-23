@@ -1,6 +1,6 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
-from verify_h5 import battle, click_canvas, wait_scene
+from verify_h5 import URL, battle, click_canvas, wait_scene
 
 ARTIFACTS = Path(__file__).resolve().parents[1] / 'artifacts'
 ARTIFACTS.mkdir(exist_ok=True)
@@ -16,7 +16,7 @@ def main():
             page = context.new_page()
             page.set_default_timeout(7000)
             page.on('pageerror', lambda e: errors.append(str(e)))
-            page.goto('http://127.0.0.1:5173', wait_until='networkidle')
+            page.goto(URL, wait_until='networkidle')
             page.evaluate("localStorage.setItem('three-kingdoms-demo-state', JSON.stringify({phase:'overworld',route:null,supplies:3,morale:2,flags:{ambushWon:true},party:{traveler:{level:3,xp:25},aman:{level:3,xp:25},'chen-da':{level:3,xp:25}}}))")
             page.reload(wait_until='networkidle')
             wait_scene(page, 'Overworld')
@@ -59,7 +59,7 @@ def main():
             assert len(models) == 6
             assert len(set(m['pose'] for m in models)) == 5
             assert [m['weapon'] for m in models[:3]] == ['knife', 'spear', 'bow']
-            click_canvas(page, 908, 390, width != 1280)
+            click_canvas(page, 908, 285, width != 1280)
             expect(dialog.locator('h1')).to_have_text('阿满')
             expect(dialog.locator('[data-detail-stat="武器"] strong')).to_have_text('木枪')
             assert battle(page) == before

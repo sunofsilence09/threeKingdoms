@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { canAttack, reachableTiles, terrainAt, type CombatState, type CombatUnit } from './combat';
+import { currentActor, canAttack, reachableTiles, terrainAt, type CombatState, type CombatUnit } from './combat';
 import { TERRAIN, type TerrainKind } from './battlefield';
 import { addText } from './text';
 import { drawUnitModel } from './unitModel';
@@ -110,10 +110,10 @@ export class BattleBoard {
     for (const unit of state.units.filter(u => u.hp > 0)) {
       const x = (unit.x + 0.5) * BASE_CELL, y = (unit.y + 0.5) * BASE_CELL;
       const acted = state.actedIds.includes(unit.id);
-      const attackable = selected && canAttack(state, selected, unit) && !state.actedIds.includes(selected.id);
+      const attackable = selected && currentActor(state)?.id === selected.id && canAttack(state, selected, unit) && !state.actedIds.includes(selected.id);
       const color = unit.team === 'party' ? 0x8fae95 : 0xba7770;
       const shape = this.scene.add.ellipse(x, y + 12, 39, 15, color, acted ? 0.15 : 0.35);
-      shape.setStrokeStyle(unit.id === state.selectedId || attackable ? 3 : 1, attackable ? 0xffb2a2 : unit.id === state.selectedId ? 0xffedc3 : color);
+      shape.setStrokeStyle(unit.id === currentActor(state)?.id || attackable ? 3 : 1, attackable ? 0xffb2a2 : unit.id === currentActor(state)?.id ? 0xffedc3 : color);
       this.layer.add(shape);
       const model = drawUnitModel(this.scene, unit, x, y - 1, acted);
       this.layer.add(model);

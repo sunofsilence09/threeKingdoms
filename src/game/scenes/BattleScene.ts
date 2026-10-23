@@ -3,7 +3,7 @@ import { showCharacterDetails } from '../characterDetails';
 import { victoryExperience } from '../attributes';
 import Phaser from 'phaser';
 import {
-  activateUltimate, attackPower, ultimateAvailability, ULTIMATES, applyGuard, createCombatState, isBattleOver, movementRange, moveUnit,
+  actionOrder, advanceTurn, currentActor, activateUltimate, attackPower, ultimateAvailability, ULTIMATES, applyGuard, createCombatState, isBattleOver, movementRange, moveUnit,
   performAttack, resolveEnemyTurn, terrainAt, WEAPONS, type CombatState,
 } from '../combat';
 import { BattleBoard, BATTLE_VIEW } from '../battleBoard';
@@ -15,6 +15,7 @@ import { rewardVictory } from '../state';
 import { addText } from '../text';
 import { getState, resetState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
+import { isInspecting } from '../inspectionOverlay';
 
 interface BattleData { mode?: BattleMode }
 
@@ -26,6 +27,7 @@ export class BattleScene extends Phaser.Scene {
   private message!: Phaser.GameObjects.Text;
   private roundLabel!: Phaser.GameObjects.Text;
   private finished = false;
+  private enemyPending = false;
   private ultimateLabel!: Phaser.GameObjects.Text;
   private ultimateButton!: Phaser.GameObjects.Rectangle;
   private heroHud!: ReturnType<typeof createHeroHud>;
@@ -34,6 +36,7 @@ export class BattleScene extends Phaser.Scene {
   init(data: BattleData): void { this.mode = data.mode ?? 'route'; }
   create(): void {
     this.finished = false;
+    this.enemyPending = false;
     clearOverlay();
     const state = setState({ ...getState(), phase: 'battle' });
     this.combat = createCombatState(state.route, state.party, this.mode);
@@ -44,13 +47,13 @@ export class BattleScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.heroHud.destroy());
     setStatus(this.mode === 'ambush' ? '旧驿道 · 流民求生' : '路线任务 · 第一次持械同行');
     this.roundLabel = addText(this, 684, 224, '', { color: '#ead9b9', fontSize: '18px' });
-    this.message = addText(this, 684, 260, this.mode === 'ambush'
-      ? '姜垣握着菜刀，阿满和陈达赤手同行。\n先选队员，再点亮格移动或攻击敌人。'
+    this.message = addText(this, 26, 487, this.mode === 'ambush'
+      ? '姜垣握着菜刀，阿满和陈达赤手同行。\n按速度依次行动，亮格移动或攻击敌人。'
       : '姜垣获短刀，阿满持木枪，陈达用猎弓。\n弓箭需隔 2–3 格，留意墙后与桥头。', {
-      color: '#bdc7bf', fontSize: '12px', lineSpacing: 5, wordWrap: { width: 244 },
+      color: '#bdc7bf', fontSize: '12px', lineSpacing: 0, wordWrap: { width: 630 },
     });
     this.drawControls();
-    this.renderBoard();
+    this.continueTurns();
   }
   private drawBackground(): void {
     const g = this.add.graphics();
@@ -66,8 +69,6 @@ export class BattleScene extends Phaser.Scene {
     const state = getState();
     addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: '#e7d7b9', fontSize: '14px' });
     addText(this, 26, 91, '16×10 · 拖动查看战场', { color: '#c8bea3', fontSize: '13px' });
-    addText(this, 26, 487, '绿点可移动 · 红框可攻击 · 白点守势', { color: '#b8c8b5', fontSize: '14px' });
-    addText(this, 26, 511, '树林耗 2 点移动并抵挡 1 点远程伤害；石、车、墙不可穿越。', { color: '#a6b9ab', fontSize: '13px' });
   }
   private button(x: number, y: number, width: number, height: number, label: string, callback: () => void, primary = false): void {
     const shape = this.add.rectangle(x, y, width, height, primary ? 0xc99c5a : 0x334c43).setDepth(25);
@@ -87,8 +88,8 @@ export class BattleScene extends Phaser.Scene {
     this.ultimateButton.on('pointerdown', () => this.useUltimate());
     this.ultimateLabel = addText(this, 804, 444, '绝招 · 先选择队员', { color: '#f0d6a7', fontSize: '12px' }).setOrigin(0.5).setDepth(26);
     this.button(741, 480, 112, 48, '守势', () => this.guardSelected());
-    this.button(870, 480, 112, 48, '结束回合', () => this.endPlayerTurn(), true);
-    addText(this, 684, 320, '同行队员 · 点击切换', { color: '#c99c5a', fontSize: '14px' });
+    this.button(870, 480, 112, 48, '结束行动', () => this.endPlayerTurn(), true);
+    addText(this, 684, 250, '行动次序 · 速度高者先行', { color: '#c99c5a', fontSize: '14px' });
   }
   private renderBoard(): void {
     this.heroHud.update(this.combat);
@@ -98,45 +99,47 @@ export class BattleScene extends Phaser.Scene {
     this.ultimateLabel.setText(selected ? `${ULTIMATES[selected.ultimate].name} · ${availability!.reason}` : '绝招 · 先选择队员');
     this.ultimateButton.setAlpha(availability?.available ? 1 : 0.45);
     this.roster.removeAll(true);
-    const remaining = this.combat.units.filter(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id)).length;
-    this.roundLabel.setText(`第 ${this.combat.round} 回合 · 待行动 ${remaining}`);
-    this.combat.units.filter(u => u.team === 'party').forEach((unit, index) => {
-      const y = 354 + index * 32;
-      const selected = this.combat.selectedId === unit.id;
-      const shape = this.add.rectangle(784, y, 200, 28, selected ? 0x3b5141 : 0x253432);
-      shape.setStrokeStyle(1, selected ? 0xd8c199 : 0x40554a).setInteractive({ useHandCursor: true });
-      shape.on('pointerdown', () => this.selectUnit(unit.id));
+    const actor = currentActor(this.combat);
+    this.roundLabel.setText(`第 ${this.combat.round} 回合 · ${actor?.name ?? '战斗结束'}`);
+    actionOrder(this.combat).forEach((unit, index) => {
+      const y = 285 + index * 25;
+      const active = actor?.id === unit.id;
+      const acted = this.combat.actedIds.includes(unit.id);
+      const shape = this.add.rectangle(784, y, 200, 23, active ? 0x4c5039 : 0x253432);
+      shape.setStrokeStyle(1, active ? 0xe4bd78 : 0x40554a).setInteractive({ useHandCursor: true });
+      shape.on('pointerdown', () => unit.team === 'party' ? this.selectUnit(unit.id) : showCharacterDetails(unit.id, this.combat));
       this.roster.add(shape);
-      const status = unit.hp <= 0 ? '倒地' : this.combat.actedIds.includes(unit.id) ? '已行动' : unit.empowered ? '强化中' : '待行动';
-      this.roster.add(addText(this, 688, y, `${unit.name} Lv.${unit.level} · ${WEAPONS[unit.weapon].name}`, { color: unit.hp > 0 ? '#e2d9bd' : '#918c81', fontSize: '13px' }).setOrigin(0, 0.5));
-      this.roster.add(addText(this, 880, y, status, { color: '#b3c8b3', fontSize: '11px' }).setOrigin(1, 0.5));
-      const detail = this.add.rectangle(908, y, 36, 28, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
+      const color = acted ? '#829087' : unit.team === 'party' ? '#c4dec3' : '#ecb3a4';
+      this.roster.add(addText(this, 688, y, `${active ? '▶' : index + 1} ${unit.name} · 速 ${unit.speed}`, { color, fontSize: '12px' }).setOrigin(0, 0.5));
+      this.roster.add(addText(this, 880, y, acted ? '已行动' : active ? '当前' : '等待', { color, fontSize: '11px' }).setOrigin(1, 0.5));
+      const detail = this.add.rectangle(908, y, 36, 23, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
       detail.setName(`detail:${unit.id}`);
       detail.on('pointerdown', () => showCharacterDetails(unit.id, this.combat));
       this.roster.add(detail);
-      this.roster.add(addText(this, 908, y, '详情', { color: '#e5d4ae', fontSize: '13px' }).setOrigin(0.5));
+      this.roster.add(addText(this, 908, y, '详情', { color: '#e5d4ae', fontSize: '12px' }).setOrigin(0.5));
     });
   }
+
   private selectUnit(id: string): void {
-    if (this.finished) return;
+    if (this.finished || this.enemyPending) return;
     const unit = this.combat.units.find(u => u.id === id && u.team === 'party' && u.hp > 0);
     if (!unit) return;
-    if (this.combat.actedIds.includes(id)) { this.message.setText(`${unit.name} 本回合已行动。`); return; }
+    if (currentActor(this.combat)?.id !== id) { this.message.setText(`${unit.name} 尚未轮到行动，请按右侧次序操作。`); return; }
     this.combat = { ...this.combat, selectedId: id };
     const weapon = WEAPONS[unit.weapon];
-        const availability = ultimateAvailability(this.combat, unit);
-    this.message.setText(`${unit.name} Lv.${unit.level} · ${weapon.name}\n攻 ${attackPower(unit)} · 防 ${unit.defense} · 闪 ${Math.round(unit.dodgeRate * 100)}% · 移 ${movementRange(this.combat, unit)}\n体力 ${unit.hp}/${unit.maxHp} · 射程 ${weapon.min}–${weapon.max} · ${availability.available ? '绝招可用' : availability.reason}`);
+    const availability = ultimateAvailability(this.combat, unit);
+    this.message.setText(`${unit.name} Lv.${unit.level} · ${weapon.name}\n攻 ${attackPower(unit)} · 速 ${unit.speed} · 防 ${unit.defense} · 闪 ${Math.round(unit.dodgeRate * 100)}% · 移 ${movementRange(this.combat, unit)}\n体力 ${unit.hp}/${unit.maxHp} · 射程 ${weapon.min}–${weapon.max} · ${availability.available ? '绝招可用' : availability.reason}`);
     this.board.focus(unit);
     this.renderBoard();
   }
   private selectTile(x: number, y: number): void {
-    if (this.finished) return;
+    if (this.finished || this.enemyPending) return;
     const target = this.combat.units.find(u => u.hp > 0 && u.x === x && u.y === y);
     if (target?.team === 'party') { this.selectUnit(target.id); return; }
     const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
     const terrain = TERRAIN[terrainAt(this.combat, x, y)];
     if (!selected) {
-      this.message.setText(target ? `${target.name} · ${WEAPONS[target.weapon].name}\n体力 ${target.hp}/${target.maxHp} · 攻击 ${target.attack}\n先选择一名同行队员。` : `${terrain.name} · ${x + 1},${y + 1}\n${terrain.description}\n先选择一名同行队员。`);
+      this.message.setText(target ? `${target.name} · ${WEAPONS[target.weapon].name}\n体力 ${target.hp}/${target.maxHp} · 攻击 ${target.attack} · 速度 ${target.speed}\n先选择一名同行队员。` : `${terrain.name} · ${x + 1},${y + 1}\n${terrain.description}\n先选择一名同行队员。`);
       return;
     }
     if (target?.team === 'enemy') {
@@ -154,7 +157,7 @@ export class BattleScene extends Phaser.Scene {
     this.renderBoard();
   }
   private useUltimate(): void {
-    if (this.finished) return;
+    if (this.finished || this.enemyPending) return;
     const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
     if (!selected) { this.message.setText('先选择一名队员，再发动绝招。'); return; }
     const next = activateUltimate(this.combat, selected.id);
@@ -165,7 +168,7 @@ export class BattleScene extends Phaser.Scene {
     this.renderBoard();
   }
   private guardSelected(): void {
-    if (this.finished) return;
+    if (this.finished || this.enemyPending) return;
     const selected = this.combat.units.find(u => u.id === this.combat.selectedId);
     if (!selected) { this.message.setText('先选择一名队员，再进入守势。'); return; }
     this.combat = applyGuard(this.combat, selected.id);
@@ -173,26 +176,36 @@ export class BattleScene extends Phaser.Scene {
     this.finishPlayerAction();
   }
   private endPlayerTurn(): void {
-    if (this.finished) return;
-    for (const unit of this.combat.units.filter(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id))) this.combat = applyGuard(this.combat, unit.id);
-    this.enemyTurn();
+    if (this.finished || this.enemyPending) return;
+    const actor = currentActor(this.combat);
+    if (!actor || actor.team !== 'party') return;
+    this.combat = applyGuard(this.combat, actor.id);
+    this.message.setText(`${actor.name}结束行动，进入守势。`);
+    this.finishPlayerAction();
   }
   private finishPlayerAction(): void {
+    this.combat = advanceTurn(this.combat);
+    this.continueTurns();
+  }
+  private continueTurns(): void {
     const result = isBattleOver(this.combat);
     if (result !== 'ongoing') { this.finishBattle(result); return; }
-    if (this.combat.units.some(u => u.team === 'party' && u.hp > 0 && !this.combat.actedIds.includes(u.id))) this.renderBoard();
-    else this.enemyTurn();
-  }
-  private enemyTurn(): void {
-    this.combat = resolveEnemyTurn(this.combat);
-    const names = (id: string) => this.combat.units.find(u => u.id === id)?.name ?? '';
-    const events = this.combat.turnEvents ?? [];
-    const used = events.filter(e => e.kind === 'ultimate').map(e => names(e.actorId));
-    const dodged = events.filter(e => e.kind === 'dodge').map(e => names(e.targetId!));
-    this.message.setText(`${used.length ? `${used.join('、')}发动拼命。` : '敌军行动完毕。'}\n${dodged.length ? `${[...new Set(dodged)].join('、')}闪避了攻击！\n` : ''}第 ${this.combat.round} 回合，队伍重新就位。`);
+    const actor = currentActor(this.combat)!;
+    this.combat = { ...this.combat, selectedId: actor.team === 'party' ? actor.id : null };
+    this.enemyPending = actor.team === 'enemy';
     this.renderBoard();
-    const result = isBattleOver(this.combat);
-    if (result !== 'ongoing') this.finishBattle(result);
+    if (actor.team === 'party') { this.board.focus(actor); return; }
+    this.message.setText(`${actor.name} · 速度 ${actor.speed}\n敌方正在行动…`);
+    const act = () => {
+      if (isInspecting()) { this.time.delayedCall(100, act); return; }
+      this.combat = resolveEnemyTurn(this.combat);
+      this.enemyPending = false;
+      const events = this.combat.turnEvents ?? [];
+      const hit = events.find(e => e.kind !== 'ultimate');
+      this.message.setText(`${actor.name}${events.some(e => e.kind === 'ultimate') ? '发动拼命，' : ''}${hit ? hit.kind === 'dodge' ? '的攻击被闪避。' : `造成 ${hit.damage} 点伤害。` : '进入守势。'}`);
+      this.continueTurns();
+    };
+    this.time.delayedCall(650, act);
   }
   private finishBattle(result: 'win' | 'loss'): void {
     this.finished = true;
