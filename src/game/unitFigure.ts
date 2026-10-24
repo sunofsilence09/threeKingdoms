@@ -21,6 +21,17 @@ export interface FigurePainter {
 
 /** Small, readable figures share clothing and silhouette with the full-body artwork. */
 export function paintUnitFigure(g: FigurePainter, unit: { id: string; weapon: ModelWeapon; level?: number }): void {
+  if (unit.id.startsWith('wolf:')) {
+    g.fillStyle(0x26352e, .35).fillEllipse(0, 16, 38, 9);
+    g.lineStyle(4, 0x555f59).lineBetween(-12, 4, -16, 15).lineBetween(-5, 5, -7, 16).lineBetween(9, 4, 12, 16).lineBetween(15, 2, 17, 12);
+    g.fillStyle(0x7e8880).fillEllipse(0, 0, 34, 19);
+    g.fillStyle(0x66746c).fillTriangle(13, -6, 18, -18, 23, -4).fillTriangle(5, -7, 9, -18, 15, -7);
+    g.fillStyle(0x8e978c).fillEllipse(15, -4, 17, 16).fillTriangle(18, -6, 29, 0, 19, 5);
+    g.fillStyle(0x333e38).fillTriangle(-14, -3, -28, -11, -20, 7).fillCircle(28, 0, 2);
+    g.fillStyle(0xe3bd63).fillCircle(19, -6, 2);
+    g.fillStyle(0xf4efdf).fillTriangle(22, 3, 23, 7, 25, 3);
+    return;
+  }
   const { appearance: a, weapon } = getUnitModel(unit);
   const half = a.pose === 'tyrant' ? 11 : a.stocky ? 9 : a.pose === 'lancer' ? 8 : unit.id === 'aman' ? 6 : 7;
   const pose = {

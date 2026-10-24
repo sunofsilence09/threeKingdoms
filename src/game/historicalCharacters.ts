@@ -127,6 +127,20 @@ export const HISTORICAL_CHARACTERS: readonly HistoricalCharacter[] = [
       robe: 0x355b5d, headband: 0x9a4540, skin: 0xd0a78a, sash: 0xa34f45, stocky: false, beard: false, pack: false,
       pose: 'shieldguard', outfit: 'armor', hair: 'long', accent: 0x30494e },
   },
+  {
+    id: 'zhuge-liang', speed: 12, name: '诸葛亮', gender: 'male', role: '谋士', specialty: '筹策、号令、治政', equipment: '羽扇', weapon: 'fan',
+    appearance: { identity: '乱世人物 · 谋士', portrait: '/assets/characters/zhuge-liang-v1.png',
+      bio: '青灰长衣间，一柄羽扇轻轻合拢。他先听清同伴的来意，再把道路与粮秣逐项理顺。羽扇的战斗号令与同行经历为游戏演绎，相遇地点并非逐年精确驻地。',
+      robe: 0x78928c, headband: 0x495b60, skin: 0xcfae90, sash: 0x4a6166, stocky: false, beard: true, pack: false,
+      pose: 'scholar', outfit: 'robe', hair: 'bun', accent: 0xe2e1cd },
+  },
+  {
+    id: 'zhou-yu', speed: 18, name: '周瑜', gender: 'male', role: '江东统军者', specialty: '统军、水战、决断', equipment: '佩剑', weapon: 'sword',
+    appearance: { identity: '乱世人物 · 江东统军者', portrait: '/assets/characters/zhou-yu-v1.png',
+      bio: '绛红衣袍衬着青甲，佩剑稳在身侧。他神情从容，却始终留意江岸与船队的动向。本作沿江东与荆州活动区域编排相遇，同行是架空支线。',
+      robe: 0x8e4148, headband: null, skin: 0xd1af90, sash: 0x96764d, stocky: false, beard: false, pack: false,
+      pose: 'commander', outfit: 'armor', hair: 'crown', accent: 0x456b70 },
+  },
 ];
 
 export function getHistoricalCharacter(id: string): HistoricalCharacter | undefined {

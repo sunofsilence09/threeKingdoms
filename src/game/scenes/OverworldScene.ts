@@ -11,6 +11,10 @@ import { cityAt, planRoute, WORLD_CITIES } from '../world';
 import { advanceTravel, cityContact, journeyLeg, remainingDays, resolveTravelEvent, restInCity, ROAD_NAMES, startTravel } from '../travel';
 import '../worldScreen.css';
 import { showPartyPanel, showRecruitmentPanel } from '../partyPanel';
+import { showCityPanel } from '../cityPanel';
+import { showEventCg } from '../eventCg';
+import { eventPresentation } from '../eventContent';
+import { cargoUsed } from '../economy';
 
 type NodeId = 'ambush' | 'recovery' | 'hub';
 type EventChoice = Parameters<typeof resolveTravelEvent>[1];
@@ -62,6 +66,7 @@ export class OverworldScene extends Phaser.Scene {
     el('p', 'world-date', dateLabel(state.date), heading);
     const stats = el('div', 'world-header-stats', undefined, header);
     el('p', '', `军需 ${state.supplies}　士气 ${state.morale}`, stats);
+    el('p', '', `铜钱 ${state.economy.coins}　货舱 ${cargoUsed(state.economy)}/${state.economy.capacity}`, stats);
     el('p', '', state.route ? `归属 · ${routeLeaderName(state.route,state.date.year)}` : '无所属 · 独自行旅', stats);
     el('small', '', `出生地：${originAt(state.originId).name}`, stats);
     const layout = el('div', 'world-layout');
@@ -84,7 +89,7 @@ export class OverworldScene extends Phaser.Scene {
       progress.max=journey.elapsed+remainingDays(journey); progress.value=journey.elapsed; progress.setAttribute('aria-label','行程进度');
       el('p','world-muted','途中停留另计入日期；行程中的城名为当前路段。',travelCard);
       if (journey.event) this.renderEvent(travelCard);
-      else button('继续赶路 · 最多3日',()=>{setState(advanceTravel(getState()));this.render('continue-travel');},travelCard,false,false,'continue-travel');
+      else this.renderSchedule(travelCard);
       const details=el('details','world-route-details',undefined,travelCard); el('summary','','查看完整行程',details);
       el('p','',journey.path.map(id=>cityAt(id).name).join(' → '),details);
     } else {
@@ -111,13 +116,14 @@ export class OverworldScene extends Phaser.Scene {
     }
     const local=el('section','world-card',undefined,side); el('h2','',`城中事务${journey ? ' · 抵达后开放' : ''}`,local);
     const localActions=el('div','world-action-grid',undefined,local);
+    button('进入城池',()=>showCityPanel(()=>this.render('enter-city')),localActions,false,!!journey,'enter-city');
     button('地方官员',showLocalOfficials,localActions,true,!!journey);
     button('寻访人物',()=>showRecruitmentPanel(()=>this.render('world-recruitment')),localActions,true,!!journey,'world-recruitment');
     button(state.flags.escortWon ? canPlayFactionMission(state) ? '阵营护送任务' : '当地故事 · 已完成' : '当地故事',()=>this.localStory(),localActions,true,!!journey);
     const contact=cityContact(city.id,state.date);
     if(contact && !state.route) button(`${state.flags[`met:${contact}`]?'再访':'拜访'}${routeLeaderName(contact,state.date.year)}`,()=>this.meet(contact),localActions,true,!!journey);
     const rest=el('div','world-action-grid',undefined,local);
-    button('帮工1日 · 军需+1',()=>{setState(restInCity(getState(),1));this.render();},rest,true,!!journey);
+    button('帮工1日 · 军需+1 / 铜钱+20',()=>{setState(restInCity(getState(),1));this.render();},rest,true,!!journey);
     button('安居一月 · 30日',()=>{setState(restInCity(getState(),30));this.render();},rest,true,!!journey);
     button('长期停留 · 一年',()=>this.confirmLongRest(),rest,true,!!journey);
     el('p','world-muted','历法简化为每月30日。休整与行旅推进日期，军需不按日扣除。',local);
@@ -125,20 +131,28 @@ export class OverworldScene extends Phaser.Scene {
     button(`队伍 · 出战 ${state.deployed.length}/5`,()=>showPartyPanel(()=>this.render('world-party')),side,true,false,'world-party');
     this.hud=createHeroHud(state.route,undefined,state.party);
     const hudNode=document.querySelector<HTMLElement>('#hud-root .hero-hud'); if(hudNode) side.append(hudNode);
-    if(focusId) this.root.querySelector<HTMLElement>(`#${focusId}`)?.focus({preventScroll:true});
+    if(focusId) (this.root.querySelector<HTMLElement>(`#${focusId}`) ?? this.root.querySelector<HTMLElement>('.world-travel-event button'))?.focus({preventScroll:true});
+    if(journey?.event && !journey.event.cgSeen)showEventCg(()=>this.render('continue-travel'));
+  }
+  private renderSchedule(parent:HTMLElement):void {
+    const form=document.createElement('form');form.className='travel-schedule';form.noValidate=true;
+    const label=document.createElement('label');label.textContent='本次赶路天数（1—30日）';label.htmlFor='travel-days';
+    const input=document.createElement('input');input.id='travel-days';input.className='trade-input';input.type='number';input.min='1';input.max='30';input.step='1';input.inputMode='numeric';input.value=String(getState().travelDays);
+    const shortcuts=document.createElement('div');shortcuts.className='travel-shortcuts';
+    const feedback=document.createElement('p');feedback.className='travel-validation';feedback.setAttribute('role','status');
+    for(const days of [1,3,7,15]){const quick=document.createElement('button');quick.type='button';quick.className='world-button is-quiet';quick.textContent=`${days}日`;quick.addEventListener('click',()=>{input.value=String(days);feedback.textContent='';});shortcuts.append(quick);}
+    const submit=document.createElement('button');submit.type='submit';submit.id='continue-travel';submit.className='world-button';submit.textContent='继续赶路 · 按日程';
+    form.addEventListener('submit',event=>{event.preventDefault();const days=Number(input.value);
+      if(!input.checkValidity()||!Number.isSafeInteger(days)||days<1||days>30){feedback.textContent='请输入1—30之间的整数天数。';input.focus();return;}
+      setState(advanceTravel({...getState(),travelDays:days},days));this.render('continue-travel');
+    });
+    form.append(label,input,shortcuts,feedback,submit);parent.append(form);
   }
   private renderEvent(parent: HTMLElement): void {
     const state=getState(), event=state.journey!.event!, leg=journeyLeg(state.journey!);
     const box=document.createElement('section'); box.className='world-travel-event'; box.setAttribute('aria-label','途中见闻'); parent.append(box);
-    const content: Record<string,[string,string]>={
-      rain:['雨阻道路',leg.kind==='mountain'?'连日雨水让山道泥泞，山口又有落石。可雇向导探路，或在山麓等雨停。':'连日雨水让驿道积水难行。可雇向导寻找可走的路，或在路旁客舍等候。'],
-      ferry:['渡口候船','渡口的船只尚未开行。可出军需安排船位，或随商旅等下一班船。'],
-      refugees:['路遇流民',`${leg.kind==='water'?'一队避乱乡民正在渡口候船':leg.kind==='mountain'?'一队避乱乡民在山口停歇':'一队避乱乡民在路旁停歇'}。他们需要粮水，也需要有人陪着走过险路。`],
-      merchant:['商旅歇脚',`${leg.kind==='water'?'船队正在码头装卸货物':leg.kind==='mountain'?'驮队正在山麓整理行装':'商队正在驿站整理货物'}，愿用一份军需换你们帮忙照看一天行装。`],
-      bandits:leg.kind==='water'?['水盗截船','水面上有盗船逼近，索取财货。可以与同行者迎战，也可以改道换渡口避开。']:['匪患拦路',leg.kind==='mountain'?'山口有人据险索取财货。可以与同行者迎战，也可以绕过山口。':'前路有人持械索取财货。可以与同行者迎战，也可以绕路避开。'],
-      contact:['故道相逢',`沿途听到了${event.contact?routeLeaderName(event.contact,state.date.year):'一位故人'}的消息。可停留一日，前往拜访。`],
-    };
-    const [title,body]=content[event.kind];
+    if(!event.cgSeen){box.textContent='见闻展开中，请先查看画面。';return;}
+    const {title,body}=eventPresentation(state);
     const h=document.createElement('h3');h.textContent=title;box.append(h);
     const p=document.createElement('p');p.textContent=body;box.append(p);
     const hint=document.createElement('small');hint.textContent='途中故事为游戏演绎。先处理见闻，再继续原行程。';box.append(hint);
@@ -153,6 +167,8 @@ export class OverworldScene extends Phaser.Scene {
     if(event.kind==='merchant'){action('帮工1日 · 军需+1','safe');action('辞别商旅，继续赶路','skip');}
     if(event.kind==='bandits'){action(leg.kind==='water'?'迎战水盗':'迎战匪徒','fight');action('绕路3日 · 士气−1','safe');}
     if(event.kind==='contact'){action('拜访1日 · 结识此方','meet');action('暂不拜访，继续赶路','skip');}
+    if(event.kind==='market-news')action('记下行情，继续行程','skip');
+    if(event.kind==='wolves'){action('迎战狼群','fight');action('避开狼群 · 绕行3日 / 士气−1','safe');}
   }
   private meet(route: RouteId): void {
     if(getState().journey)return;

@@ -53,6 +53,14 @@ const historicalWindows: Record<string, RecruitWindow[]> = {
   'zhao-yun': [...window(191, 199, ['julu', 'zhuo']), ...window(200, 210, ['nanyang', 'jiangling']), ...window(211, 228, ['shujun', 'nanzheng'])],
   'mi-fu-ren': window(197, 207, ['donghai', 'nanyang', 'xiangyang']),
   'zhang-xingcai': window(220, 237, ['shujun']),
+  'zhuge-liang': [
+    ...window(207, 208, ['xiangyang', 'jiangling']), ...window(209, 213, ['jiangling']),
+    ...window(214, 226, ['shujun']), ...window(227, 233, ['nanzheng']),
+  ],
+  'zhou-yu': [
+    ...window(195, 197, ['danyang']), ...window(198, 207, ['wujun', 'danyang', 'nanchang']),
+    ...window(208, 209, ['jiangling', 'nanchang']),
+  ],
 };
 
 // A literal copy of the original five appearances avoids a runtime characters -> combat -> catalog cycle.
@@ -121,10 +129,10 @@ const officialClothing: Record<string, Pick<CharacterAppearance, 'robe' | 'sash'
 };
 
 function sunLeader(id: string, name: string, bio: string, speed: number, windows: RecruitWindow[]): RecruitProfile {
-  const portrait = `/assets/characters/neutral-${id}.svg`;
+  const portrait = `/assets/characters/${id}-v1.png`;
   const appearance: CharacterAppearance = { identity: `群雄 · ${name}`, portrait, bio,
-    robe: id === 'sun-jian' ? 0x6e6250 : 0x675455, headband: null, skin: 0xc5a17f, sash: 0x92794e,
-    stocky: false, beard: id === 'sun-jian', pack: false, pose: 'commander', outfit: 'armor', hair: 'bun', accent: 0x464a49 };
+    robe: id === 'sun-jian' ? 0x854c3e : 0xa4453c, headband: null, skin: 0xc5a17f, sash: 0x92794e,
+    stocky: false, beard: id === 'sun-jian', pack: false, pose: 'commander', outfit: 'armor', hair: 'bun', accent: id === 'sun-jian' ? 0x595e60 : 0x343a3c };
   return { id, name, role: '孙氏主将', bio, portrait, weapon: 'sword', speed, appearance, category: 'leader', windows };
 }
 
@@ -142,9 +150,9 @@ export const RECRUIT_PROFILES: readonly RecruitProfile[] = [
       speed: clothing.outfit === 'armor' ? 12 : 10, appearance, category: 'official' as const, windows: officialWindows[person.id] };
   }),
   ...originals.slice(3),
-  sunLeader('sun-jian', '孙坚', '孙氏主将，参与平定黄巾，后来在长沙与荆州一带活动。本作相遇与同行为架空支线，中性头像标明本人身份。', 16,
+  sunLeader('sun-jian', '孙坚', '孙氏主将，参与平定黄巾，后来在长沙与荆州一带活动。赤褐衣袍与铁灰甲勾勒出成熟勇武的身影。本作相遇与同行为架空支线。', 16,
     [...window(184, 186, ['yingchuan', 'nanyang']), ...window(187, 190, ['changsha', 'nanyang'])]),
-  sunLeader('sun-ce', '孙策', '孙坚之子，成年后在江东展开事业。本作从195年开启相遇，同行为架空支线，中性头像标明本人身份。', 19,
+  sunLeader('sun-ce', '孙策', '孙坚之子，成年后在江东展开事业。朱红衣与玄甲衬出年轻锐利的主将气度。本作从195年开启相遇，同行为架空支线。', 19,
     window(195, 199, ['danyang', 'wujun', 'shanyin'])),
 ];
 

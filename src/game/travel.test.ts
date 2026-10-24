@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDays } from './history';
 import { createInitialState } from './state';
-import { advanceTravel, finishTravelBattle, resolveTravelEvent, restInCity, startTravel } from './travel';
+import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, resolveTravelEvent, restInCity, startTravel } from './travel';
 import { planRoute } from './world';
 
 const cityState = () => ({ ...createInitialState(() => 0), phase: 'overworld' as const, originId: 'yingchuan' as const, currentCityId: 'yingchuan' });
@@ -26,7 +26,7 @@ describe('day calendar and persistent journeys', () => {
       if (state.journey.event) {
         const paused = advanceTravel(state);
         expect(paused).toBe(state);
-        state = resolveTravelEvent(state, 'safe');
+        state = resolveTravelEvent(acknowledgeTravelCg(state), 'safe');
       } else state = advanceTravel(state);
     }
     expect(state.journey).toBeUndefined();
@@ -40,14 +40,14 @@ describe('day calendar and persistent journeys', () => {
     expect(state.journey?.event).toBeDefined();
     const restored = JSON.parse(JSON.stringify(state));
     expect(advanceTravel(restored)).toEqual(state);
-    const settled = resolveTravelEvent(state, 'safe');
-    expect(resolveTravelEvent(settled, 'safe')).toBe(settled);
+    const settled = resolveTravelEvent(acknowledgeTravelCg(state), 'safe');
+    expect(resolveTravelEvent(acknowledgeTravelCg(settled), 'safe')).toBe(settled);
     expect(advanceTravel(settled)).toEqual(advanceTravel(JSON.parse(JSON.stringify(settled))));
   });
   it('hands bandit battles back to the same journey and grants experience only once', () => {
     const started = startTravel(cityState(), 'nanhai', 8);
     const state = { ...started, journey: { ...started.journey!, event: { id: 1, kind: 'bandits' as const } } };
-    const battle = resolveTravelEvent(state, 'fight');
+    const battle = resolveTravelEvent(acknowledgeTravelCg(state), 'fight');
     expect(battle.phase).toBe('battle');
     expect(battle.journey?.event?.inBattle).toBe(true);
     const won = finishTravelBattle(battle, true);
@@ -62,7 +62,7 @@ describe('day calendar and persistent journeys', () => {
   it('prevents resting or using paid options while on a road without resources', () => {
     const started = startTravel({ ...cityState(), supplies: 0 }, 'nanhai', 8);
     expect(restInCity(started, 30)).toBe(started);
-    const rain = { ...started, journey: { ...started.journey!, event: { id: 1, kind: 'rain' as const } } };
+    const rain = acknowledgeTravelCg({ ...started, journey: { ...started.journey!, event: { id: 1, kind: 'rain' as const } } });
     expect(resolveTravelEvent(rain, 'pay')).toBe(rain);
     expect(resolveTravelEvent(rain, 'safe').journey?.event).toBeUndefined();
   });
@@ -70,7 +70,7 @@ describe('day calendar and persistent journeys', () => {
     const started = startTravel(cityState(), 'nanhai', 8);
     for (const kind of ['merchant', 'refugees', 'contact'] as const) {
       const state = { ...started, journey: { ...started.journey!, event: { id: 1, kind, ...(kind === 'contact' ? { contact: 'cao' as const } : {}) } } };
-      const skipped = resolveTravelEvent(state, 'skip');
+      const skipped = resolveTravelEvent(acknowledgeTravelCg(state), 'skip');
       expect(skipped.date).toEqual(state.date);
       expect(skipped.supplies).toBe(state.supplies);
       expect(skipped.flags).toEqual(state.flags);

@@ -6,10 +6,10 @@ import { WORLD_CITIES } from './world';
 import { RECRUIT_PROFILES, canMeetPerson, recruitProfile } from './recruitmentCatalog';
 
 describe('all-person recruitment catalog', () => {
-  it('contains exactly 31 unique identities covering every existing identity', () => {
+  it('contains exactly 33 unique identities covering every existing identity', () => {
     const ids = RECRUIT_PROFILES.map(p => p.id);
-    expect(ids).toHaveLength(31);
-    expect(new Set(ids).size).toBe(31);
+    expect(ids).toHaveLength(33);
+    expect(new Set(ids).size).toBe(33);
     expect(ids).toEqual(expect.arrayContaining([
       'traveler', 'aman', 'chen-da', 'bandit', 'bandit-leader', 'sun-jian', 'sun-ce',
       ...HISTORICAL_CHARACTERS.map(p => p.id), ...LOCAL_OFFICIALS.map(p => p.id),
@@ -47,12 +47,40 @@ describe('all-person recruitment catalog', () => {
     }
   });
 
-  it('uses labelled neutral portraits of Sun Jian and Sun Ce, without borrowing Sun Quan', () => {
-    for (const [id, name] of [['sun-jian', '孙坚'], ['sun-ce', '孙策']]) {
+  it('uses four independent actual PNG portraits and retains the original Sun identity records', () => {
+    for (const id of ['sun-jian', 'sun-ce', 'zhuge-liang', 'zhou-yu']) {
       const portrait = recruitProfile(id)?.portrait ?? '';
-      expect(portrait).toContain(`neutral-${id}.svg`);
-      expect(readFileSync(`public${portrait}`, 'utf8')).toContain(name);
+      expect(portrait).toBe(`/assets/characters/${id}-v1.png`);
+      expect(readFileSync(`public${portrait}`).subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
       expect(portrait).not.toContain('sun-quan');
+    }
+    expect(recruitProfile('sun-jian')).toMatchObject({ category: 'leader', weapon: 'sword', speed: 16 });
+    expect(recruitProfile('sun-ce')).toMatchObject({ category: 'leader', weapon: 'sword', speed: 19 });
+    expect(existsSync('public/assets/characters/neutral-sun-jian.svg')).toBe(true);
+    expect(existsSync('public/assets/characters/neutral-sun-ce.svg')).toBe(true);
+  });
+
+  it.each([
+    ['zhuge-liang', 207, 208, ['xiangyang', 'jiangling']],
+    ['zhuge-liang', 209, 213, ['jiangling']],
+    ['zhuge-liang', 214, 226, ['shujun']],
+    ['zhuge-liang', 227, 233, ['nanzheng']],
+    ['zhou-yu', 195, 197, ['danyang']],
+    ['zhou-yu', 198, 207, ['wujun', 'danyang', 'nanchang']],
+    ['zhou-yu', 208, 209, ['jiangling', 'nanchang']],
+  ])('restricts %s encounters in %i through %i to the authored cities', (id, from, to, cities) => {
+    for (const year of [from, to]) for (const city of WORLD_CITIES) {
+      for (const month of [1, 12]) expect(canMeetPerson(id, city.id, { year, month })).toBe(cities.includes(city.id));
+    }
+  });
+
+  it('does not introduce the added adults early or extend invitations after their final window', () => {
+    for (const city of WORLD_CITIES) {
+      for (const [id, first, last] of [['zhuge-liang', 207, 233], ['zhou-yu', 195, 209]] as const) {
+        expect(canMeetPerson(id, city.id, { year: 184, month: 3 })).toBe(false);
+        expect(canMeetPerson(id, city.id, { year: first - 1, month: 12 })).toBe(false);
+        expect(canMeetPerson(id, city.id, { year: last + 1, month: 1 })).toBe(false);
+      }
     }
   });
 

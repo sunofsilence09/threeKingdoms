@@ -3,10 +3,10 @@ import { getCharacterAppearance } from './characters';
 import { HISTORICAL_CHARACTERS, getHistoricalCharacter, getRouteLeader } from './historicalCharacters';
 
 describe('historical character collection', () => {
-  it('contains all sixteen requested characters with independent silhouettes and full-body artwork', () => {
-    expect(HISTORICAL_CHARACTERS.map(c => c.name)).toEqual(['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩']);
-    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).portrait)).size).toBe(16);
-    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).pose)).size).toBe(16);
+  it('contains eighteen historical characters with independent full-body artwork', () => {
+    expect(HISTORICAL_CHARACTERS.map(c => c.name)).toEqual(['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩', '诸葛亮', '周瑜']);
+    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).portrait)).size).toBe(18);
+    expect(new Set(HISTORICAL_CHARACTERS.slice(0, 16).map(c => getCharacterAppearance(c.id).pose)).size).toBe(16);
     for (const c of HISTORICAL_CHARACTERS) {
       expect(getCharacterAppearance(c.id)).toBe(c.appearance);
       expect(c.appearance.portrait).toMatch(/^\/assets\/characters\/.+\.png$/);
@@ -14,6 +14,15 @@ describe('historical character collection', () => {
       expect(c).not.toHaveProperty('hp');
       expect(c).not.toHaveProperty('level');
     }
+  });
+  it('provides complete scholar and commander models for the added identities', () => {
+    const zhuge = getHistoricalCharacter('zhuge-liang');
+    const zhou = getHistoricalCharacter('zhou-yu');
+    expect(zhuge).toMatchObject({ name: '诸葛亮', weapon: 'fan', equipment: '羽扇', appearance: { pose: 'scholar', outfit: 'robe' } });
+    expect(zhou).toMatchObject({ name: '周瑜', weapon: 'sword', equipment: '佩剑', appearance: { pose: 'commander', outfit: 'armor' } });
+    expect(zhuge?.appearance.robe).not.toBe(zhou?.appearance.robe);
+    expect(getHistoricalCharacter('sun-jian')).toBeUndefined();
+    expect(getHistoricalCharacter('sun-ce')).toBeUndefined();
   });
   it('keeps six added identities and matching props distinct', () => {
     const added = ['zhang-liao', 'guan-yu', 'zhang-fei', 'zhao-yun', 'mi-fu-ren', 'zhang-xingcai'].map(getHistoricalCharacter);

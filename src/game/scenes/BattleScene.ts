@@ -51,7 +51,7 @@ export class BattleScene extends Phaser.Scene {
     const previous = getState();
     const fighters = previous.phase === 'battle' && previous.battleParty ? previous.battleParty : previous.deployed;
     const state = setState({ ...previous, phase: 'battle', encounter: this.mode, battleParty: [...fighters] });
-    this.combat = createCombatState(state.route, state.party, this.mode, state.battleParty);
+    this.combat = createCombatState(state.route, state.party, this.mode, state.battleParty, { enemyKind: state.journey?.event?.kind === 'wolves' ? 'wolves' : 'bandits' });
     this.drawBackground();
     this.board = new BattleBoard(this, (x, y) => this.selectTile(x, y));
     this.roster = this.add.container().setDepth(20);
@@ -76,8 +76,8 @@ export class BattleScene extends Phaser.Scene {
     g.lineStyle(1, 0x6d8174, 0.55).strokeRect(BATTLE_VIEW.x - 1, BATTLE_VIEW.y - 1, BATTLE_VIEW.width + 2, BATTLE_VIEW.height + 2);
     const route = getState().route;
     const trip = getState().journey;
-    addText(this, 24, 20, trip ? `${cityAt(journeyLeg(trip).from).name}至${cityAt(journeyLeg(trip).to).name} · 途中匪患` : route ? ROUTES[route].title : `${cityAt(getState().currentCityId).name} · 姜垣一行`, { color: hex(theme.ink), fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
-    addText(this, 26, 60, this.mode === 'ambush' ? '击退拦路山贼，出战成员各获基础经验30；候补不分战斗经验。' : '护送乡民过桥，出战成员各获基础经验45；候补不分战斗经验。', { color: hex(theme.muted), fontSize: '14px' });
+    addText(this, 24, 20, trip ? `${cityAt(journeyLeg(trip).from).name}至${cityAt(journeyLeg(trip).to).name} · ${trip.event?.kind === 'wolves' ? '山狼袭击' : '途中匪患'}` : route ? ROUTES[route].title : `${cityAt(getState().currentCityId).name} · 姜垣一行`, { color: hex(theme.ink), fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
+    addText(this, 26, 60, trip?.event?.kind === 'wolves' ? '击退狼群，出战成员基础经验30，获得20铜钱；候补不分经验。' : this.mode === 'ambush' ? '击退拦路山贼，出战成员各获基础经验30；候补不分战斗经验。' : '护送乡民过桥，出战成员各获基础经验45；候补不分战斗经验。', { color: hex(theme.muted), fontSize: '14px' });
     const state = getState();
     addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: hex(theme.ink), fontSize: '14px' });
     addText(this, 710, 55, `${state.date.year} 年 ${state.date.month} 月 · ${theme.season}`, { color: hex(theme.muted), fontSize: '12px' });

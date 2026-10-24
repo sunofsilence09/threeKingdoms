@@ -12,7 +12,7 @@ export const ULTIMATES: Record<UltimateId, { name: string; description: string }
 };
 export interface CombatEvent { kind: 'attack' | 'dodge' | 'ultimate'; actorId: string; targetId?: string; damage: number }
 
-export type WeaponId = 'fists' | 'cleaver' | 'knife' | 'spear' | 'bow' | 'sword' | 'fan' | 'scroll' | 'halberd' | 'glaive' | 'jade' | 'serpentspear' | 'handkerchief' | 'swordshield';
+export type WeaponId = 'fists' | 'cleaver' | 'knife' | 'spear' | 'bow' | 'sword' | 'fan' | 'scroll' | 'halberd' | 'glaive' | 'jade' | 'serpentspear' | 'handkerchief' | 'swordshield' | 'claws';
 export const WEAPONS: Record<WeaponId, { name: string; mark: string; hp: number; attack: number; move: number; min: number; max: number }> = {
   fists: { name: '拳脚', mark: '拳', hp: 9, attack: 2, move: 3, min: 1, max: 1 },
   cleaver: { name: '菜刀', mark: '刀', hp: 10, attack: 3, move: 3, min: 1, max: 1 },
@@ -28,6 +28,7 @@ export const WEAPONS: Record<WeaponId, { name: string; mark: string; hp: number;
   serpentspear: { name: '丈八蛇矛', mark: '矛', hp: 11, attack: 3, move: 3, min: 1, max: 2 },
   handkerchief: { name: '丝帕援护', mark: '帕', hp: 9, attack: 2, move: 3, min: 1, max: 2 },
   swordshield: { name: '剑盾', mark: '盾', hp: 12, attack: 3, move: 3, min: 1, max: 1 },
+  claws: { name: '爪牙', mark: '爪', hp: 5, attack: 2, move: 3, min: 1, max: 1 },
 };
 export interface CombatUnit {
   id: string; name: string; team: CombatTeam; x: number; y: number;
@@ -60,22 +61,26 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
     ultimate: id === 'traveler' ? 'survival' : 'desperation', ultimateUsed: false, empowered: false };
 }
 
-export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS): CombatState {
+export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS, options: { enemyKind?: 'bandits' | 'wolves' } = {}): CombatState {
   if (deployed.length < 1 || deployed.length > 5 || new Set(deployed).size !== deployed.length ||
       deployed.some(id => !recruitProfile(id) || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
   const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit =>
     ({ id: deployed.includes(id) ? `enemy:${id}` : id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
   const advanced = mode === 'route';
   const allyPositions = [[advanced ? 4 : 3, 4], [3, 5], [advanced ? 4 : 2, 6], [2, 3], [3, 7]];
+  const enemyPositions = [[7, 4], [7, 6], [9, 5], [8, 8], [11, 7]];
+  const wolves = enemyPositions.slice(0, Math.max(3, deployed.length)).map(([x, y], index) => ({
+    ...makeEnemy(`wolf:${index}`, index === 0 ? '头狼' : '山狼', x, y, 'claws', index === 0 ? 6 : 4, 2), speed: index === 0 ? 13 : 11,
+  }));
   return advanceTurn({
     width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0)) >>> 0,
     units: [
       ...deployed.map((id, index) => makePartyUnit(id, party[id], route, mode, allyPositions[index][0], allyPositions[index][1])),
-      makeEnemy('bandit-leader', '山贼头目', 7, 4, advanced ? 'spear' : 'cleaver', advanced ? 9 : 7, 3),
+      ...(options.enemyKind === 'wolves' ? wolves : [makeEnemy('bandit-leader', '山贼头目', 7, 4, advanced ? 'spear' : 'cleaver', advanced ? 9 : 7, 3),
       makeEnemy('bandit-scout-a', '拦路山贼', advanced ? 8 : 7, 6, 'cleaver', advanced ? 7 : 4, 2),
       makeEnemy('bandit-scout-b', advanced ? '山贼弓手' : '山贼喽啰', advanced ? 11 : 9, advanced ? 4 : 5, advanced ? 'bow' : 'fists', advanced ? 6 : 4, 2),
       ...(deployed.length > 3 ? [makeEnemy('bandit-scout-c', '山贼喽啰', 8, 8, 'cleaver', advanced ? 7 : 4, 2)] : []),
-      ...(deployed.length > 4 ? [makeEnemy('bandit-scout-d', '山贼弓手', 11, 7, 'bow', advanced ? 6 : 4, 2)] : []),
+      ...(deployed.length > 4 ? [makeEnemy('bandit-scout-d', '山贼弓手', 11, 7, 'bow', advanced ? 6 : 4, 2)] : [])]),
     ],
   });
 }
@@ -84,7 +89,7 @@ export function terrainAt(state: CombatState, x: number, y: number): TerrainKind
   return state.terrain.find(tile => tile.x === x && tile.y === y)?.kind ?? 'road';
 }
 export function movementRange(state: CombatState, unit: CombatUnit): number {
-  return (unit.team === 'enemy' ? 2 : WEAPONS[unit.weapon].move) + (unit.team === 'party' && state.route === 'sun' ? 1 : 0);
+  return (unit.team === 'enemy' ? unit.weapon === 'claws' ? 3 : 2 : WEAPONS[unit.weapon].move) + (unit.team === 'party' && state.route === 'sun' ? 1 : 0);
 }
 export function distance(a: Tile, b: Tile): number { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
 export function isBattleOver(state: CombatState): BattleResult {

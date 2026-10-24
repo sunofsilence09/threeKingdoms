@@ -4,7 +4,7 @@ import { createProgress } from './growth';
 import { advanceDays } from './history';
 import { initialRelationships, interactPerson, invitePerson, setDeployment } from './recruitment';
 import { RECRUIT_PROFILES } from './recruitmentCatalog';
-import { finishTravelBattle, resolveTravelEvent, startTravel } from './travel';
+import { acknowledgeTravelCg, finishTravelBattle, resolveTravelEvent, startTravel } from './travel';
 
 beforeEach(() => {
   const data = new Map<string, string>();
@@ -71,7 +71,7 @@ describe('persistent recruited roster and combat rewards', () => {
     const trip = { ...started, journey: { ...started.journey!, event: { id: 0, kind: 'bandits' as const } } };
     expect(setDeployment(trip, ['traveler'])).toBe(trip);
     expect(interactPerson(trip, 'guan-yu', 'talk')).toBe(trip);
-    const battle = { ...resolveTravelEvent(trip, 'fight'), battleParty: [...trip.deployed] };
+    const battle = { ...resolveTravelEvent(acknowledgeTravelCg(trip), 'fight'), battleParty: [...trip.deployed] };
     saveState(battle); expect(loadState()).toEqual(battle);
     const settled = finishTravelBattle(battle, true);
     expect(settled.battleParty).toBeUndefined();

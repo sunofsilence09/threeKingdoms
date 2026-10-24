@@ -19,8 +19,13 @@ copyFileSync(path.join(root, 'node_modules', 'phaser', 'LICENSE.md'), path.join(
 copyFileSync(path.join(root, 'scripts', 'licenses', 'NODE-LICENSE.txt'), path.join(output, 'NODE-LICENSE.txt'));
 writeFileSync(path.join(output, '启动游戏.cmd'), '@echo off\r\nchcp 65001 >nul\r\ncd /d "%~dp0"\r\ntitle 三国行旅 - 本地版\r\n"%~dp0runtime\\node.exe" "%~dp0server.cjs"\r\nif errorlevel 1 pause\r\n', 'utf8');
 writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
-  '乱世行旅 · 0.3.0 结伴同行 · Windows 本地版', '',
-  '新版：全部现有人物可培养亲密度，达到60后邀请；最多5人出战（含主角）。',
+  '乱世行旅 · 0.4.0 商旅见闻 · Windows 本地版', '',
+  '新版：自选1—30日赶路、7幅事件CG、34城市场跑商、行情波动与狼群实战。',
+  '抵达后点击“进入城池”，输入数量买卖8种商品；初始600铜钱、40格货舱。',
+  '各城有不同特产和需求，每7日刷新市场；商品行情持续30日，查看消息截止日期。',
+  '途中遇事立即暂停，先看CG，再处理后续内容。陆路山道可能遇到狼群，迎战获胜可得20铜钱。',
+  '孙坚、孙策正式立绘已补齐，新增诸葛亮、周瑜的立绘、相遇、招募和成长。',
+  '全部现有人物可培养亲密度，达到60后邀请；最多5人出战（含主角）。',
   '在城内“寻访人物”，通过交谈、分享粮食或帮忙提升亲密度；互动耗时1日。',
   '邀请后进入候补，在“队伍”中上阵、下阵或替换；候补保留成长，仅出战者获得战斗经验。',
   '人物相遇受年代、地点限制；长期同行为架空支线，邀请主君不自动选择阵营。',

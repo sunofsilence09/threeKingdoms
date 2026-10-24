@@ -138,7 +138,7 @@ export class BattleBoard {
         }
       }
       const name = unit.id === 'traveler' ? '姜' : unit.id === 'aman' ? '满' : unit.id === 'chen-da' ? '达'
-        : unit.team === 'party' ? unit.name.slice(-2) : unit.id.endsWith('bandit-leader') ? '首' : '匪';
+        : unit.team === 'party' ? unit.name.slice(-2) : unit.id.startsWith('wolf:') ? '狼' : unit.id.endsWith('bandit-leader') ? '首' : '匪';
       this.layer.add(addText(this.scene, x, y + 27, `${name} ${unit.hp}/${unit.maxHp}`, { color: hex(theme.ink), fontSize: '11px', backgroundColor: hex(theme.paper) }).setOrigin(0.5));
       this.layer.add(this.scene.add.rectangle(x, y + 20, 38, 3, 0x142423));
       this.layer.add(this.scene.add.rectangle(x - 19, y + 20, 38 * unit.hp / unit.maxHp, 3, 0x9dc5a2).setOrigin(0, 0.5));

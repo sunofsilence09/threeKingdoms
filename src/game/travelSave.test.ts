@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createInitialState, loadState, saveState, STORAGE_KEY } from './state';
-import { advanceTravel, resolveTravelEvent, startTravel, cityContact, restInCity } from './travel';
+import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, resolveTravelEvent, startTravel, cityContact, restInCity } from './travel';
 
 beforeEach(() => {
   const data = new Map<string, string>();
@@ -33,7 +33,7 @@ describe('travel saves and historical choices', () => {
     expect(state.journey?.event).toBeDefined();
     saveState(state);
     expect(loadState()).toEqual(state);
-    expect(resolveTravelEvent(loadState()!, 'safe')).toEqual(resolveTravelEvent(state, 'safe'));
+    expect(resolveTravelEvent(acknowledgeTravelCg(loadState()!), 'safe')).toEqual(resolveTravelEvent(acknowledgeTravelCg(state), 'safe'));
   });
   it('rejects nonadjacent paths, inconsistent progress, corrupt events and mismatched battle context', () => {
     const initial = begin(), j = initial.journey!;
@@ -52,10 +52,58 @@ describe('travel saves and historical choices', () => {
   });
   it('restores a travel battle without turning it into the old escort mission', () => {
     const state = begin(), trip = state.journey!;
-    const battle = resolveTravelEvent({ ...state, journey: { ...trip, event: { id: 0, kind: 'bandits' } } }, 'fight');
+    const battle = resolveTravelEvent(acknowledgeTravelCg({ ...state, journey: { ...trip, event: { id: 0, kind: 'bandits' } } }), 'fight');
     saveState(battle);
     expect(loadState()).toEqual(battle);
     expect(loadState()?.encounter).toBe('ambush');
+  });
+  it.each(['market-news', 'wolves'] as const)('persists %s CG stages and once-only settlement', kind => {
+    let state;
+    for (let roll = 0; roll < 64; roll++) {
+      const seed = Number(((BigInt(roll) - 1013904223n) * 4276115653n & 0xffffffffn));
+      const result = advanceTravel(startTravel({ ...createInitialState(() => 0), currentCityId: 'yingchuan', phase: 'overworld' }, 'nanhai', seed), 1);
+      if (result.journey?.event?.kind === kind) { state = result; break; }
+    }
+    expect(state).toBeDefined();
+    saveState(state!);
+    expect(loadState()).toEqual(state);
+    const unseen = loadState()!;
+    expect(resolveTravelEvent(unseen, 'safe')).toBe(unseen);
+    const seen = acknowledgeTravelCg(unseen);
+    saveState(seen);
+    expect(loadState()).toEqual(seen);
+    expect(loadState()!.journey!.event!.cgSeen).toBe(true);
+    const confirmed = loadState()!;
+    if (kind === 'wolves') {
+      const battle = resolveTravelEvent(confirmed, 'fight');
+      saveState(battle);
+      expect(loadState()).toEqual(battle);
+      const won = finishTravelBattle(loadState()!, true);
+      expect(won.economy.coins).toBe(state!.economy.coins + 20);
+      saveState(won);
+      const restored = loadState()!;
+      expect(finishTravelBattle(restored, true)).toBe(restored);
+    } else {
+      const settled = resolveTravelEvent(confirmed, 'skip');
+      expect(settled.economy.news).toEqual(state!.economy.news);
+      saveState(settled);
+      const restored = loadState()!;
+      expect(restored).toEqual(settled);
+      expect(resolveTravelEvent(restored, 'skip')).toBe(restored);
+    }
+  });
+  it('adds a CG confirmation stage to a legacy pending event without rewriting its progress', () => {
+    const started = begin();
+    const state = { ...started, journey: { ...started.journey!, event: { id: 0, kind: 'rain' as const } } };
+    saveState(state);
+    const restored = loadState()!;
+    expect(restored).toEqual(state);
+    expect(restored.journey?.event?.cgSeen).toBeUndefined();
+    expect(resolveTravelEvent(restored, 'safe')).toBe(restored);
+    const confirmed = acknowledgeTravelCg(restored);
+    saveState(confirmed);
+    expect(loadState()).toEqual(confirmed);
+    expect(resolveTravelEvent(loadState()!, 'safe').journey?.event).toBeUndefined();
   });
   it('gates regional encounters and reaches 200 only by explicit passage of time', () => {
     expect(cityContact('yingchuan', { year: 184, month: 3 })).toBeUndefined();

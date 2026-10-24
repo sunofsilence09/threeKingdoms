@@ -6,6 +6,7 @@ import { WORLD_CITIES, originCity } from './world';
 import { isJourney, type Journey } from './travel';
 import { initialRelationships, isDeployment, isRelationships, type Relationship } from './recruitment';
 import { recruitProfile } from './recruitmentCatalog';
+import { createEconomy, isEconomy, type Economy } from './economy';
 
 export type RouteId = 'cao' | 'sun' | 'liu';
 
@@ -28,6 +29,8 @@ export interface GameState {
   deployed: string[];
   relationships: Record<string, Relationship>;
   battleParty?: string[];
+  economy: Economy;
+  travelDays: number;
 }
 
 export const STORAGE_KEY = 'three-kingdoms-demo-state';
@@ -53,6 +56,8 @@ export function createInitialState(random: () => number = Math.random): GameStat
     party: createPartyProgress(),
     deployed: [...PARTY_IDS],
     relationships: initialRelationships(),
+    economy: createEconomy(),
+    travelDays: 3,
   };
 }
 
@@ -95,6 +100,8 @@ export function loadState(): GameState | null {
       flags: parsed.currentCityId === undefined && (parsed.flags['xp:route'] || parsed.flags['xp:escort']) ? { ...parsed.flags, escortWon: true } : parsed.flags,
       deployed: parsed.deployed ?? [...PARTY_IDS],
       relationships: parsed.relationships ?? initialRelationships(),
+      economy: parsed.economy ?? createEconomy(),
+      travelDays: parsed.travelDays ?? 3,
       party: parsed.party === undefined ? createPartyProgress() : migratePartyProgress(parsed.party)! };
   } catch {
     return null;
@@ -134,6 +141,8 @@ function isGameState(value: unknown): value is GameState {
     (candidate.party === undefined || migratePartyProgress(candidate.party) !== null && Object.keys(candidate.party).every(id => !!recruitProfile(id))) &&
     (candidate.deployed === undefined || isDeployment(candidate.deployed, party)) &&
     (candidate.relationships === undefined || isRelationships(candidate.relationships, date)) &&
+    (candidate.economy === undefined || isEconomy(candidate.economy)) &&
+    (candidate.travelDays === undefined || Number.isSafeInteger(candidate.travelDays) && candidate.travelDays >= 1 && candidate.travelDays <= 30) &&
     (candidate.battleParty === undefined || candidate.phase === 'battle' && isDeployment(candidate.battleParty, party) && candidate.battleParty.join('|') === (candidate.deployed ?? PARTY_IDS).join('|'))
   );
 }

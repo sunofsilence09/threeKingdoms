@@ -52,6 +52,7 @@ const CHARACTERS: Record<string, CharacterAppearance> = {
 };
 
 export function getCharacterAppearance(id: string): CharacterAppearance {
+  if (id.startsWith('wolf:')) return { identity: '山野 · 狼群', portrait: '/assets/events/event-wolves-v1.png', bio: '山林间结群出没的野兽。四足奔袭，以爪牙攻击靠近的行旅人。', robe: 0x737c75, headband: null, skin: 0x8a938a, sash: 0x444e49, stocky: false, beard: false, pack: false, pose: 'skulker' };
   return CHARACTERS[id] ?? getHistoricalCharacter(id)?.appearance ?? recruitProfile(id)?.appearance ?? CHARACTERS.bandit;
 }
 

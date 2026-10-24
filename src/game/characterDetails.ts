@@ -85,8 +85,8 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     panel.querySelector('h1')!.textContent = name;
     panel.querySelector('.character-bio')!.textContent = appearance.bio;
     portrait.src = appearance.portrait;
-    portrait.alt = `${name}全身立绘`;
-    panel.querySelector('figcaption')!.textContent = `${identity} · 全身立绘`;
+    portrait.alt = `${name}${characterId.startsWith('wolf:')?'遭遇插画':'全身立绘'}`;
+    panel.querySelector('figcaption')!.textContent = `${identity} · ${characterId.startsWith('wolf:')?'遭遇插画':'全身立绘'}`;
     const preview = createUnitPreview(characterId, display.weapon, name, display.level);
     panel.querySelector('.character-model-slot')!.replaceChildren(preview);
     renderGallery(characterId);
