@@ -15,6 +15,10 @@ import { showCityPanel } from '../cityPanel';
 import { showEventCg } from '../eventCg';
 import { eventPresentation } from '../eventContent';
 import { cargoUsed } from '../economy';
+import { createConflictRecovery, showConflictPanel } from '../conflictPanel';
+import { factionAt } from '../worldConflictData';
+import { conflictDateLabel } from '../conflictView';
+import { withWorldDate } from '../worldTime';
 
 type NodeId = 'ambush' | 'recovery' | 'hub';
 type EventChoice = Parameters<typeof resolveTravelEvent>[1];
@@ -64,6 +68,9 @@ export class OverworldScene extends Phaser.Scene {
     el('span', 'world-eyebrow', `${themeFor(state.date).season} · 乱世行旅`, heading);
     el('h1', '', journey ? `${cityAt(leg!.from).name} → ${cityAt(leg!.to).name}` : `${city.name} · ${city.prefecture}`, heading);
     el('p', 'world-date', dateLabel(state.date), heading);
+    const world = state.conflictRecovery ? undefined : state.worldConflict;
+    const owner = world?.cities[city.id];
+    if (owner) el('p', 'world-date', `${journey ? '出发城' : '当前城'}归属 · ${factionAt(owner.factionId).name}`, heading);
     const stats = el('div', 'world-header-stats', undefined, header);
     el('p', '', `军需 ${state.supplies}　士气 ${state.morale}`, stats);
     el('p', '', `铜钱 ${state.economy.coins}　货舱 ${cargoUsed(state.economy)}/${state.economy.capacity}`, stats);
@@ -73,11 +80,32 @@ export class OverworldScene extends Phaser.Scene {
     const mapColumn = el('div', 'world-map-column', undefined, layout);
     this.map = createWorldMap({ currentId:city.id, selectedId:this.selectedId, path: journey?.path ?? planned?.path,
       ...(journey && leg ? {progress:{from:leg.from,to:leg.to,fraction:journey.legDay/leg.days}} : {}),
-      year:state.date.year, onSelect:id=>{ if (getState().journey) return; this.selectedId=id; this.render(); } });
+      year:state.date.year, date:state.date, worldConflict:world, onSelect:id=>{ if (getState().journey) return; this.selectedId=id; this.render(); } });
     this.map.element.dataset.season = ({春:'spring',夏:'summer',秋:'autumn',冬:'winter'} as Record<string,string>)[themeFor(state.date).season];
     mapColumn.append(this.map.element);
     el('p', 'world-context', chapterAt(state.date.year).context, mapColumn);
     const side = el('aside','world-sidebar',undefined,layout);
+    if (state.conflictRecovery) side.append(createConflictRecovery(()=>this.render('world-conflict')));
+    if (state.conflictMigration && !state.conflictRecovery) {
+      const migration=el('section','world-notice',undefined,side);migration.dataset.conflictMigration='';
+      el('p','','旧档已从当前年月接入天下局势；此前战争未追溯演算，人物、财货和行程保留。',migration);
+      button('知道了',()=>{setState({...getState(),conflictMigration:undefined});this.render('world-conflict');},migration,true,false,'conflict-migration-dismiss');
+    }
+    button('天下局势 · 城池 / 军队 / 战报',()=>showConflictPanel(()=>this.render('world-conflict')),side,true,!!state.conflictRecovery,'world-conflict');
+    if (world) {
+      const destinationId = journey?.path.at(-1) ?? this.selectedId;
+      if (destinationId) el('p','world-notice',`目的地 ${cityAt(destinationId).name} · ${factionAt(world.cities[destinationId].factionId).name}`,side);
+      const relevant = [!journey ? city.id : undefined,destinationId].filter((id):id is string=>!!id);
+      for (const id of [...new Set(relevant)]) {
+        const stock = world.cities[id];
+        if (stock.occupationDay >= 0) {
+          const n=el('p','world-notice',`${id===city.id&&!journey?'所在城':'目的地'} ${cityAt(id).name} 已于${conflictDateLabel(stock.occupationDay)}易主，现由${factionAt(stock.factionId).name}管理。${journey?'原行程继续，到达后可寻访在城人物。':'仍可照常行旅与进入城池。'}`,side);
+          n.dataset.conflictOccupation=id;
+        }
+      }
+      const latest=world.reports.at(-1);
+      if (latest) { const n=el('p','world-notice',`天下近报 · ${conflictDateLabel(latest.day)} · ${latest.text}`,side);n.dataset.conflictLatestReport=String(latest.id); }
+    }
     if (state.travelNotice) { const n=el('p','world-notice',state.travelNotice,side); n.setAttribute('role','status'); }
     const travelCard = el('section','world-card world-travel-card',undefined,side);
     el('h2','',journey ? '在路上' : '下一站',travelCard);
@@ -120,7 +148,7 @@ export class OverworldScene extends Phaser.Scene {
     button('地方官员',showLocalOfficials,localActions,true,!!journey);
     button('寻访人物',()=>showRecruitmentPanel(()=>this.render('world-recruitment')),localActions,true,!!journey,'world-recruitment');
     button(state.flags.escortWon ? canPlayFactionMission(state) ? '阵营护送任务' : '当地故事 · 已完成' : '当地故事',()=>this.localStory(),localActions,true,!!journey);
-    const contact=cityContact(city.id,state.date);
+    const contact=cityContact(city.id,state.date,state);
     if(contact && !state.route) button(`${state.flags[`met:${contact}`]?'再访':'拜访'}${routeLeaderName(contact,state.date.year)}`,()=>this.meet(contact),localActions,true,!!journey);
     const rest=el('div','world-action-grid',undefined,local);
     button('帮工1日 · 军需+1 / 铜钱+20',()=>{setState(restInCity(getState(),1));this.render();},rest,true,!!journey);
@@ -173,8 +201,9 @@ export class OverworldScene extends Phaser.Scene {
   private meet(route: RouteId): void {
     if(getState().journey)return;
     const state=getState(),name=routeLeaderName(route,state.date.year);
+    if(cityContact(state.currentCityId,state.date,state)!==route)return;
     showPanel({eyebrow:`${cityAt(state.currentCityId).name} · 地方见闻`,title:`拜访${name}`,body:'循着消息，你们拜访了对方的队伍。相遇后可以保留交情，继续独自行旅，也可以另选时机决定归属。此次拜访停留1日。',actions:[
-      {label:'停留1日，记下交情',onClick:()=>{const s=getState();if(s.journey)return;setState({...s,date:advanceDays(s.date,1),flags:{...s.flags,[`met:${route}`]:true},travelNotice:`已结识${name}，可在阵营入口选择去向。`});clearOverlay();this.render();}},
+      {label:'停留1日，记下交情',onClick:()=>{const s=getState();if(s.journey||cityContact(s.currentCityId,s.date,s)!==route)return;setState(withWorldDate({...s,flags:{...s.flags,[`met:${route}`]:true},travelNotice:`已结识${name}，可在阵营入口选择去向。`},advanceDays(s.date,1)));clearOverlay();this.render();}},
       {label:'暂不拜访',variant:'quiet',onClick:clearOverlay},
     ]});
   }

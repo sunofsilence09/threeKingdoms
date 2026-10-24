@@ -1,5 +1,6 @@
 import { getUnitAppearance, type ModelWeapon } from './characters';
 import { paintUnitFigure, type FigurePainter } from './unitFigure';
+import type { GameDate } from './history';
 
 class CanvasFigurePainter implements FigurePainter {
   constructor(private ctx: CanvasRenderingContext2D) {}
@@ -20,12 +21,12 @@ class CanvasFigurePainter implements FigurePainter {
   rotateCanvas(angle: number) { this.ctx.rotate(angle); return this; }
 }
 
-export function createUnitPreview(id: string, weapon: ModelWeapon, name: string, level = 1): HTMLCanvasElement {
+export function createUnitPreview(id: string, weapon: ModelWeapon, name: string, level = 1, date?: GameDate): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = 192; canvas.height = 160; canvas.className = 'character-model-preview';
   canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', `${name}棋盘小人预览`);
-  canvas.dataset.portrait = getUnitAppearance({ id, weapon, level }).portrait; canvas.dataset.level = String(level); canvas.dataset.character = id; canvas.dataset.weapon = weapon;
+  canvas.dataset.portrait = getUnitAppearance({ id, weapon, level }, date).portrait; canvas.dataset.level = String(level); canvas.dataset.character = id; canvas.dataset.weapon = weapon;
   const ctx = canvas.getContext('2d');
-  if (ctx) { ctx.translate(96, 88); ctx.scale(3, 3); paintUnitFigure(new CanvasFigurePainter(ctx), { id, weapon, level }); }
+  if (ctx) { ctx.translate(96, 88); ctx.scale(3, 3); paintUnitFigure(new CanvasFigurePainter(ctx), { id, weapon, level }, date); }
   return canvas;
 }

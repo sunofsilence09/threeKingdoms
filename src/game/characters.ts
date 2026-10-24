@@ -2,6 +2,7 @@ import type { CombatUnit, WeaponId } from './combat';
 import { getHeroVisual, HERO_WEAPONS } from './heroVisuals';
 import { getHistoricalCharacter } from './historicalCharacters';
 import { recruitProfile } from './recruitmentCatalog';
+import type { GameDate } from './history';
 
 export type ModelWeapon = WeaponId;
 
@@ -21,6 +22,7 @@ export interface CharacterAppearance {
   hair?: 'bun' | 'long' | 'crown';
   accent?: number;
   plume?: boolean;
+  leftEyeCovered?: boolean;
 }
 
 const CHARACTERS: Record<string, CharacterAppearance> = {
@@ -51,20 +53,24 @@ const CHARACTERS: Record<string, CharacterAppearance> = {
   },
 };
 
-export function getCharacterAppearance(id: string): CharacterAppearance {
+export function getCharacterAppearance(id: string, date?: GameDate): CharacterAppearance {
   if (id.startsWith('wolf:')) return { identity: '山野 · 狼群', portrait: '/assets/events/event-wolves-v1.png', bio: '山林间结群出没的野兽。四足奔袭，以爪牙攻击靠近的行旅人。', robe: 0x737c75, headband: null, skin: 0x8a938a, sash: 0x444e49, stocky: false, beard: false, pack: false, pose: 'skulker' };
-  return CHARACTERS[id] ?? getHistoricalCharacter(id)?.appearance ?? recruitProfile(id)?.appearance ?? CHARACTERS.bandit;
+  const base = CHARACTERS[id] ?? getHistoricalCharacter(id)?.appearance ?? recruitProfile(id)?.appearance ?? CHARACTERS.bandit;
+  if (id === 'xiahou-dun' && date) return { ...base,
+    portrait: date.year < 194 ? '/assets/characters/xiahou-dun-uninjured-v1.png' : '/assets/characters/xiahou-dun-v1.png',
+    leftEyeCovered: date.year >= 194 };
+  return base;
 }
 
 /** Equipment is live battle data; the portrait supplies identity and clothing. */
-export function getUnitModel(unit: Pick<CombatUnit, 'id'> & { weapon: ModelWeapon; level?: number }): { appearance: CharacterAppearance; weapon: ModelWeapon } {
-  return { appearance: getUnitAppearance(unit), weapon: unit.weapon };
+export function getUnitModel(unit: Pick<CombatUnit, 'id'> & { weapon: ModelWeapon; level?: number }, date?: GameDate): { appearance: CharacterAppearance; weapon: ModelWeapon } {
+  return { appearance: getUnitAppearance(unit, date), weapon: unit.weapon };
 }
 
 /** Pure display derivation; NPC identity records remain shared and unchanged. */
-export function getUnitAppearance(unit: { id: string; weapon: ModelWeapon; level?: number }): CharacterAppearance {
+export function getUnitAppearance(unit: { id: string; weapon: ModelWeapon; level?: number }, date?: GameDate): CharacterAppearance {
   const id = unit.id.replace(/^enemy:/, '');
-  const base = getCharacterAppearance(id);
+  const base = getCharacterAppearance(id, date);
   if (id !== 'traveler') return base;
   const weapon = HERO_WEAPONS.find(weapon => weapon === unit.weapon) ?? 'cleaver';
   const visual = getHeroVisual(unit.level, weapon);

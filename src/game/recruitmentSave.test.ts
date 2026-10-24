@@ -4,6 +4,9 @@ import { createProgress } from './growth';
 import { advanceDays } from './history';
 import { initialRelationships, interactPerson, invitePerson, setDeployment } from './recruitment';
 import { RECRUIT_PROFILES } from './recruitmentCatalog';
+import { cityServices, getRecruitmentThreshold, serviceForPerson } from './cityService';
+import { personPosting } from './personPosting';
+import { createWorldConflict, isWorldConflict } from './worldConflict';
 import { acknowledgeTravelCg, finishTravelBattle, resolveTravelEvent, startTravel } from './travel';
 
 beforeEach(() => {
@@ -13,8 +16,30 @@ beforeEach(() => {
     setItem: (key: string, value: string) => data.set(key, value),
   } });
 });
-const stateInZhuo = () => ({ ...createInitialState(), phase: 'overworld' as const, currentCityId: 'zhuo' });
+const stateInZhuo = (): GameState => ({ ...createInitialState(), phase: 'overworld' as const, currentCityId: 'zhuo' });
+const datedWorld = (state: GameState): GameState => {
+  const worldConflict = createWorldConflict(state.date, Object.keys(state.party));
+  // This roster fixture uses institution-led armies, leaving named people available in town.
+  worldConflict.armies = worldConflict.armies.map(army => { const { commanderId: _commander, ...institution } = army; return institution; });
+  return { ...state, worldConflict };
+};
+const atXiapi = (patch: Partial<GameState> = {}): GameState => {
+  const state = datedWorld({ ...stateInZhuo(), currentCityId: 'xiapi', date: { year: 196, month: 6, day: 1 }, ...patch });
+  state.worldConflict!.cities.xiapi.factionId = 'lu-bu';
+  return state;
+};
 describe('persistent recruited roster and combat rewards', () => {
+  it('roundtrips independent city captains and rejects read-only or invalid garrison party IDs', () => {
+    const base = stateInZhuo();
+    const state = { ...base, party: { ...base.party, 'garrison:zhuo:captain': createProgress(2, 7), 'garrison:ye:captain': createProgress(3, 9) },
+      relationships: { ...base.relationships, 'garrison:zhuo:captain': { affinity: 81, lastInteraction: 60 }, 'garrison:ye:captain': { affinity: 23 } }, deployed: ['traveler', 'garrison:zhuo:captain'] };
+    saveState(state);
+    expect(loadState()).toEqual(state);
+    for (const id of ['himiko', 'garrison:zhuo:soldier', 'garrison:unknown:captain', 'garrison:ye:general', 'garrison:ye:captain:extra', 'constructor']) {
+      saveState({ ...base, party: { ...base.party, [id]: createProgress() } });
+      expect(loadState(), id).toBeNull();
+    }
+  });
   it('migrates 0.2 saves to their original three fighters and retains all prior progress', () => {
     const state = createInitialState();
     const { deployed: _deployed, relationships: _relations, ...old } = { ...state, party: { ...state.party, traveler: createProgress(3, 20) } };
@@ -22,9 +47,12 @@ describe('persistent recruited roster and combat rewards', () => {
     expect(loadState()).toEqual({ ...old, deployed: ['traveler', 'aman', 'chen-da'], relationships: initialRelationships() });
   });
   it('supports recruitment of every catalog identity beyond initial companions', () => {
-    for (const profile of RECRUIT_PROFILES.filter(p => p.category !== 'initial')) {
+    for (const profile of RECRUIT_PROFILES.filter(p => p.category !== 'initial' && !p.readOnly)) {
       const first = profile.windows[0];
-      const state = { ...stateInZhuo(), currentCityId: first.cityIds[0], date: { year: first.from.year, month: first.from.month ?? 1, day: 1 }, relationships: { [profile.id]: { affinity: 60 } } };
+      const base = datedWorld({ ...stateInZhuo(), currentCityId: first.cityIds[0], date: { year: first.from.year, month: first.from.month ?? 1, day: 1 } });
+      base.currentCityId = personPosting(base, profile.id)?.cityId ?? base.currentCityId;
+      expect(isWorldConflict(base.worldConflict, base.date, Object.keys(base.party)), profile.id).toBe(true);
+      const state = { ...base, relationships: { [profile.id]: { affinity: getRecruitmentThreshold(base, profile.id) } } };
       const recruited = invitePerson(state, profile.id);
       expect(recruited.party[profile.id], profile.id).toBeDefined();
       saveState(recruited);
@@ -39,6 +67,35 @@ describe('persistent recruited roster and combat rewards', () => {
     const recruited = invitePerson({ ...restored, relationships: { 'guan-yu': { affinity: 60 } } }, 'guan-yu');
     saveState(recruited);
     expect(loadState()?.party['guan-yu']).toEqual(createProgress());
+  });
+  it('rebuilds appointments on reload without persistent jobs or overwriting old and recruited growth', () => {
+    const base = atXiapi({ relationships: { 'chen-gong': { affinity: 79 }, 'gao-shun': { affinity: 80 } } });
+    const state = { ...base, party: { ...base.party, traveler: createProgress(3, 20) } };
+    saveState(state);
+    const restored = loadState()!;
+    expect(restored).toEqual(state);
+    expect(getRecruitmentThreshold(restored, 'chen-gong')).toBe(80);
+    expect(invitePerson(restored, 'chen-gong')).toBe(restored);
+    const recruited = invitePerson(restored, 'gao-shun');
+    const trained = { ...recruited, party: { ...recruited.party, 'gao-shun': createProgress(2, 7) } };
+    saveState(trained);
+    const reloaded = loadState()!;
+    expect(reloaded).toEqual(trained);
+    expect(reloaded.party.traveler).toEqual(createProgress(3, 20));
+    expect(reloaded.party['gao-shun']).toEqual(createProgress(2, 7));
+    expect(serviceForPerson(reloaded, 'gao-shun')).toBeUndefined();
+    expect(cityServices({ ...reloaded, worldConflict: undefined, date: { year: 198, month: 12, day: 30 } }, 'xiapi').map(person => person.personId)).toEqual(['chen-gong', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
+    expect(Object.keys(reloaded)).not.toContain('cityServices');
+  });
+  it('preserves affinity and waiting status when a recruited employer is loaded from saved party', () => {
+    const state = atXiapi({ party: { ...stateInZhuo().party, 'lu-bu': createProgress(2, 5) },
+      relationships: { 'chen-gong': { affinity: 60 }, 'lu-bu': { affinity: 60 } } });
+    saveState(state);
+    const restored = loadState()!;
+    expect(restored).toEqual(state);
+    expect(serviceForPerson(restored, 'chen-gong')).toMatchObject({ kind: 'waiting', cityId: 'xiapi' });
+    expect(getRecruitmentThreshold(restored, 'chen-gong')).toBe(60);
+    expect(invitePerson(restored, 'chen-gong').party['chen-gong']).toBeDefined();
   });
   it('rejects unknown, duplicate, missing hero, unowned and over-capacity lineups or forged relationships', () => {
     const base = stateInZhuo();

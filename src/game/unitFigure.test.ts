@@ -10,6 +10,16 @@ function geometry(level: number, weapon: typeof HERO_WEAPONS[number]): string {
 }
 
 describe('shared hero figure progression', () => {
+  it('draws the authored left-eye cover only from the injury year', () => {
+    function face(year: number) {
+      const calls: unknown[] = [];
+      const painter = new Proxy({}, { get: (_, method) => (...args: unknown[]) => { calls.push([method, ...args]); return painter; } }) as FigurePainter;
+      paintUnitFigure(painter, { id: 'xiahou-dun', weapon: 'glaive' }, { year, month: 1 });
+      return JSON.stringify(calls);
+    }
+    expect(face(193)).not.toBe(face(194));
+    expect(face(194)).toBe(face(210));
+  });
   it('renders fifteen distinct stage/weapon figures without changing the supplied unit', () => {
     const figures = [1, 3, 6].flatMap(level => HERO_WEAPONS.map(weapon => geometry(level, weapon)));
     expect(new Set(figures).size).toBe(15);

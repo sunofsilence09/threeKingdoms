@@ -141,7 +141,7 @@ describe('travel CG confirmation and complete market news', () => {
       if (news.cityId === 'nanhai') destinations++;
     }
     expect([...changes].sort()).toEqual([-.2, .2]);
-    expect(goods.size).toBe(8);
+    expect(goods.size).toBe(GOODS.length);
     expect(cities.size).toBeGreaterThan(1);
     expect(destinations).toBeGreaterThan(messages / 2);
   });

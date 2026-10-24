@@ -3,6 +3,7 @@ import type { RouteId } from './state';
 import { createPartyProgress, PARTY_IDS, type Progress, type PartyProgress } from './growth';
 import { recruitProfile } from './recruitmentCatalog';
 import { createTerrain, TERRAIN, type BattleMode, type TerrainKind, type TerrainTile } from './battlefield';
+import { formationStrength, type FormationStrength } from './garrisonStrength';
 
 export type CombatTeam = 'party' | 'enemy';
 export type UltimateId = 'survival' | 'desperation';
@@ -35,6 +36,7 @@ export interface CombatUnit {
   hp: number; maxHp: number; attack: number; speed: number; guarded: boolean;
   weapon: WeaponId; level: number; xp: number; defense: number; dodgeRate: number;
   ultimate: UltimateId; ultimateUsed: boolean; empowered: boolean;
+  formation?: FormationStrength;
 }
 export interface CombatState {
   width: number; height: number; terrain: TerrainTile[]; units: CombatUnit[];
@@ -63,7 +65,7 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
 
 export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS, options: { enemyKind?: 'bandits' | 'wolves' } = {}): CombatState {
   if (deployed.length < 1 || deployed.length > 5 || new Set(deployed).size !== deployed.length ||
-      deployed.some(id => !recruitProfile(id) || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
+      deployed.some(id => !recruitProfile(id) || recruitProfile(id)!.readOnly || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
   const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit =>
     ({ id: deployed.includes(id) ? `enemy:${id}` : id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
   const advanced = mode === 'route';
@@ -89,7 +91,7 @@ export function terrainAt(state: CombatState, x: number, y: number): TerrainKind
   return state.terrain.find(tile => tile.x === x && tile.y === y)?.kind ?? 'road';
 }
 export function movementRange(state: CombatState, unit: CombatUnit): number {
-  return (unit.team === 'enemy' ? unit.weapon === 'claws' ? 3 : 2 : WEAPONS[unit.weapon].move) + (unit.team === 'party' && state.route === 'sun' ? 1 : 0);
+  return (unit.formation?.move ?? (unit.team === 'enemy' ? unit.weapon === 'claws' ? 3 : 2 : WEAPONS[unit.weapon].move)) + (unit.team === 'party' && state.route === 'sun' ? 1 : 0);
 }
 export function distance(a: Tile, b: Tile): number { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
 export function isBattleOver(state: CombatState): BattleResult {
@@ -116,6 +118,12 @@ function canAct(state: CombatState, unit: CombatUnit): boolean {
 }
 function updateUnit(state: CombatState, id: string, updater: (u: CombatUnit) => CombatUnit): CombatState {
   return { ...state, units: state.units.map(u => u.id === id ? updater(u) : u) };
+}
+/** Formation HP is the sole source of its surviving soldiers and effective combat strength. */
+function unitWithHp(unit: CombatUnit, hp: number): CombatUnit {
+  if (!unit.formation) return { ...unit, hp };
+  const formation = formationStrength(unit.formation.initialTroops, hp);
+  return { ...unit, hp: formation.hp, attack: formation.attack, defense: formation.defense, formation };
 }
 function markActed(state: CombatState, id: string): CombatState {
   return { ...updateUnit(state, id, u => ({ ...u, empowered: false })), selectedId: null, actedIds: [...state.actedIds, id] };
@@ -183,7 +191,7 @@ function clearSight(state: CombatState, from: Tile, to: Tile): boolean {
   return true;
 }
 export function canAttack(state: CombatState, attacker: CombatUnit, target: CombatUnit): boolean {
-  const range = WEAPONS[attacker.weapon];
+  const range = attacker.formation ? { min: attacker.formation.minRange, max: attacker.formation.maxRange } : WEAPONS[attacker.weapon];
   const gap = distance(attacker, target);
   return attacker.hp > 0 && target.hp > 0 && attacker.team !== target.team && gap >= range.min && gap <= range.max && clearSight(state, attacker, target);
 }
@@ -199,7 +207,7 @@ export function activateUltimate(state: CombatState, id: string): CombatState {
   const unit = state.units.find(u => u.id === id);
   if (!unit || !ultimateAvailability(state, unit).available) return state;
   const hp = unit.ultimate === 'survival' ? Math.min(unit.maxHp, unit.hp + Math.ceil(unit.maxHp * 0.3)) : unit.hp - Math.max(1, Math.ceil(unit.maxHp * 0.2));
-  return { ...updateUnit(state, id, u => ({ ...u, hp, empowered: true, ultimateUsed: true })), lastEvent: { kind: 'ultimate', actorId: id, damage: 0 } };
+  return { ...updateUnit(state, id, u => ({ ...unitWithHp(u, hp), empowered: true, ultimateUsed: true })), lastEvent: { kind: 'ultimate', actorId: id, damage: 0 } };
 }
 function nextRandom(seed: number): { seed: number; roll: number } {
   let next = seed || 1;
@@ -219,7 +227,7 @@ export function performAttack(state: CombatState, attackerId: string, targetId: 
   const guarded = state.route === 'liu' && target.team === 'party' ? Math.floor(power / 2) : Math.ceil(power / 2);
   const cover = attacker.weapon === 'bow' && terrainAt(state, target.x, target.y) === 'woods' ? 1 : 0;
   const damage = dodged ? 0 : Math.max(1, Math.ceil((target.guarded ? guarded : power) - cover));
-  const next = dodged ? state : updateUnit(state, targetId, u => ({ ...u, hp: Math.max(0, u.hp - damage), guarded: false }));
+  const next = dodged ? state : updateUnit(state, targetId, u => ({ ...unitWithHp(u, Math.max(0, u.hp - damage)), guarded: false }));
   const acted = markActed(updateUnit(next, attackerId, u => ({ ...u, guarded: false, empowered: false })), attackerId);
   return { ...acted, randomSeed: random.seed, lastEvent: { kind: dodged ? 'dodge' : 'attack', actorId: attackerId, targetId, damage } };
 }

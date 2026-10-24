@@ -1,4 +1,5 @@
 import { getUnitModel, type ModelWeapon } from './characters';
+import type { GameDate } from './history';
 
 /** Geometry shared by Phaser battlefield figures and the character-book canvas. */
 export interface FigurePainter {
@@ -20,7 +21,7 @@ export interface FigurePainter {
 }
 
 /** Small, readable figures share clothing and silhouette with the full-body artwork. */
-export function paintUnitFigure(g: FigurePainter, unit: { id: string; weapon: ModelWeapon; level?: number }): void {
+export function paintUnitFigure(g: FigurePainter, unit: { id: string; weapon: ModelWeapon; level?: number }, date?: GameDate): void {
   if (unit.id.startsWith('wolf:')) {
     g.fillStyle(0x26352e, .35).fillEllipse(0, 16, 38, 9);
     g.lineStyle(4, 0x555f59).lineBetween(-12, 4, -16, 15).lineBetween(-5, 5, -7, 16).lineBetween(9, 4, 12, 16).lineBetween(15, 2, 17, 12);
@@ -32,7 +33,7 @@ export function paintUnitFigure(g: FigurePainter, unit: { id: string; weapon: Mo
     g.fillStyle(0xf4efdf).fillTriangle(22, 3, 23, 7, 25, 3);
     return;
   }
-  const { appearance: a, weapon } = getUnitModel(unit);
+  const { appearance: a, weapon } = getUnitModel(unit, date);
   const half = a.pose === 'tyrant' ? 11 : a.stocky ? 9 : a.pose === 'lancer' ? 8 : unit.id === 'aman' ? 6 : 7;
   const pose = {
     calm: { angle: 0, step: 0, left: { x: -9, y: 5 }, right: { x: 9, y: 5 } },
@@ -117,6 +118,7 @@ export function paintUnitFigure(g: FigurePainter, unit: { id: string; weapon: Mo
     g.fillStyle(a.headband).fillRect(-8, -17, 16, 4).fillTriangle(-7, -15, -12, -9, -9, -17);
   }
   g.fillStyle(0x29251f).fillRect(-4, -12, 2, 1).fillRect(3, -12, 2, 1);
+  if (a.leftEyeCovered) g.lineStyle(1, 0x383b36).lineBetween(-7, -14, 6, -11).fillStyle(0x30342f).fillRoundedRect(1, -14, 6, 4, 1);
   if (a.pose === 'longbeard') {
     g.fillStyle(0x302e27).fillPoints([{ x: -5, y: -8 }, { x: 5, y: -8 }, { x: 4, y: 1 }, { x: 0, y: 7 }, { x: -3, y: 0 }], true);
   } else if (a.pose === 'serpent') {
@@ -187,9 +189,13 @@ export function paintUnitFigure(g: FigurePainter, unit: { id: string; weapon: Mo
     g.fillStyle(0xb9c3bd).fillPoints([{ x: 10, y: -2 }, { x: 23, y: -7 }, { x: 21, y: -1 }, { x: 12, y: 3 }], true);
     g.lineStyle(1, 0xe0ddc9).lineBetween(12, 3, 21, -1);
   } else if (weapon === 'jade') {
-    g.lineStyle(1, 0xc8b78c).lineBetween(right.x, right.y - 1, right.x + 1, right.y + 4);
-    g.fillStyle(0x93b7a5).fillEllipse(right.x + 1, right.y + 5, 5, 7);
-    g.fillStyle(0xd8e4cf).fillCircle(right.x + 1, right.y + 4, 1);
+    if(unit.id.replace(/^enemy:/,'')==='himiko') {
+      g.fillStyle(0x927949).fillCircle(right.x+2,right.y+3,6);g.lineStyle(1,0xcab47d).strokeCircle(right.x+2,right.y+3,6);g.fillStyle(0xb2b5a0).fillCircle(right.x+2,right.y+3,4);
+    } else {
+      g.lineStyle(1, 0xc8b78c).lineBetween(right.x, right.y - 1, right.x + 1, right.y + 4);
+      g.fillStyle(0x93b7a5).fillEllipse(right.x + 1, right.y + 5, 5, 7);
+      g.fillStyle(0xd8e4cf).fillCircle(right.x + 1, right.y + 4, 1);
+    }
   } else {
     g.lineStyle(1, 0xead0ad).strokeCircle(pose.left.x, pose.left.y, 3).strokeCircle(right.x, right.y, 3);
   }

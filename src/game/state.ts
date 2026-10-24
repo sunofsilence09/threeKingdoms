@@ -6,7 +6,10 @@ import { WORLD_CITIES, originCity } from './world';
 import { isJourney, type Journey } from './travel';
 import { initialRelationships, isDeployment, isRelationships, type Relationship } from './recruitment';
 import { recruitProfile } from './recruitmentCatalog';
-import { createEconomy, isEconomy, type Economy } from './economy';
+import { createEconomy, migrateEconomy, type Economy } from './economy';
+import type { WorldConflict } from './worldConflictTypes';
+import { createWorldConflict, isWorldConflict } from './worldConflict';
+import { withWorldDate } from './worldTime';
 
 export type RouteId = 'cao' | 'sun' | 'liu';
 
@@ -31,6 +34,9 @@ export interface GameState {
   battleParty?: string[];
   economy: Economy;
   travelDays: number;
+  worldConflict?: WorldConflict;
+  conflictRecovery?: boolean;
+  conflictMigration?: boolean;
 }
 
 export const STORAGE_KEY = 'three-kingdoms-demo-state';
@@ -58,6 +64,7 @@ export function createInitialState(random: () => number = Math.random): GameStat
     relationships: initialRelationships(),
     economy: createEconomy(),
     travelDays: 3,
+    worldConflict: createWorldConflict({ year: 184, month: 3, day: 1 }, [...PARTY_IDS]),
   };
 }
 
@@ -92,7 +99,7 @@ export function loadState(): GameState | null {
       return null;
     }
 
-    return { ...parsed,
+    const restored: GameState = { ...parsed,
       date: { ...(parsed.date ?? { year: parsed.route ? 200 : 184, month: parsed.route ? 9 : 3 }), day: parsed.date?.day ?? 1 },
       originId: parsed.originId ?? 'yingchuan',
       currentCityId: parsed.currentCityId ?? originCity(parsed.originId ?? 'yingchuan').id,
@@ -100,9 +107,17 @@ export function loadState(): GameState | null {
       flags: parsed.currentCityId === undefined && (parsed.flags['xp:route'] || parsed.flags['xp:escort']) ? { ...parsed.flags, escortWon: true } : parsed.flags,
       deployed: parsed.deployed ?? [...PARTY_IDS],
       relationships: parsed.relationships ?? initialRelationships(),
-      economy: parsed.economy ?? createEconomy(),
+      economy: parsed.economy === undefined ? createEconomy() : migrateEconomy(parsed.economy)!,
       travelDays: parsed.travelDays ?? 3,
       party: parsed.party === undefined ? createPartyProgress() : migratePartyProgress(parsed.party)! };
+    if (parsed.conflictRecovery) return { ...restored, worldConflict: undefined, conflictRecovery: true };
+    if (parsed.worldConflict !== undefined && !isWorldConflict(parsed.worldConflict, restored.date, Object.keys(restored.party))) {
+      // Keep both the untouched original and all valid RPG progress until an explicit rebuild.
+      try { if (!localStorage.getItem(`${STORAGE_KEY}:conflict-backup`)) localStorage.setItem(`${STORAGE_KEY}:conflict-backup`, raw); } catch { /* Storage may be unavailable. */ }
+      return { ...restored, worldConflict: undefined, conflictRecovery: true };
+    }
+    const initialized=withWorldDate(restored, restored.date);
+    return parsed.worldConflict===undefined ? {...initialized,conflictMigration:true} : initialized;
   } catch {
     return null;
   }
@@ -138,11 +153,13 @@ function isGameState(value: unknown): value is GameState {
     (candidate.journey === undefined || candidate.phase !== 'battle' || candidate.encounter === 'ambush') &&
     (candidate.encounter === undefined || ['ambush', 'route'].includes(candidate.encounter)) &&
     (candidate.date === undefined || candidate.date.year >= 200 || !candidate.route || candidate.flags?.[`met:${candidate.route}`] === true) &&
-    (candidate.party === undefined || migratePartyProgress(candidate.party) !== null && Object.keys(candidate.party).every(id => !!recruitProfile(id))) &&
+    (candidate.party === undefined || migratePartyProgress(candidate.party) !== null && Object.keys(candidate.party).every(id => !!recruitProfile(id) && !recruitProfile(id)!.readOnly)) &&
     (candidate.deployed === undefined || isDeployment(candidate.deployed, party)) &&
     (candidate.relationships === undefined || isRelationships(candidate.relationships, date)) &&
-    (candidate.economy === undefined || isEconomy(candidate.economy)) &&
+    (candidate.economy === undefined || migrateEconomy(candidate.economy) !== null) &&
     (candidate.travelDays === undefined || Number.isSafeInteger(candidate.travelDays) && candidate.travelDays >= 1 && candidate.travelDays <= 30) &&
+    (candidate.conflictRecovery === undefined || typeof candidate.conflictRecovery === 'boolean') &&
+    (candidate.conflictMigration === undefined || typeof candidate.conflictMigration === 'boolean') &&
     (candidate.battleParty === undefined || candidate.phase === 'battle' && isDeployment(candidate.battleParty, party) && candidate.battleParty.join('|') === (candidate.deployed ?? PARTY_IDS).join('|'))
   );
 }
@@ -153,7 +170,7 @@ export function availableRoutes(state: GameState): RouteId[] {
 
 export function completeJourneyTask(state: GameState, task: 'ambushWon' | 'recovered' | 'escortWon'): GameState {
   if (state.flags[task] || state.journey) return state;
-  return { ...state, date: advanceDays(state.date, task === 'escortWon' ? 3 : 1), flags: { ...state.flags, [task]: true } };
+  return withWorldDate({ ...state, flags: { ...state.flags, [task]: true } }, advanceDays(state.date, task === 'escortWon' ? 3 : 1));
 }
 
 export function continueJourney(state: GameState): GameState {
@@ -182,7 +199,7 @@ export function completeLocalEscort(state: GameState): GameState {
   if (state.journey) return state;
   const rewarded = rewardVictory(state, state.route ? 'route' : 'escort');
   if (rewarded === state) return state;
-  return { ...rewarded, date: advanceDays(state.date, 3), flags: { ...rewarded.flags, escortWon: true } };
+  return withWorldDate({ ...rewarded, flags: { ...rewarded.flags, escortWon: true } }, advanceDays(state.date, 3));
 }
 
 

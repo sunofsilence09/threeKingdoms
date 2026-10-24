@@ -6,14 +6,72 @@ import { WORLD_CITIES } from './world';
 import { RECRUIT_PROFILES, canMeetPerson, recruitProfile } from './recruitmentCatalog';
 
 describe('all-person recruitment catalog', () => {
-  it('contains exactly 33 unique identities covering every existing identity', () => {
+  it('contains exactly 124 unique identities covering every existing identity', () => {
     const ids = RECRUIT_PROFILES.map(p => p.id);
-    expect(ids).toHaveLength(33);
-    expect(new Set(ids).size).toBe(33);
+    expect(ids).toHaveLength(124);
+    expect(new Set(ids).size).toBe(124);
     expect(ids).toEqual(expect.arrayContaining([
       'traveler', 'aman', 'chen-da', 'bandit', 'bandit-leader', 'sun-jian', 'sun-ce',
       ...HISTORICAL_CHARACTERS.map(p => p.id), ...LOCAL_OFFICIALS.map(p => p.id),
     ]));
+  });
+
+  it('provides two stable garrison identities per city and keeps ordinary troops unapproachable', () => {
+    expect(RECRUIT_PROFILES.filter(p => p.category === 'garrison')).toHaveLength(72);
+    for (const city of WORLD_CITIES) {
+      const soldier = recruitProfile(`garrison:${city.id}:soldier`);
+      const captain = recruitProfile(`garrison:${city.id}:captain`);
+      expect(soldier).toMatchObject({ category: 'garrison', weapon: 'spear', speed: 11, readOnly: true });
+      expect(captain).toMatchObject({ category: 'garrison', weapon: 'swordshield', speed: 12 });
+      expect(canMeetPerson(soldier!.id, city.id, { year: 184, month: 3 })).toBe(false);
+      expect(canMeetPerson(captain!.id, city.id, { year: 184, month: 3 })).toBe(true);
+      expect(canMeetPerson(captain!.id, WORLD_CITIES.find(c => c.id !== city.id)!.id, { year: 184, month: 3 })).toBe(false);
+    }
+    expect(recruitProfile('himiko')).toMatchObject({ readOnly: true, windows: [] });
+    for (const id of ['garrison:unknown:captain', 'garrison:ye:general', '__proto__', 'toString']) expect(recruitProfile(id)).toBeUndefined();
+  });
+
+  it.each([
+    ['xiahou-dun', [[189, 191, 'chenliu'], [192, 194, 'dongjun'], [195, 219, 'henan']]],
+    ['xiahou-yuan', [[189, 195, 'chenliu'], [196, 210, 'xuxian'], [211, 214, 'changan'], [215, 218, 'nanzheng']]],
+    ['cao-ren', [[190, 195, 'chenliu'], [196, 207, 'xuxian'], [208, 209, 'jiangling'], [210, 219, 'xiangyang']]],
+    ['cao-xiu', [[200, 217, 'xuxian'], [218, 219, 'changan'], [220, 227, 'shouchun']]],
+    ['liu-biao', [[190, 207, 'xiangyang']]], ['liu-zhang', [[194, 213, 'shujun']]],
+    ['zhang-lu', [[194, 214, 'nanzheng']]],
+    ['ma-teng', [[188, 191, 'didao'], [192, 207, 'changan'], [208, 211, 'xuxian']]],
+    ['gongsun-zan', [[184, 187, 'zhuo'], [188, 192, 'zhuo'], [193, 194, 'ji']]],
+    ['yuan-shao', [[188, 189, 'henan', 8], [191, 201, 'ye']]],
+    ['liu-yu', [[188, 192, 'ji']]], ['zhang-yan', [[184, 204, 'julu'], [205, 210, 'ye']]],
+  ] as const)('keeps the complete authored monthly encounter schedule for %s', (id, stages) => {
+    const profile = recruitProfile(id)!;
+    expect(profile.windows).toHaveLength(stages.length);
+    for (let year = 183; year <= 228; year++) for (let month = 1; month <= 12; month++) {
+      const expected = stages.find(stage => year >= stage[0] && (year < stage[1] || year === stage[1] && month <= (stage[3] ?? 12)));
+      const actual = WORLD_CITIES.filter(city => canMeetPerson(id, city.id, { year, month })).map(city => city.id);
+      expect(actual, `${id}:${year}-${month}`).toEqual(expected ? [expected[2]] : []);
+    }
+  });
+
+  it.each([
+    ['yuan-shu', 189, 189, 'henan'], ['yuan-shu', 190, 192, 'nanyang'], ['yuan-shu', 193, 198, 'shouchun'],
+    ['chen-gong', 192, 193, 'dongjun'], ['chen-gong', 194, 195, 'dongjun'], ['chen-gong', 196, 198, 'xiapi'],
+    ['zhang-miao', 190, 194, 'chenliu'], ['gao-shun', 196, 198, 'xiapi'],
+    ['zhou-tai', 196, 199, 'wujun'], ['zhou-tai', 200, 207, 'danyang'],
+    ['zhou-tai', 208, 219, 'jiangling'], ['zhou-tai', 220, 221, 'danyang'],
+    ['han-dang', 184, 186, 'nanyang'], ['han-dang', 187, 190, 'changsha'],
+    ['han-dang', 195, 199, 'wujun'], ['han-dang', 200, 225, 'wujun'],
+  ] as const)('keeps %s in exactly %s through %s at %s', (id, from, to, expectedCity) => {
+    for (const year of [from, to]) for (const month of [1, 12]) {
+      expect(WORLD_CITIES.filter(city => canMeetPerson(id, city.id, { year, month })).map(city => city.id)).toEqual([expectedCity]);
+    }
+  });
+
+  it('does not fill career gaps or generate encounters beyond the six new windows', () => {
+    for (const [id, year] of [
+      ['yuan-shu', 188], ['yuan-shu', 199], ['chen-gong', 191], ['chen-gong', 199],
+      ['zhang-miao', 189], ['zhang-miao', 195], ['gao-shun', 195], ['gao-shun', 199],
+      ['zhou-tai', 195], ['zhou-tai', 222], ['han-dang', 191], ['han-dang', 194], ['han-dang', 226],
+    ] as const) for (const city of WORLD_CITIES) expect(canMeetPerson(id, city.id, { year, month: 6 })).toBe(false);
   });
 
   it('reuses all existing historical appearances and official portraits', () => {
@@ -34,14 +92,15 @@ describe('all-person recruitment catalog', () => {
       expect(profile.bio.length).toBeGreaterThan(0);
       expect(profile.speed).toBeGreaterThan(0);
       expect(profile.appearance.portrait).toBe(profile.portrait);
-      expect(existsSync(`public${profile.portrait}`)).toBe(true);
-      expect(profile.windows.length).toBeGreaterThan(0);
+      expect(existsSync(`public${profile.portrait}`), profile.id).toBe(true);
+      if (profile.id === 'himiko') expect(profile.windows).toEqual([]);
+      else expect(profile.windows.length).toBeGreaterThan(0);
       expect(JSON.stringify(profile)).not.toMatch(/清代|清朝|旗装|马蹄袖|辫子/);
       for (const window of profile.windows) {
         expect(window.cityIds.length).toBeGreaterThan(0);
         for (const city of window.cityIds) {
           expect(cities.has(city)).toBe(true);
-          expect(canMeetPerson(profile.id, city, { year: window.from.year, month: window.from.month ?? 1 })).toBe(true);
+          expect(canMeetPerson(profile.id, city, { year: window.from.year, month: window.from.month ?? 1 })).toBe(!profile.readOnly);
         }
       }
     }

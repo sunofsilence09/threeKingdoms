@@ -32,7 +32,7 @@ export function migratePartyProgress(value: unknown): PartyProgress | null {
   const party = {} as PartyProgress;
   if (!PARTY_IDS.every(id => Object.hasOwn(value, id))) return null;
   for (const id of Object.keys(value)) {
-    if (!/^[a-z][a-z0-9-]*$/.test(id)) return null;
+    if (!/^(?:[a-z][a-z0-9-]*|garrison:[a-z][a-z0-9-]*:(?:soldier|captain))$/.test(id)) return null;
     const entry = (value as PartyProgress)[id];
     if (!entry || !Number.isSafeInteger(entry.level) || entry.level < 1 || entry.level > MAX_LEVEL ||
       !Number.isSafeInteger(entry.xp) || entry.xp < 0 ||

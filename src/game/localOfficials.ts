@@ -91,6 +91,6 @@ export function localCityOfficeRecords(city: WorldCity, date: GameDate): LocalOf
   const province = localOfficeRecords(example.id, date)[0];
   const matching = ORIGINS.find(o => o.provinceId === city.provinceId && city.prefecture.replace(/[郡国]$/, '') === o.name.split(' · ')[1]);
   return [province, matching ? localOfficeRecords(matching.id, date)[1] : {
-    level: 'prefecture', place: city.prefecture, title: `${city.prefecture}太守`, records: [],
+    level: 'prefecture', place: city.prefecture, title: city.prefecture.endsWith('国') ? `${city.prefecture.slice(0,-1)}相` : city.prefecture.endsWith('尹') ? city.prefecture : `${city.prefecture.length > 2 ? city.prefecture.replace(/郡$/, '') : city.prefecture}太守`, records: [],
   }];
 }

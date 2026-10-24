@@ -1,11 +1,24 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { getCharacterAppearance } from './characters';
 import { HISTORICAL_CHARACTERS, getHistoricalCharacter, getRouteLeader } from './historicalCharacters';
 
 describe('historical character collection', () => {
-  it('contains eighteen historical characters with independent full-body artwork', () => {
-    expect(HISTORICAL_CHARACTERS.map(c => c.name)).toEqual(['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩', '诸葛亮', '周瑜']);
-    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).portrait)).size).toBe(18);
+  it('adds thirteen distinct adult profiles with the approved weapons and speeds', () => {
+    expect(HISTORICAL_CHARACTERS).toHaveLength(37);
+    const ids = ['xiahou-dun', 'xiahou-yuan', 'cao-ren', 'cao-xiu', 'liu-biao', 'liu-zhang', 'zhang-lu', 'ma-teng', 'himiko', 'gongsun-zan', 'yuan-shao', 'liu-yu', 'zhang-yan'];
+    const added = ids.map(getHistoricalCharacter);
+    expect(added.map(p => p?.weapon)).toEqual(['glaive', 'bow', 'swordshield', 'spear', 'scroll', 'scroll', 'scroll', 'spear', 'jade', 'spear', 'sword', 'scroll', 'sword']);
+    expect(added.map(p => p?.speed)).toEqual([14, 16, 12, 15, 10, 10, 11, 14, 11, 16, 12, 10, 17]);
+    expect(new Set(added.map(p => p?.appearance.robe)).size).toBe(13);
+    for (const p of added) expect(p?.appearance.portrait).toBe(`/assets/characters/${p?.id}-v1.png`);
+    expect(getHistoricalCharacter('himiko')?.appearance.bio).toContain('3世纪');
+  });
+  it('contains thirty-seven historical characters while preserving the original twenty-four identities', () => {
+    expect(HISTORICAL_CHARACTERS.slice(0, 24).map(c => c.name)).toEqual(['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩', '诸葛亮', '周瑜', '袁术', '陈宫', '张邈', '高顺', '周泰', '韩当']);
+    expect(new Set(HISTORICAL_CHARACTERS.map(c => c.id)).size).toBe(37);
+    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).portrait)).size).toBe(37);
     expect(new Set(HISTORICAL_CHARACTERS.slice(0, 16).map(c => getCharacterAppearance(c.id).pose)).size).toBe(16);
     for (const c of HISTORICAL_CHARACTERS) {
       expect(getCharacterAppearance(c.id)).toBe(c.appearance);
@@ -13,6 +26,32 @@ describe('historical character collection', () => {
       expect(c.specialty.length).toBeGreaterThan(4);
       expect(c).not.toHaveProperty('hp');
       expect(c).not.toHaveProperty('level');
+    }
+  });
+  it('gives the six city figures their own equipment, models and historical context', () => {
+    const added = ['yuan-shu', 'chen-gong', 'zhang-miao', 'gao-shun', 'zhou-tai', 'han-dang'].map(getHistoricalCharacter);
+    expect(added.map(c => c?.weapon)).toEqual(['sword', 'scroll', 'sword', 'swordshield', 'glaive', 'bow']);
+    expect(added.map(c => c?.appearance.pose)).toEqual(['tyrant', 'strategist', 'greeting', 'sentinel', 'bruiser', 'archer']);
+    expect(added.map(c => c?.speed)).toEqual([14, 11, 11, 12, 15, 14]);
+    for (const character of added) {
+      expect(character?.appearance.portrait).toBe(`/assets/characters/${character?.id}-v1.png`);
+      expect(character?.appearance.bio).toContain('游戏');
+      expect(character?.equipment.length).toBeGreaterThan(1);
+    }
+    expect(new Set(added.map(c => c?.appearance.robe)).size).toBe(6);
+    expect(added[0]?.appearance.outfit).toBe('robe');
+    expect(added[3]?.appearance.outfit).toBe('armor');
+    expect(added[5]?.appearance.beard).toBe(true);
+  });
+  it('ships six independent transparent PNG portrait files', () => {
+    const ids = ['yuan-shu', 'chen-gong', 'zhang-miao', 'gao-shun', 'zhou-tai', 'han-dang'];
+    const files = ids.map(id => readFileSync(resolve('public', getHistoricalCharacter(id)!.appearance.portrait.slice(1))));
+    expect(new Set(files.map(file => file.toString('base64'))).size).toBe(6);
+    for (const file of files) {
+      expect(file.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+      expect(file.readUInt32BE(16)).toBeGreaterThanOrEqual(1024);
+      expect(file.readUInt32BE(20)).toBeGreaterThanOrEqual(1024);
+      expect(file[25]).toBe(6); // PNG RGBA color type keeps the generated alpha channel.
     }
   });
   it('provides complete scholar and commander models for the added identities', () => {
@@ -42,9 +81,9 @@ describe('historical character collection', () => {
   });
   it('keeps the selected female roles and their equipment distinct', () => {
     const women = HISTORICAL_CHARACTERS.filter(c => c.gender === 'female');
-    expect(women.map(c => c.name)).toEqual(['孙尚香', '貂蝉', '蔡琰', '甄姬', '糜夫人', '张星彩']);
-    expect(women.map(c => c.weapon)).toEqual(['bow', 'fan', 'scroll', 'jade', 'handkerchief', 'swordshield']);
-    expect(women.map(c => c.appearance.outfit)).toEqual(['tunic', 'dress', 'robe', 'dress', 'dress', 'armor']);
+    expect(women.map(c => c.name)).toEqual(['孙尚香', '貂蝉', '蔡琰', '甄姬', '糜夫人', '张星彩', '卑弥呼']);
+    expect(women.map(c => c.weapon)).toEqual(['bow', 'fan', 'scroll', 'jade', 'handkerchief', 'swordshield', 'jade']);
+    expect(women.map(c => c.appearance.outfit)).toEqual(['tunic', 'dress', 'robe', 'dress', 'dress', 'armor', 'dress']);
   });
   it('distinguishes the new warlords and heavy polearms from refugee equipment', () => {
     expect(getHistoricalCharacter('dong-zhuo')?.appearance.stocky).toBe(true);

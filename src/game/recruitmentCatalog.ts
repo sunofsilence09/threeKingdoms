@@ -1,8 +1,12 @@
+import type { GameState } from './state';
+import { personPosting } from './personPosting';
 import type { CharacterAppearance, ModelWeapon } from './characters';
 import type { GameDate } from './history';
 import { HISTORICAL_CHARACTERS } from './historicalCharacters';
 import { LOCAL_OFFICIALS } from './localOfficials';
 import { WORLD_CITIES } from './world';
+import { CITY_CAREERS } from './careerData';
+import { GARRISON_PROFILES } from './garrisonData';
 
 export interface RecruitWindow {
   from: { year: number; month?: number };
@@ -19,7 +23,8 @@ export interface RecruitProfile {
   weapon: ModelWeapon;
   speed: number;
   appearance: CharacterAppearance;
-  category: 'initial' | 'historical' | 'official' | 'bandit' | 'leader';
+  category: 'initial' | 'historical' | 'official' | 'bandit' | 'leader' | 'garrison';
+  readOnly?: boolean;
   windows: RecruitWindow[];
 }
 
@@ -140,7 +145,9 @@ export const RECRUIT_PROFILES: readonly RecruitProfile[] = [
   ...originals.slice(0, 3),
   ...HISTORICAL_CHARACTERS.map(person => ({ id: person.id, name: person.name, role: person.role,
     bio: person.appearance.bio, portrait: person.appearance.portrait, appearance: person.appearance,
-    weapon: person.weapon, speed: person.speed, category: 'historical' as const, windows: historicalWindows[person.id] })),
+    weapon: person.weapon, speed: person.speed, category: 'historical' as const,
+    ...(person.id === 'himiko' ? { readOnly: true } : {}),
+    windows: CITY_CAREERS[person.id]?.map(stage => ({ from: stage.from, to: stage.to, cityIds: [stage.cityId] })) ?? historicalWindows[person.id] ?? [] })),
   ...LOCAL_OFFICIALS.map(person => {
     const clothing = officialClothing[person.id];
     const appearance: CharacterAppearance = { identity: `地方官员 · ${person.role}`, portrait: person.portrait,
@@ -154,16 +161,25 @@ export const RECRUIT_PROFILES: readonly RecruitProfile[] = [
     [...window(184, 186, ['yingchuan', 'nanyang']), ...window(187, 190, ['changsha', 'nanyang'])]),
   sunLeader('sun-ce', '孙策', '孙坚之子，成年后在江东展开事业。朱红衣与玄甲衬出年轻锐利的主将气度。本作从195年开启相遇，同行为架空支线。', 19,
     window(195, 199, ['danyang', 'wujun', 'shanyin'])),
+  ...GARRISON_PROFILES,
 ];
 
 export function recruitProfile(id: string): RecruitProfile | undefined {
   return RECRUIT_PROFILES.find(profile => profile.id === id);
 }
 
-export function canMeetPerson(id: string, cityId: string, date: GameDate): boolean {
+export function canMeetPerson(id: string, cityId: string, date: GameDate, state?: GameState): boolean {
   if (!Number.isInteger(date.year) || !Number.isInteger(date.month) || date.month < 1 || date.month > 12) return false;
   const month = date.year * 12 + date.month;
-  return recruitProfile(id)?.windows.some(encounter => {
+  const profile = recruitProfile(id);
+  if (!profile || profile.readOnly) return false;
+  if (state?.worldConflict && !state.conflictRecovery) {
+    if (Object.hasOwn(state.party, id)) return cityId === state.currentCityId && !state.journey;
+    const posting = personPosting({ ...state, date }, id);
+    if (!posting || posting.kind === 'campaign' || posting.kind === 'dispersed') return false;
+    if (posting.factionId || posting.kind !== 'free') return posting.cityId === cityId;
+  }
+  return profile.windows.some(encounter => {
     const from = encounter.from.year * 12 + (encounter.from.month ?? 1);
     const to = encounter.to ? encounter.to.year * 12 + (encounter.to.month ?? 12) : Infinity;
     return encounter.cityIds.includes(cityId) && month >= from && month <= to;

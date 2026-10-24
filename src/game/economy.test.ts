@@ -11,10 +11,10 @@ function news(patch: Partial<MarketNews> = {}): MarketNews {
 }
 
 describe('city economy', () => {
-  it('starts with eight priced goods,600coins and an empty40slot hold', () => {
+  it('starts with ten priced goods,600coins and an empty40slot hold', () => {
     const economy = createEconomy();
-    expect(GOODS.map(g => g.basePrice)).toEqual([12, 24, 20, 60, 28, 36, 32, 90]);
-    expect(new Set(GOODS.map(g => g.id)).size).toBe(8);
+    expect(GOODS.map(g => g.basePrice)).toEqual([12, 24, 20, 60, 28, 36, 32, 90, 44, 48]);
+    expect(new Set(GOODS.map(g => g.id)).size).toBe(10);
     expect(economy).toMatchObject({ coins: 600, capacity: 40, cargo: {}, ledger: [], news: [], profit: 0 });
     expect(cargoUsed(economy)).toBe(0);
     expect(isEconomy(economy)).toBe(true);
@@ -101,9 +101,9 @@ describe('city economy', () => {
 });
 
 describe('market periods and city differences', () => {
-  it('covers all34cities with every good, specialty stock80and other stock30', () => {
+  it('covers all36cities with every good, specialty stock80and other stock30', () => {
     const economy = createEconomy();
-    expect(WORLD_CITIES).toHaveLength(34);
+    expect(WORLD_CITIES).toHaveLength(36);
     expect(Object.keys(economy.markets).sort()).toEqual(WORLD_CITIES.map(c => c.id).sort());
     for (const city of WORLD_CITIES) for (const good of GOODS) {
       const quote = marketQuote(economy, city.id, date, good.id);

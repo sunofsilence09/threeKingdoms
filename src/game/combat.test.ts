@@ -64,8 +64,8 @@ describe('deployed recruitment combat', () => {
   });
 
   it('previews every catalog member with the same earned stats used in battle', () => {
-    expect(RECRUIT_PROFILES.length).toBe(33);
-    for (const profile of RECRUIT_PROFILES) {
+    expect(RECRUIT_PROFILES.length).toBe(124);
+    for (const profile of RECRUIT_PROFILES.filter(profile => !profile.readOnly)) {
       const progress = createProgress(3, 5);
       const preview = makePartyUnit(profile.id, progress, 'liu', 'route');
       const party = { ...createPartyProgress(), [profile.id]: progress };

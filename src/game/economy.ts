@@ -2,7 +2,7 @@ import type { GameState } from './state';
 import { isGameDate, type GameDate } from './history';
 import { WORLD_CITIES } from './world';
 
-export type GoodId = 'grain' | 'cloth' | 'salt' | 'iron' | 'pottery' | 'tea' | 'herbs' | 'silk';
+export type GoodId = 'grain' | 'cloth' | 'salt' | 'iron' | 'pottery' | 'tea' | 'herbs' | 'silk' | 'wine' | 'leather';
 export interface MarketNews { id: string; cityId: string; goodId: GoodId; change: number; fromDay: number; untilDay: number; reason: string }
 export interface TradeRecord { cityId: string; date: GameDate; goodId: GoodId; quantity: number; side: 'buy' | 'sell'; unitPrice: number; amount: number; profit: number }
 export interface Economy {
@@ -11,32 +11,34 @@ export interface Economy {
   markets: Record<string, { period: number; stock: Record<GoodId, number> }>;
   news: MarketNews[]; ledger: TradeRecord[]; profit: number;
 }
-export const GOODS: readonly { id: GoodId; name: string; basePrice: number }[] = [
-  { id: 'grain', name: '粟米', basePrice: 12 }, { id: 'cloth', name: '粗布', basePrice: 24 },
-  { id: 'salt', name: '盐', basePrice: 20 }, { id: 'iron', name: '铁器', basePrice: 60 },
-  { id: 'pottery', name: '陶器', basePrice: 28 }, { id: 'tea', name: '茶叶', basePrice: 36 },
-  { id: 'herbs', name: '药材', basePrice: 32 }, { id: 'silk', name: '丝绸', basePrice: 90 },
+export const GOODS: readonly { id: GoodId; name: string; basePrice: number; image: string }[] = [
+  { id: 'grain', name: '粟米', basePrice: 12, image: '/assets/goods/grain-v1.png' }, { id: 'cloth', name: '粗布', basePrice: 24, image: '/assets/goods/cloth-v1.png' },
+  { id: 'salt', name: '盐', basePrice: 20, image: '/assets/goods/salt-v1.png' }, { id: 'iron', name: '铁器', basePrice: 60, image: '/assets/goods/iron-v1.png' },
+  { id: 'pottery', name: '陶器', basePrice: 28, image: '/assets/goods/pottery-v1.png' }, { id: 'tea', name: '茶叶', basePrice: 36, image: '/assets/goods/tea-v1.png' },
+  { id: 'herbs', name: '药材', basePrice: 32, image: '/assets/goods/herbs-v1.png' }, { id: 'silk', name: '丝绸', basePrice: 90, image: '/assets/goods/silk-v1.png' },
+  { id: 'wine', name: '米酒', basePrice: 44, image: '/assets/goods/wine-v1.png' }, { id: 'leather', name: '皮革', basePrice: 48, image: '/assets/goods/leather-v1.png' },
 ];
 
 /** Gameplay specialties and demand, rather than reconstructed historical city prices. */
 const CITY_GOODS: Record<string, Partial<Record<GoodId, number>>> = {
   yingchuan: { grain: .7, cloth: .8, herbs: 1.25 }, runan: { grain: .65, iron: 1.3 },
-  nanyang: { pottery: .7, grain: .8, silk: 1.25 }, zhuo: { grain: .8, salt: 1.4, tea: 1.4 },
+  nanyang: { pottery: .7, grain: .8, silk: 1.25 }, zhuo: { grain: .8, salt: 1.4, tea: 1.4, leather: .7, wine: 1.35 },
   henan: { pottery: .8, silk: 1.3, tea: 1.3 }, dongjun: { grain: .75, cloth: .8 },
   donghai: { salt: .7, tea: 1.25 }, beihai: { salt: .65, cloth: .8, herbs: 1.25 },
-  julu: { cloth: .7, grain: .8, tea: 1.3 }, taiyuan: { iron: .65, salt: 1.5, tea: 1.4 },
-  wuwei: { iron: .8, silk: 1.5, tea: 1.45, grain: 1.3 }, shujun: { silk: .65, tea: .75, salt: 1.25 },
-  changsha: { tea: .7, herbs: .8, iron: 1.25 }, wujun: { silk: .7, salt: .8, iron: 1.2 },
-  danyang: { silk: .75, tea: .8, iron: 1.25 }, nanhai: { salt: .65, herbs: .8, silk: 1.2 },
+  julu: { cloth: .7, grain: .8, tea: 1.3 }, taiyuan: { iron: .65, salt: 1.5, tea: 1.4, leather: .75, wine: 1.25 },
+  wuwei: { iron: .8, silk: 1.5, tea: 1.45, grain: 1.3, leather: .65, wine: 1.4 }, shujun: { silk: .65, tea: .75, salt: 1.25, wine: .75 },
+  changsha: { tea: .7, herbs: .8, iron: 1.25, wine: .7 }, wujun: { silk: .7, salt: .8, iron: 1.2, wine: .75, leather: 1.35 },
+  danyang: { silk: .75, tea: .8, iron: 1.25 }, nanhai: { salt: .65, herbs: .8, silk: 1.2, leather: 1.4 },
   changan: { pottery: .75, silk: 1.4, herbs: 1.25 }, chenliu: { grain: .75, cloth: .8, tea: 1.2 },
   xuxian: { grain: .7, pottery: .8, silk: 1.25 }, ye: { cloth: .7, grain: .8, tea: 1.3 },
-  ji: { grain: .8, salt: 1.4, tea: 1.45 }, linzi: { salt: .7, cloth: .8, herbs: 1.2 },
-  xiangyang: { pottery: .75, cloth: .8, salt: 1.2 }, jiangling: { grain: .75, tea: .8, iron: 1.25 },
+  ji: { grain: .8, salt: 1.4, tea: 1.45, leather: .75 }, linzi: { salt: .7, cloth: .8, herbs: 1.2 },
+  xiangyang: { pottery: .75, cloth: .8, salt: 1.2, wine: .8 }, jiangling: { grain: .75, tea: .8, iron: 1.25, wine: .75, leather: 1.25 },
   nanzheng: { herbs: .65, iron: 1.3, salt: 1.3 }, jiangzhou: { herbs: .7, tea: .75, cloth: 1.25 },
   guangling: { salt: .75, pottery: .8, herbs: 1.25 }, nanchang: { tea: .65, silk: .8, iron: 1.25 },
   shanyin: { salt: .7, silk: .75, herbs: 1.2 }, quanling: { herbs: .65, tea: .8, cloth: 1.3 },
   chen: { herbs: .7, iron: .8, silk: 1.25 }, guangxin: { herbs: .7, salt: .8, cloth: 1.3 },
   jincheng: { iron: .75, silk: 1.4, salt: 1.35 }, didao: { herbs: .7, iron: .8, silk: 1.4 },
+  shouchun: { grain: .7, wine: .8, silk: 1.25 }, xiapi: { cloth: .75, pottery: .8, iron: 1.25 },
 };
 const CITY_IDS = new Set(WORLD_CITIES.map(city => city.id));
 const GOOD_IDS = new Set<string>(GOODS.map(good => good.id));
@@ -92,6 +94,24 @@ export function isEconomy(value: unknown): value is Economy {
   if (!Array.isArray(value.news) || !value.news.every(isMarketNews) || !Array.isArray(value.ledger) || value.ledger.length > 20 || !value.ledger.every(isTradeRecord)) return false;
   const news = value.news as MarketNews[];
   return new Set(news.map(message => message.id)).size === news.length && new Set(news.map(message => `${message.cityId}:${message.goodId}`)).size === news.length;
+}
+
+/** Only the complete 0.4.0 eight-good stock shape may gain the two new keys. */
+export function migrateEconomy(value: unknown): Economy | null {
+  if (isEconomy(value)) return value;
+  if (!isObject(value) || !isObject(value.markets)) return null;
+  const legacyIds = ['grain', 'cloth', 'salt', 'iron', 'pottery', 'tea', 'herbs', 'silk'];
+  const markets: Record<string, unknown> = {};
+  for (const [cityId, market] of Object.entries(value.markets)) {
+    if (!isObject(market) || !isObject(market.stock) || !nonnegative(market.period)) return null;
+    const keys = Object.keys(market.stock);
+    if (keys.length === GOODS.length) markets[cityId] = market;
+    else if (keys.length === legacyIds.length && legacyIds.every(id => Object.hasOwn(market.stock!, id))) {
+      markets[cityId] = { ...market, stock: { ...initialMarket(cityId, market.period).stock, ...market.stock } };
+    } else return null;
+  }
+  const migrated = { ...value, markets };
+  return isEconomy(migrated) ? migrated : null;
 }
 
 export function marketQuote(economy: Economy, cityId: string, date: GameDate, goodId: GoodId): { buy: number; sell: number; stock: number; specialty: boolean } {

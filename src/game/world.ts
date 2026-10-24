@@ -56,10 +56,18 @@ export const WORLD_CITIES: WorldCity[] = [
   { id: 'guangxin', name: '广信', provinceId: 'jiao', prefecture: '苍梧郡', lon: 111.38, lat: 23.48 },
   { id: 'jincheng', name: '允吾', provinceId: 'liang', prefecture: '金城郡', lon: 102.85, lat: 36.10 },
   { id: 'didao', name: '狄道', provinceId: 'liang', prefecture: '陇西郡', lon: 103.86, lat: 35.38 },
+  { id: 'shouchun', name: '寿春', provinceId: 'yang', prefecture: '九江郡', lon: 116.78, lat: 32.58 },
+  { id: 'xiapi', name: '下邳', provinceId: 'xu', prefecture: '下邳国', lon: 117.95, lat: 34.10 },
 ];
 
 /** Undirected travel corridors. Intermediate points are [longitude, latitude]. */
 export const WORLD_ROADS: WorldRoad[] = [
+  // Independent approximate regional corridors; prior links remain valid for saved journeys.
+  { from: 'runan', to: 'shouchun', kind: 'road', via: [[115.40, 32.89], [116.10, 32.70]] },
+  { from: 'shouchun', to: 'guangling', kind: 'road', via: [[117.40, 32.60], [118.25, 32.56], [118.90, 32.42]] },
+  { from: 'shouchun', to: 'danyang', kind: 'road', via: [[117.10, 32.19], [117.36, 31.76], [118.02, 31.30]] },
+  { from: 'donghai', to: 'xiapi', kind: 'road' },
+  { from: 'xiapi', to: 'guangling', kind: 'road', via: [[118.25, 33.65], [118.85, 33.10]] },
   { from: 'wuwei', to: 'jincheng', kind: 'mountain', via: [[102.89, 37.47], [103.15, 37.02], [102.99, 36.62]] },
   { from: 'jincheng', to: 'didao', kind: 'road', via: [[103.26, 36.04], [103.72, 36.06]] },
   { from: 'didao', to: 'changan', kind: 'mountain', via: [[104.64, 35.00], [105.72, 34.58], [106.68, 34.38], [107.38, 34.36]] },

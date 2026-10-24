@@ -8,6 +8,9 @@ import { gameDayNumber } from './recruitment';
 import { marketDayLabel } from './eventContent';
 import { showRecruitmentPanel } from './partyPanel';
 import { showLocalOfficials } from './localOfficialPanel';
+import { renderCityOffice } from './cityOfficeView';
+import { factionAt } from './worldConflictData';
+import { showConflictPanel } from './conflictPanel';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K] {
   const node=document.createElement(tag);node.textContent=text;node.className=className;return node;
@@ -23,16 +26,20 @@ export function showCityPanel(onClose?:()=>void):void {
   const exit=button('出城 · 返回地图',()=>close());header.append(heading,exit);
   const body=el('div','','city-body');panel.append(header,body);
   const close=openInspection(panel,onClose);
-  let tab:'market'|'cargo'='market',feedback='';
+  let tab:'market'|'cargo'|'office'='market',feedback='';
   function render():void {
     const state=getState(),economy=state.economy,city=cityAt(state.currentCityId),day=gameDayNumber(state.date);
-    title.textContent=`${city.name} · 城内`;
+    const owner=state.conflictRecovery?undefined:state.worldConflict?.cities[city.id];
+    title.textContent=`${city.name} · ${owner?factionAt(owner.factionId).name:'城内'}`;
     summary.textContent=`${dateLabel(state.date)} · 铜钱 ${economy.coins} · 货舱 ${cargoUsed(economy)}/${economy.capacity}`;
     body.replaceChildren();
     const banner=el('img','','city-banner');banner.src='/assets/events/event-merchant-v1.png';banner.alt='汉末城邑市集与货担';banner.loading='lazy';banner.addEventListener('error',()=>banner.hidden=true);body.append(banner);
-    const tools=el('div','','city-tools');tools.append(button('寻访人物',()=>showRecruitmentPanel(render),false,true),button('地方官员',showLocalOfficials,false,true));body.append(tools);
+    const tools=el('div','','city-tools');tools.append(button('寻访人物',()=>showRecruitmentPanel(render),false,true),button('地方官员',showLocalOfficials,false,true),button('天下局势',()=>showConflictPanel(render),!!state.conflictRecovery,true));body.append(tools);
     const nav=el('nav','','trade-tabs');nav.setAttribute('aria-label','城市事务');
-    for(const [id,label] of [['market','市集买卖'],['cargo','行囊与账本']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}body.append(nav);
+    for(const [id,label] of [['market','市集买卖'],['cargo','行囊与账本'],['office','府署名册']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}body.append(nav);
+    if(tab==='office'){
+      body.append(renderCityOffice(state,id=>showRecruitmentPanel(render,undefined,{initialPersonId:id})));return;
+    }
     body.append(el('p',`市集每7日换一批货。买卖不消耗日期；货物每份占1格。累计已实现收益 ${economy.profit>=0?'+':''}${economy.profit} 铜钱。`,'trade-muted'));
     const notice=el('p',feedback,'trade-feedback');notice.setAttribute('role','status');body.append(notice);
     const grid=el('div','','trade-grid');body.append(grid);
@@ -40,7 +47,8 @@ export function showCityPanel(onClose?:()=>void):void {
       const held=economy.cargo[good.id],quote=marketQuote(economy,city.id,state.date,good.id);
       if(tab==='cargo'&&!held?.quantity)continue;
       const card=el('article','','trade-card');card.dataset.good=good.id;
-      const name=el('h3',good.name);if(quote.specialty)name.append(el('span','本地特产','trade-specialty'));card.append(name);
+      const name=el('h3',good.name);if(quote.specialty)name.append(el('span','本地特产','trade-specialty'));
+      const goodHeading=el('div','','trade-good-heading'),goodImage=el('img','','trade-good-image');goodImage.src=good.image;goodImage.alt=good.name;goodImage.loading='lazy';goodImage.addEventListener('error',()=>goodImage.hidden=true);goodHeading.append(goodImage,name);card.append(goodHeading);
       card.append(el('p',`买价 ${quote.buy} · 售价 ${quote.sell} 铜钱/份`),el('p',`市集库存 ${quote.stock} · 持有 ${held?.quantity??0} 份`));
       if(held?.quantity){const estimate=held.quantity*quote.sell-held.cost;card.append(el('p',`购入均价 ${(held.cost/held.quantity).toFixed(1)} · 本城全售预计 ${estimate>=0?'+':''}${estimate} 铜钱`));}
       const row=el('div','','trade-quantity'),input=el('input','','trade-input');input.type='number';input.min='1';input.step='1';input.max=String(Number.MAX_SAFE_INTEGER);input.value='1';input.inputMode='numeric';input.id=`quantity-${good.id}`;

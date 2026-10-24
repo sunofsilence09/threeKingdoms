@@ -1,5 +1,9 @@
 import { WORLD_CITIES, WORLD_ROADS, cityAt } from './world';
-import { PROVINCES, type ProvinceId } from './history';
+import { PROVINCES, type ProvinceId, type GameDate } from './history';
+import type { WorldConflict } from './worldConflictTypes';
+import { factionAt } from './worldConflictData';
+import { armySummary, showConflictArmy } from './conflictPanel';
+import { armyRemainingDays, conflictRoadDays } from './worldConflict';
 import './worldMap.css';
 
 export interface WorldMapOptions {
@@ -8,6 +12,8 @@ export interface WorldMapOptions {
   path?: string[];
   progress?: { from: string; to: string; fraction: number };
   year: number;
+  worldConflict?: WorldConflict;
+  date?: GameDate;
   onSelect: (id: string) => void;
 }
 
@@ -71,6 +77,8 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
     return el;
   };
   const defs = make('defs', {});
+  const arrow = make('marker', { id: `${uid}-army-arrow`, markerWidth: 6, markerHeight: 6, refX: 5, refY: 3, orient: 'auto', markerUnits: 'strokeWidth' }, defs);
+  make('path', { d: 'M0,0 L6,3 L0,6 Z', fill: '#885635' }, arrow);
   const pattern = make('pattern', { id: `${uid}-paper`, width: 13, height: 13, patternUnits: 'userSpaceOnUse' }, defs);
   make('path', { d: 'M 1 2 h 2 M 8 9 h 1', stroke: '#688370', 'stroke-opacity': .09, 'stroke-width': .7 }, pattern);
   make('rect', { width: WIDTH, height: HEIGHT, class: 'world-map-sea' });
@@ -121,12 +129,19 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
     const isCurrent = city.id === options.currentId, isSelected = city.id === options.selectedId;
     const isPath = options.path?.includes(city.id);
     const [x,y] = project([city.lon, city.lat]);
-    const g = make('g', { class: `world-map-city ${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''} ${isPath ? 'is-path' : ''} ${city.originId ? 'is-origin' : ''}`, transform: `translate(${x} ${y})`, role: 'button', tabindex: 0, 'aria-label': `${city.name}，${city.prefecture}${isCurrent ? options.progress ? '，出发地' : '，当前位置' : ''}`, 'aria-pressed': String(isSelected), 'data-city-id': city.id });
-    const title = make('title', {}, g); title.textContent = `${city.name} · ${city.prefecture}`;
+    const stock = options.worldConflict?.cities[city.id], faction = stock ? factionAt(stock.factionId) : undefined;
+    const ownership = stock && faction ? `，${faction.name}，城内守军${stock.troops}人` : '';
+    const g = make('g', { class: `world-map-city ${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''} ${isPath ? 'is-path' : ''} ${city.originId ? 'is-origin' : ''}`, transform: `translate(${x} ${y})`, role: 'button', tabindex: 0, 'aria-label': `${city.name}，${city.prefecture}${ownership}${isCurrent ? options.progress ? '，出发地' : '，当前位置' : ''}`, 'aria-pressed': String(isSelected), 'data-city-id': city.id, ...(faction ? {'data-faction-id': faction.id} : {}) });
+    const title = make('title', {}, g); title.textContent = `${city.name} · ${city.prefecture}${ownership}`;
     make('circle', { r: 17, class: 'world-map-city-hit' }, g);
     if (isCurrent) make('circle', { r: 11, class: 'world-map-current-ring' }, g);
     make('circle', { r: isCurrent ? 5 : 4, class: 'world-map-city-dot' }, g);
-    const name = make('text', { x: 9, y: -8, class: 'world-map-city-name' }, g); name.textContent = city.name;
+    if (faction && stock) {
+      make('path', { d: 'M-9,-24 V-7 M-9,-24 H12 L7,-18 H-9', fill: faction.color, stroke: '#f9f5df', 'stroke-width': 1.2, class: 'world-map-faction-flag' }, g);
+      const mark = make('text', { x: -7, y: -18, class: 'world-map-faction-abbr' }, g); mark.textContent = faction.name.replace(/军府|部众|地方官军/g,'').slice(0,3);
+      const troops = make('text', { x: 9, y: 10, class: 'world-map-city-troops' }, g); troops.textContent = `${stock.troops}`;
+    }
+    const name = make('text', { x: city.id === 'xiapi' ? -8 : 9, y: city.id === 'xiapi' ? 16 : -8, ...(city.id === 'xiapi' ? {'text-anchor':'end'} : {}), class: 'world-map-city-name' }, g); name.textContent = city.name;
     g.addEventListener('click', () => { if (!suppressClick) options.onSelect(city.id); });
     g.addEventListener('keydown', e => {
       const event = e as KeyboardEvent;
@@ -150,6 +165,28 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
         view.x = x - view.width / 2; view.y = y - view.height / 2; applyView();
       }
     });
+  });
+  options.worldConflict?.armies.forEach((army, index) => {
+    const from = army.path[army.legIndex] ?? army.sourceCityId, to = army.path[army.legIndex + 1];
+    const location = army.phase === 'sieging' ? army.targetCityId : from;
+    const city = cityAt(location), faction = factionAt(army.factionId);
+    let [x,y] = project([city.lon,city.lat]);
+    if ((army.phase === 'marching' || army.phase === 'retreating') && to) {
+      const route = routeCoords(from,to).map(project), totalDays = conflictRoadDays(from,to) || 1;
+      const lengths = route.slice(1).map((point,i) => Math.hypot(point[0]-route[i][0],point[1]-route[i][1]));
+      let distance = Math.min(1,Math.max(0,army.legDay/totalDays))*lengths.reduce((sum,length)=>sum+length,0);
+      for(let i=0;i<lengths.length;i++) { if(distance<=lengths[i]) {const t=lengths[i]?distance/lengths[i]:0;x=route[i][0]+(route[i+1][0]-route[i][0])*t;y=route[i][1]+(route[i+1][1]-route[i][1])*t;break;} distance-=lengths[i]; }
+      make('polyline', { points: points(routeCoords(from,to)), class: 'world-map-army-route', 'marker-end': `url(#${uid}-army-arrow)` });
+    }
+    // Separate co-located troops so both the city and each army remain clickable.
+    const sameLocation = options.worldConflict!.armies.slice(0,index).filter(other => (other.path[other.legIndex] ?? other.sourceCityId) === from).length;
+    const g = make('g', { transform:`translate(${x-18-sameLocation*23} ${y+23})`,class:'world-map-army',role:'button',tabindex:0,'data-army-id':army.id,'data-army-phase':army.phase,'data-army-eta':armyRemainingDays(army),'aria-label':`${cityAt(army.sourceCityId).name}至${cityAt(army.targetCityId).name}，${armySummary(army)}` });
+    const title=make('title',{},g);title.textContent=`${cityAt(army.sourceCityId).name} → ${cityAt(army.targetCityId).name} · ${armySummary(army)}`;
+    make('circle',{r:13,fill:'#fff9e7',stroke:faction.color,'stroke-width':2},g);
+    make('path',{d:'M-5,5 V-7 H6 L2,-2 H-5',fill:faction.color,stroke:faction.color,'stroke-width':1.5},g);
+    g.addEventListener('click',()=>{if(!suppressClick)showConflictArmy(army.id);});
+    g.addEventListener('keydown',event=>{const key=event as KeyboardEvent;if(key.key==='Enter'||key.key===' '){key.preventDefault();showConflictArmy(army.id);}});
+    g.addEventListener('focus',()=>{if(x<view.x+30||x>view.x+view.width-30||y<view.y+30||y>view.y+view.height-30){view.x=x-view.width/2;view.y=y-view.height/2;applyView();}});
   });
   if (options.progress) {
     const p = options.progress, coords = routeCoords(p.from,p.to).map(project);
@@ -192,6 +229,10 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
   viewport.append(controls);
   const footer = document.createElement('div'); footer.className = 'world-map-footer';
   footer.innerHTML = '<div class="world-map-legend"><span><i class="legend-city"></i>城邑</span><span><i class="legend-current"></i>所在</span><span><i class="legend-road"></i>道路</span><span><i class="legend-water"></i>水路</span><span><i class="legend-mountain"></i>山道</span><span><i class="legend-route"></i>行程</span></div><p>城邑依地理方位定位 · 山川与线路概绘<br>拖动平移，缩放查看城名；Tab 与方向键选城</p>';
+  if (options.worldConflict) {
+    const note=document.createElement('span');note.textContent='⚑ 势力旗号 / 在外军队';footer.querySelector('.world-map-legend')?.append(note);
+    const hint=footer.querySelector('p');if(hint)hint.append(document.createTextNode('；旗旁数字为城内兵力，军旗可查看行期。手机可从“天下局势”查看文字名册。'));
+  }
   if (options.progress) {
     const currentLegend = footer.querySelector('.legend-current')?.parentElement;
     if (currentLegend?.lastChild) currentLegend.lastChild.textContent = '出发地';
