@@ -4,7 +4,7 @@ import { WORLD_CITIES, WORLD_ROADS, cityAt, originCity, planRoute } from './worl
 
 describe('historical world geography', () => {
   it('preserves every origin at an actual city and covers thirteen provinces', () => {
-    expect(WORLD_CITIES.length).toBeGreaterThanOrEqual(33);
+    expect(WORLD_CITIES).toHaveLength(60);
     expect(new Set(WORLD_CITIES.map(c => c.id)).size).toBe(WORLD_CITIES.length);
     expect(new Set(WORLD_CITIES.map(c => c.provinceId))).toEqual(new Set(PROVINCES.map(p => p.id)));
     for (const origin of ORIGINS) {
@@ -38,7 +38,7 @@ describe('historical world geography', () => {
   it('keeps actual geographic directions and plausible coordinate bounds', () => {
     for (const city of WORLD_CITIES) {
       expect(city.lon).toBeGreaterThan(100);
-      expect(city.lon).toBeLessThan(123);
+      expect(city.lon).toBeLessThan(124); // Liaodong's Xiangping lies east of 123°.
       expect(city.lat).toBeGreaterThan(22);
       expect(city.lat).toBeLessThan(42);
     }
@@ -52,7 +52,11 @@ describe('historical world geography', () => {
   it('routes through Qinling, Shu roads and Lingnan passes instead of direct cross-country links', () => {
     const shu = planRoute('changan', 'shujun')!;
     expect(shu.path).toContain('nanzheng');
-    expect(shu.legs.every(leg => leg.kind === 'mountain')).toBe(true);
+    expect(shu.path).toContain('zitong');
+    expect(shu.path).toContain('fuxian');
+    expect(shu.legs.find(leg => leg.to === 'nanzheng')?.kind).toBe('mountain');
+    expect(shu.legs.find(leg => leg.to === 'zitong')?.kind).toBe('mountain');
+    expect(shu.legs.find(leg => leg.to === 'shujun')?.kind).toBe('road');
     expect(WORLD_ROADS.find(r => r.from === 'changan' && r.to === 'nanyang')?.kind).toBe('mountain');
     expect(planRoute('changsha', 'nanhai')?.path).toContain('chen');
     expect(planRoute('wuwei', 'changan')!.path.length).toBeGreaterThanOrEqual(4);

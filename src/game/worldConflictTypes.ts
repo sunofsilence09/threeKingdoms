@@ -9,8 +9,8 @@ export interface ConflictReport {
   armyId?: string; troops?: number; losses?: number; text: string;
 }
 export interface WorldConflict {
-  version: 1; lastDay: number; seed: number; nextArmyId: number; nextReportId: number;
+  version: 2; lastDay: number; seed: number; nextArmyId: number; nextReportId: number;
   cities: Record<string, ConflictCity>; armies: ConflictArmy[]; founded: string[]; nextDecision: Record<string, number>;
-  reports: ConflictReport[]; ledger: { initial: number; recruited: number; raised: number; losses: number };
+  reports: ConflictReport[]; ledger: { initial: number; recruited: number; raised: number; losses: number; expansion?: number };
 }
 export interface ConflictFaction { id: string; name: string; color: string }

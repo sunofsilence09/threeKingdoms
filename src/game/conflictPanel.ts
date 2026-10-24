@@ -1,6 +1,6 @@
 import { getState, setState } from './runtime';
 import { openInspection } from './inspectionOverlay';
-import { WORLD_CITIES, cityAt } from './world';
+import { WORLD_CITIES, cityNameAt } from './world';
 import { dateLabel } from './history';
 import { armyRemainingDays, createWorldConflict } from './worldConflict';
 import { CONFLICT_FACTIONS, factionAt } from './worldConflictData';
@@ -20,7 +20,7 @@ export function createConflictRecovery(onRebuild: () => void): HTMLElement {
   box.append(node('h2', '天下局势暂已暂停'), node('p', '战局存档无法读取。人物、财货与行旅进度仍保留；重建将以当前年月接入新的天下局势。'));
   const rebuild = button('重建天下局势（保留人物与行旅）', () => {
     const current = getState();
-    setState({ ...current, worldConflict: createWorldConflict(current.date, Object.keys(current.party)), conflictRecovery: undefined, conflictMigration: undefined });
+    setState({ ...current, worldConflict: createWorldConflict(current.date, Object.keys(current.party), undefined, current.life), conflictRecovery: undefined, conflictMigration: undefined });
     onRebuild();
   }); rebuild.dataset.conflictRebuild = ''; box.append(rebuild); return box;
 }
@@ -30,12 +30,13 @@ export function armySummary(army: ConflictArmy): string {
   return `${factionAt(army.factionId).name} · ${troopLabel(army.troops)} · ${armyPhaseLabel(army.phase)} · ${timing}`;
 }
 function armyCard(army: ConflictArmy, inspect = false): HTMLElement {
+  const state=getState();
   const card = node('article', '', 'conflict-card'); card.dataset.conflictArmy = army.id;
   card.dataset.armyPhase = army.phase; card.dataset.armyEta = String(armyRemainingDays(army));
-  card.append(node('h3', `${cityAt(army.sourceCityId).name} → ${cityAt(army.targetCityId).name}`), node('p', armySummary(army)),
+  card.append(node('h3', `${cityNameAt(army.sourceCityId,state.date)} → ${cityNameAt(army.targetCityId,state.date)}`), node('p', armySummary(army)),
     node('p', `统军：${army.commanderId ? recruitProfile(army.commanderId)?.name ?? '军府统军' : '军府统军'} · 军队 ${army.id}`),
-    node('p', `行军道路：${army.path.map(id => cityAt(id).name).join(' → ') || '等待行程'}`),
-    node('p', `出兵来源：${army.contributions.map(source => `${cityAt(source.cityId).name} ${troopLabel(source.troops)}`).join('、') || '起兵军队'}`));
+    node('p', `行军道路：${army.path.map(id => cityNameAt(id,state.date)).join(' → ') || '等待行程'}`),
+    node('p', `出兵来源：${army.contributions.map(source => `${cityNameAt(source.cityId,state.date)} ${troopLabel(source.troops)}`).join('、') || '起兵军队'}`));
   if (inspect) card.append(button('查看军队详情', () => showConflictArmy(army.id)));
   return card;
 }
@@ -70,7 +71,7 @@ export function showConflictPanel(onClose?: () => void): void {
     select.value = factionId; select.addEventListener('change', () => { factionId = select.value; render(); body.querySelector<HTMLSelectElement>('#conflict-faction-filter')?.focus(); }); filters.append(label, select);
     if (tab === 'reports') {
       const cityLabel = node('label', '筛选城池'), cities = node('select'); cities.id = 'conflict-city-filter'; cityLabel.htmlFor = cities.id;
-      for (const city of [{ id: '', name: '全部城池' }, ...WORLD_CITIES]) { const option = node('option', city.name); option.value = city.id; cities.append(option); }
+      for (const city of [{ id: '', name: '全部城池' }, ...WORLD_CITIES]) { const option = node('option', city.id?cityNameAt(city.id,state.date):city.name); option.value = city.id; cities.append(option); }
       cities.value = cityId; cities.addEventListener('change', () => { cityId = cities.value; render(); body.querySelector<HTMLSelectElement>('#conflict-city-filter')?.focus(); }); filters.append(cityLabel, cities);
     } body.append(filters);
     const list = node('div', '', 'conflict-list'); body.append(list);
@@ -80,7 +81,7 @@ export function showConflictPanel(onClose?: () => void): void {
       for (const city of cities) {
         const stock = world.cities[city.id], faction = factionAt(stock.factionId), card = node('article', '', 'conflict-card'); card.dataset.conflictCity = city.id;
         const owner = node('span', faction.name, 'conflict-flag'); owner.style.borderColor = faction.color;
-        card.append(node('h3', `${city.name} · ${city.prefecture}${state.currentCityId === city.id && !state.journey ? ' · 所在' : ''}`), owner, node('p', `城内守军 ${troopLabel(stock.troops)}`));
+        card.append(node('h3', `${cityNameAt(city.id,state.date)} · ${city.prefecture}${state.currentCityId === city.id && !state.journey ? ' · 所在' : ''}`), owner, node('p', `城内守军 ${troopLabel(stock.troops)}`));
         const siege = world.armies.find(army => army.targetCityId === city.id && army.phase === 'sieging');
         if (siege) card.append(button(`${factionAt(siege.factionId).name}围城中 · 查看军队`, () => showConflictArmy(siege.id)));
         list.append(card);
@@ -91,7 +92,7 @@ export function showConflictPanel(onClose?: () => void): void {
       list.classList.add('is-reports');
       for (const report of filterConflictReports(world.reports, { cityId, factionId })) {
         const card = node('article', '', 'conflict-card'); card.dataset.conflictReport = String(report.id);
-        card.append(node('h3', `${conflictDateLabel(report.day)} · ${cityAt(report.cityId).name}`), node('p', `${factionAt(report.factionId).name}${report.opponentFactionId ? ` / ${factionAt(report.opponentFactionId).name}` : ''}`), node('p', report.text));
+        card.append(node('h3', `${conflictDateLabel(report.day)} · ${cityNameAt(report.cityId,state.date)}`), node('p', `${factionAt(report.factionId).name}${report.opponentFactionId ? ` / ${factionAt(report.opponentFactionId).name}` : ''}`), node('p', report.text));
         if (report.troops !== undefined || report.losses !== undefined) card.append(node('p', `${report.troops !== undefined ? `兵力 ${troopLabel(report.troops)}` : ''}${report.losses !== undefined ? ` · 损失 ${troopLabel(report.losses)}` : ''}`, 'trade-muted'));
         list.append(card);
       }

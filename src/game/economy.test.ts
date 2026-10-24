@@ -101,9 +101,9 @@ describe('city economy', () => {
 });
 
 describe('market periods and city differences', () => {
-  it('covers all36cities with every good, specialty stock80and other stock30', () => {
+  it('covers all sixty cities with every good, specialty stock 80 and other stock 30', () => {
     const economy = createEconomy();
-    expect(WORLD_CITIES).toHaveLength(36);
+    expect(WORLD_CITIES).toHaveLength(60);
     expect(Object.keys(economy.markets).sort()).toEqual(WORLD_CITIES.map(c => c.id).sort());
     for (const city of WORLD_CITIES) for (const good of GOODS) {
       const quote = marketQuote(economy, city.id, date, good.id);

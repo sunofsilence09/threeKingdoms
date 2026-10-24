@@ -2,14 +2,15 @@ import { cityGarrison, GARRISON_CAP, GARRISON_MONTHLY_RECRUITS } from './garriso
 import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
 import type { GameState } from './state';
 import { armySummary, showConflictArmy, showConflictPanel } from './conflictPanel';
-import { WORLD_CITIES } from './world';
+import { WORLD_CITIES, cityNameAt } from './world';
+import { personName } from './heroName';
 
 /** The city roster and troop portrait show the same dated formation totals. */
 export function renderGarrisonSummary(state: GameState, cityId = state.currentCityId, attributes = false): HTMLElement {
   const army = cityGarrison(state, cityId), section = document.createElement('section');
   section.className = 'garrison-summary'; section.dataset.garrisonCity = cityId; section.dataset.troops = String(army.troops);
-  const heading = document.createElement('h3'); heading.textContent = `${army.cityName}守军 · ${army.troops.toLocaleString('zh-CN')} 人${army.factionName ? ` · ${army.factionName}` : ''}`;
-  const management = document.createElement('p'); management.textContent = `共同管理：${army.prefectLabel} · ${army.captainLabel}`;
+  const heading = document.createElement('h3'); heading.textContent = `${cityNameAt(cityId,state.date)}守军 · ${army.troops.toLocaleString('zh-CN')} 人${army.factionName ? ` · ${army.factionName}` : ''}`;
+  const management = document.createElement('p'); management.textContent = `共同管理：${army.prefectLabel} · ${army.captainPresent?personName(army.captainId,state):army.captainLabel}`;
   const stats = document.createElement('dl'); stats.className = 'garrison-totals';
   const values: [string, string][] = [['部队总生命', String(army.strength.hp)], ['合计攻击', String(army.strength.attack)], ['合计防御', String(army.strength.defense)]];
   if (attributes) for (const id of ATTRIBUTE_IDS) values.push([`合计${ATTRIBUTE_LABELS[id]}`, String(army.strength.attributes[id])]);
@@ -25,7 +26,7 @@ export function renderGarrisonSummary(state: GameState, cityId = state.currentCi
       detail.textContent=armySummary(fieldArmy);detail.addEventListener('click',()=>showConflictArmy(fieldArmy.id));section.append(detail);
     }
     const world=state.worldConflict!, cities=WORLD_CITIES.filter(city=>world.cities[city.id].factionId===army.factionId);
-    const owned=document.createElement('p');owned.className='trade-muted';owned.textContent=`本势力城池（${cities.length}）：${cities.map(city=>city.name).join('、')}`;section.append(owned);
+    const owned=document.createElement('p');owned.className='trade-muted';owned.textContent=`本势力城池（${cities.length}）：${cities.map(city=>cityNameAt(city.id,state.date)).join('、')}`;section.append(owned);
     const all=document.createElement('button');all.type='button';all.className='trade-button is-quiet';all.textContent='查看天下城池与战报';all.addEventListener('click',()=>showConflictPanel());section.append(all);
   }
   if (army.changes.length) { const latest = army.changes.at(-1)!, event = document.createElement('p'); event.className = 'trade-muted'; event.textContent = `最近整编：${latest.year}年${latest.month}月 · ${latest.name} · ${latest.change}人（游戏调整）`; section.append(event); }

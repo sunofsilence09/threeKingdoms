@@ -1,3 +1,5 @@
+import { GENERATION_CAREERS } from './generationData';
+
 /** Authored game appointments, not exact historical terms. Inclusive year/month bounds. */
 export interface CareerStage {
   from: { year: number; month?: number };
@@ -14,6 +16,7 @@ const stage = (from: number, to: number, cityId: string, kind: CareerStage['kind
 
 /** This plain data module deliberately has no runtime imports or mutable saved roster. */
 export const CITY_CAREERS: Readonly<Record<string, readonly CareerStage[]>> = {
+  ...GENERATION_CAREERS,
   'yuan-shu': [
     stage(189, 189, 'henan', 'free', '在朝游历', '洛阳'),
     stage(190, 192, 'nanyang', 'governing', '势力主事', '袁术府署'),

@@ -1,13 +1,14 @@
 import { showCharacterPanel } from './characterPanel';
 import { showCharacterDetails } from './characterDetails';
 import { getRouteLeader } from './historicalCharacters';
-import type { RouteId } from './state';
+import type { GameState, RouteId } from './state';
 import { clearInspections } from './inspectionOverlay';
-import { routeLeaderName } from './history';
+import { routeInstitutionName, routePrincipalName } from './politicalPresentation';
 export interface OverlayAction {
   label: string;
   onClick: () => void;
   variant?: 'primary' | 'quiet';
+  disabled?: boolean;
 }
 
 export function clearOverlay(): void {
@@ -49,7 +50,8 @@ export function showPanel(options: {
     const actions = document.createElement('div');
     actions.className = 'panel-actions';
     for (const action of options.actions) {
-      actions.append(createButton(action.label, action.onClick, action.variant));
+      const button=createButton(action.label, action.onClick, action.variant);
+      button.disabled=Boolean(action.disabled);actions.append(button);
     }
     panel.append(actions);
   }
@@ -61,7 +63,7 @@ export function showPanel(options: {
 export function showRouteChoice<T extends { id: RouteId; symbol: string; title: string; tone: string; offer: string; advantage: string; colorHex: string }>(
   routes: T[],
   onConfirm: (route: T) => void,
-  options?: { available: RouteId[]; year: number; onLeave: () => void },
+  options?: { available: RouteId[]; year: number; state?: GameState; onLeave: () => void },
 ): void {
   const root = document.querySelector('#overlay-root');
   if (!root) throw new Error('Overlay root is missing');
@@ -91,7 +93,7 @@ export function showRouteChoice<T extends { id: RouteId; symbol: string; title: 
 
   for (const route of routes) {
     const leader = getRouteLeader(route.id);
-    const leaderName = routeLeaderName(route.id, options?.year ?? 200);
+    const leaderName = options?.state ? routePrincipalName(route.id,options.state) : routeInstitutionName(route.id);
     const locked = options ? !options.available.includes(route.id) : false;
     const hasPortrait = leaderName === leader.name;
     const item = document.createElement('div'); item.className = 'route-choice-item';

@@ -1,0 +1,783 @@
+{
+  "date": "2026-10-24",
+  "generatedWith": "built-in image_gen__imagegen, eighteen separate generation calls",
+  "edgePolicy": "All eighteen independently generated in one built-in call per character, then individually viewed. Soft low-alpha edge haze is retained to match existing Zhou Yu/Cao Ren references; alpha>200 bounds distinguish the effective character silhouette from faint antialiasing/haze. No programmatic image modifications.",
+  "count": 18,
+  "uniqueHashes": 18,
+  "portraits": [
+    {
+      "id": "zhong-hui",
+      "assetPath": "public/assets/characters/zhong-hui-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-fc38946f-0ae9-4424-af32-be08cba67b72.png",
+      "sha256": "a2295e8f0173642e70f4f6474626e814eca375d85e6024acab04e909536eb3a7",
+      "bytes": 1806849,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        22,
+        996,
+        1513
+      ],
+      "alphaAbove200BoundingBox": [
+        210,
+        68,
+        799,
+        1486
+      ],
+      "effectiveMargins": [
+        210,
+        68,
+        225,
+        50
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1030363,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Ink blue robe; adult clean-shaven strategist, blank bamboo book and both hands visible; hat, shoes and booklet complete."
+    },
+    {
+      "id": "xun-yu",
+      "assetPath": "public/assets/characters/xun-yu-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-34582aac-1930-4287-a821-5bc660cd5f5f.png",
+      "sha256": "cfe38ad51ec29b99da6e717057ad0594c90f1bd72a95947b5b8874063c07db9b",
+      "bytes": 1866988,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        49,
+        40,
+        972,
+        1470
+      ],
+      "alphaAbove200BoundingBox": [
+        204,
+        74,
+        809,
+        1458
+      ],
+      "effectiveMargins": [
+        204,
+        74,
+        215,
+        78
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1034138,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Pale celadon robe, trimmed beard and open greeting hand distinguish him from Xun You; head, scroll and shoes complete."
+    },
+    {
+      "id": "xun-you",
+      "assetPath": "public/assets/characters/xun-you-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-b81de9fe-6bee-4d5b-af33-fb6f6701ccd8.png",
+      "sha256": "e55dbb24526a3a9151465647921f10b01fbda7c47856ca65328e542e2337fe0a",
+      "bytes": 1809905,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        20,
+        1010,
+        1488
+      ],
+      "alphaAbove200BoundingBox": [
+        246,
+        80,
+        811,
+        1481
+      ],
+      "effectiveMargins": [
+        246,
+        80,
+        213,
+        55
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1035135,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Olive gray robe and longer beard, closed bamboo document, quiet turned stance; both hands and shoes complete."
+    },
+    {
+      "id": "sun-xiu",
+      "assetPath": "public/assets/characters/sun-xiu-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-63d3564f-5d70-4c42-ad97-6f76041fb3f9.png",
+      "sha256": "cc30de8d1c6223bdaeabf054392112dd41c707560f2eb8e4b4a0915a6c4e720a",
+      "bytes": 1893959,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        27,
+        9,
+        1000,
+        1510
+      ],
+      "alphaAbove200BoundingBox": [
+        159,
+        82,
+        886,
+        1478
+      ],
+      "effectiveMargins": [
+        159,
+        82,
+        138,
+        58
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1044965,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Teal robe, mature clean-shaven archer, entire bow upper/lower tips and loose arrow fully inside frame; feet complete."
+    },
+    {
+      "id": "sun-liang",
+      "assetPath": "public/assets/characters/sun-liang-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-c6d4ccd2-c2db-47d4-a79e-845936e93500.png",
+      "sha256": "9a3664b1a0d5b099ad891765895b03c59d1a1c2a3e12b61155edd3d1738e8b25",
+      "bytes": 1995520,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        41,
+        0,
+        1014,
+        1490
+      ],
+      "alphaAbove200BoundingBox": [
+        148,
+        55,
+        864,
+        1479
+      ],
+      "effectiveMargins": [
+        148,
+        55,
+        160,
+        57
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 980564,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Youthful clean-shaven 16-year concept, pale sage court robe, sheathed sword and both hands/boots complete."
+    },
+    {
+      "id": "liu-chen",
+      "assetPath": "public/assets/characters/liu-chen-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-b3ebe36b-c849-4c5a-b887-c5a1cd78b54f.png",
+      "sha256": "3703add82c4b8666ccb08663a711adf4af1cae44ad76b08df2a4a4d34ae4c7d8",
+      "bytes": 1819423,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        41,
+        39,
+        994,
+        1474
+      ],
+      "alphaAbove200BoundingBox": [
+        217,
+        96,
+        902,
+        1469
+      ],
+      "effectiveMargins": [
+        217,
+        96,
+        122,
+        67
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1041886,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Adult resolute face, clay burgundy robe, long sheathed sword diagonally across front, both ends and boots complete."
+    },
+    {
+      "id": "cao-rui",
+      "assetPath": "public/assets/characters/cao-rui-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-e528875f-88b4-4b2c-b692-40536f7b7177.png",
+      "sha256": "645fe2444397112795c3ba5c9d169c733484ddcaa4529c7bd06c55e726716167",
+      "bytes": 1861479,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        9,
+        1000,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        176,
+        52,
+        866,
+        1484
+      ],
+      "effectiveMargins": [
+        176,
+        52,
+        158,
+        52
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 998117,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Purple court robe and palm-down command, sheathed sword and full head/cap/boots complete."
+    },
+    {
+      "id": "cao-fang",
+      "assetPath": "public/assets/characters/cao-fang-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-90b07390-685f-4991-99ec-0c764758cee4.png",
+      "sha256": "55b053613d167236031bbc784254a3f945ec6760ede88728f1983c9087cbc224",
+      "bytes": 1768662,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        19,
+        992,
+        1495
+      ],
+      "alphaAbove200BoundingBox": [
+        235,
+        102,
+        810,
+        1459
+      ],
+      "effectiveMargins": [
+        235,
+        102,
+        214,
+        77
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1061653,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Lavender-gray robe, front calm stance with rolled blank bamboo document, visible hands and shoes."
+    },
+    {
+      "id": "cao-mao",
+      "assetPath": "public/assets/characters/cao-mao-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-390df8de-2995-463a-8a7b-ffd5412ac800.png",
+      "sha256": "ab06b9e3b88140f8553edc59f2bc6cb736a538d850b861758cdf1dc7f055477c",
+      "bytes": 2029148,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        41,
+        23,
+        1004,
+        1512
+      ],
+      "alphaAbove200BoundingBox": [
+        69,
+        66,
+        924,
+        1481
+      ],
+      "effectiveMargins": [
+        69,
+        66,
+        100,
+        55
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 979302,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Youthful clean-shaven 16-year concept in rose robe, drawn sword and empty sheath separately fully visible; no violence or injuries."
+    },
+    {
+      "id": "cao-huan",
+      "assetPath": "public/assets/characters/cao-huan-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-d82d583c-58b8-430f-8a22-159eb6509f3d.png",
+      "sha256": "a02f7a26173f5b71bb66f40844831cc75e95491dbdd483db32c5c0f2a354619e",
+      "bytes": 1771694,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        25,
+        20,
+        1006,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        267,
+        75,
+        857,
+        1466
+      ],
+      "effectiveMargins": [
+        267,
+        75,
+        167,
+        70
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1067756,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Slate pale-blue robe and yielding document presentation, blank bamboo roll, hat and shoes complete."
+    },
+    {
+      "id": "sima-shi",
+      "assetPath": "public/assets/characters/sima-shi-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-fad52050-61f7-4807-862d-7d8dc5032745.png",
+      "sha256": "1858859fad085cf6361605d2981445ac6819a5bb36d9135a7c2ec828b3cb2eea",
+      "bytes": 2258033,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        37,
+        1006,
+        1504
+      ],
+      "alphaAbove200BoundingBox": [
+        48,
+        48,
+        974,
+        1465
+      ],
+      "effectiveMargins": [
+        48,
+        48,
+        50,
+        71
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 816202,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Stocky clean-shaven armored adult, dark indigo armor, large side shield and lowered sword complete, both eyes and boots visible."
+    },
+    {
+      "id": "sun-hao",
+      "assetPath": "public/assets/characters/sun-hao-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-da2f1376-c975-4417-9aef-adeea9d8d576.png",
+      "sha256": "999fa37795fae3deebb3e452c94650684ea703e35858523a5831d6d926d63632",
+      "bytes": 1920176,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        3,
+        992,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        147,
+        76,
+        820,
+        1466
+      ],
+      "effectiveMargins": [
+        147,
+        76,
+        204,
+        70
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 964911,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Severe adult face, wine robe, authoritative palm-down gesture and sheathed sword, full crown and boots."
+    },
+    {
+      "id": "lu-xun",
+      "assetPath": "public/assets/characters/lu-xun-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-77f318c5-f57c-4a66-b134-a99dd664f169.png",
+      "sha256": "62fd263463cd87c969a978fdf015772ca343b5368cba9be69f01b0596e756273",
+      "bytes": 2038214,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        25,
+        1024,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        136,
+        57,
+        901,
+        1478
+      ],
+      "effectiveMargins": [
+        136,
+        57,
+        123,
+        58
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "allCornersExactlyZero": false,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 974125,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Refined adult commander, pine-green light armor with flank gesture; sheathed sword and feet complete; no fire."
+    },
+    {
+      "id": "lu-kang",
+      "assetPath": "public/assets/characters/lu-kang-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-0319a0d9-9f49-40a2-9a70-fd052b35b637.png",
+      "sha256": "9ad2a146f57530ed7f01bcc89ca6c2582c9e4329504d1743751e9f145654db7c",
+      "bytes": 2165441,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        17,
+        1015,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        176,
+        49,
+        868,
+        1495
+      ],
+      "effectiveMargins": [
+        176,
+        49,
+        156,
+        41
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 963608,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Blue-teal armor, round shield with open restraining palm, full helmet plume and boots, shield/sword fully inside frame."
+    },
+    {
+      "id": "zhuge-ke",
+      "assetPath": "public/assets/characters/zhuge-ke-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-d0f8f00f-1161-4e80-b341-45050772294b.png",
+      "sha256": "2d411e2928f09984e978470985e4790d3f5977678cb1a72fecac873e8cc08cd4",
+      "bytes": 1931270,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        51,
+        1008,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        206,
+        98,
+        861,
+        1453
+      ],
+      "effectiveMargins": [
+        206,
+        98,
+        163,
+        83
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 1022193,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Gold brown robe with teal sleeves, short beard, raised open hand, sheathed sword and full hat/shoes visible."
+    },
+    {
+      "id": "du-yu",
+      "assetPath": "public/assets/characters/du-yu-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-bfc3461a-0b44-4a47-980c-017a7b677cc2.png",
+      "sha256": "62a56dd1a57b20a740b358591e4535df94bbae096c65cafce109a0e913378ad0",
+      "bytes": 2011022,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        17,
+        1010,
+        1528
+      ],
+      "alphaAbove200BoundingBox": [
+        233,
+        35,
+        893,
+        1500
+      ],
+      "effectiveMargins": [
+        233,
+        35,
+        131,
+        36
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 993119,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Gray-green light armor over scholar robe, trimmed graying beard, blank opened bamboo slips and indicating finger; head and shoes complete."
+    },
+    {
+      "id": "yang-hu",
+      "assetPath": "public/assets/characters/yang-hu-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-cdd87913-0ad1-43de-9094-3f7df85dbcc1.png",
+      "sha256": "c33e6fdbd42a4ba26a39e033ba8c9faee9b8acce150d3036c33eb9eadb328ee4",
+      "bytes": 1944632,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        0,
+        33,
+        1010,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        194,
+        69,
+        869,
+        1468
+      ],
+      "effectiveMargins": [
+        194,
+        69,
+        155,
+        68
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 991271,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Kindly older bearded face, pale sage-gray robe, sheathed sword held calmly across front, complete cap and cloth shoes."
+    },
+    {
+      "id": "wang-jun",
+      "assetPath": "public/assets/characters/wang-jun-v1.png",
+      "sourcePath": "C:\\Users\\silence\\.codex\\generated_images\\01a16d0c-b8d7-7310-8ac7-f5b7df5be1d4\\exec-b7c4b5af-4769-4590-8e39-67a0783dca8a.png",
+      "sha256": "64b0fc989735e261c47605f171c6f9b6eeeae38de9a7f9acd1c560932c99eec4",
+      "bytes": 2139964,
+      "mode": "RGBA",
+      "width": 1024,
+      "height": 1536,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "alphaAnyBoundingBox": [
+        33,
+        47,
+        1000,
+        1536
+      ],
+      "alphaAbove200BoundingBox": [
+        101,
+        82,
+        916,
+        1481
+      ],
+      "effectiveMargins": [
+        101,
+        82,
+        108,
+        55
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "allCornersExactlyZero": true,
+      "cornerAlphaTolerance": 1,
+      "transparentPixels": 940205,
+      "sourcePreservedAndUnmodified": true,
+      "visualReview": "Weathered older bearded commander, water-blue armor and outward pointing hand, sheathed sword, full cap and boots."
+    }
+  ]
+}

@@ -6,9 +6,13 @@ import {
 } from './state';
 import { applyCalendarTheme } from './theme';
 
-let currentState = loadState() ?? createInitialState();
+const restoredState=loadState();
+let currentState = restoredState ?? createInitialState();
+let savedGameAvailable=restoredState!==null;
 applyCalendarTheme(currentState.date);
-saveState(currentState);
+
+/** Reading the title screen does not create a fake continue slot. */
+export function hasSavedGame(): boolean { return savedGameAvailable; }
 
 export function getState(): GameState {
   return currentState;
@@ -16,6 +20,7 @@ export function getState(): GameState {
 
 export function setState(next: GameState): GameState {
   currentState = next;
+  savedGameAvailable=true;
   applyCalendarTheme(next.date);
   saveState(currentState);
   return currentState;

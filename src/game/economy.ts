@@ -1,6 +1,6 @@
 import type { GameState } from './state';
 import { isGameDate, type GameDate } from './history';
-import { WORLD_CITIES } from './world';
+import { EXPANSION_CITY_IDS, WORLD_CITIES } from './world';
 
 export type GoodId = 'grain' | 'cloth' | 'salt' | 'iron' | 'pottery' | 'tea' | 'herbs' | 'silk' | 'wine' | 'leather';
 export interface MarketNews { id: string; cityId: string; goodId: GoodId; change: number; fromDay: number; untilDay: number; reason: string }
@@ -39,6 +39,14 @@ const CITY_GOODS: Record<string, Partial<Record<GoodId, number>>> = {
   chen: { herbs: .7, iron: .8, silk: 1.25 }, guangxin: { herbs: .7, salt: .8, cloth: 1.3 },
   jincheng: { iron: .75, silk: 1.4, salt: 1.35 }, didao: { herbs: .7, iron: .8, silk: 1.4 },
   shouchun: { grain: .7, wine: .8, silk: 1.25 }, xiapi: { cloth: .75, pottery: .8, iron: 1.25 },
+  moling:{ silk:.75, pottery:.8, iron:1.25 }, chaisang:{ tea:.7, grain:.8, silk:1.2 }, echeng:{ grain:.75, pottery:.8, iron:1.2 },
+  hefei:{ grain:.7, cloth:.8, silk:1.25 }, shu:{ tea:.75, herbs:.8, iron:1.25 }, nanpi:{ cloth:.7, salt:.8, tea:1.3 },
+  pingyuan:{ grain:.7, cloth:.8, silk:1.25 }, xiangping:{ leather:.65, iron:.8, tea:1.45 }, zhending:{ iron:.75, grain:.8, tea:1.3 },
+  lu:{ iron:.65, herbs:.8, salt:1.35 }, anyi:{ salt:.65, grain:.8, silk:1.25 }, hongnong:{ pottery:.75, herbs:.8, silk:1.3 },
+  suiyang:{ grain:.7, wine:.8, iron:1.2 }, pei:{ cloth:.75, grain:.8, tea:1.25 }, jixian:{ herbs:.7, leather:.8, silk:1.35 },
+  linjing:{ leather:.75, grain:.8, tea:1.4 }, xiabian:{ herbs:.65, iron:.8, salt:1.3 }, shangyong:{ herbs:.7, grain:.8, cloth:1.25 },
+  zitong:{ herbs:.75, pottery:.8, salt:1.25 }, fuxian:{ silk:.7, wine:.8, iron:1.2 }, yufu:{ salt:.75, tea:.8, cloth:1.25 },
+  dianchi:{ leather:.7, herbs:.75, iron:1.35 }, linyuan:{ herbs:.7, grain:.8, silk:1.25 }, yiling:{ tea:.7, herbs:.8, iron:1.25 },
 };
 const CITY_IDS = new Set(WORLD_CITIES.map(city => city.id));
 const GOOD_IDS = new Set<string>(GOODS.map(good => good.id));
@@ -98,7 +106,10 @@ export function isEconomy(value: unknown): value is Economy {
 
 /** Only the complete 0.4.0 eight-good stock shape may gain the two new keys. */
 export function migrateEconomy(value: unknown): Economy | null {
-  if (isEconomy(value)) return value;
+  if (isEconomy(value)) {
+    const missing = EXPANSION_CITY_IDS.filter(id => !Object.hasOwn(value.markets,id));
+    return missing.length ? { ...value, markets: { ...value.markets, ...Object.fromEntries(missing.map(id => [id,initialMarket(id,0)])) } } : value;
+  }
   if (!isObject(value) || !isObject(value.markets)) return null;
   const legacyIds = ['grain', 'cloth', 'salt', 'iron', 'pottery', 'tea', 'herbs', 'silk'];
   const markets: Record<string, unknown> = {};
@@ -111,7 +122,7 @@ export function migrateEconomy(value: unknown): Economy | null {
     } else return null;
   }
   const migrated = { ...value, markets };
-  return isEconomy(migrated) ? migrated : null;
+  return isEconomy(migrated) ? migrateEconomy(migrated) : null;
 }
 
 export function marketQuote(economy: Economy, cityId: string, date: GameDate, goodId: GoodId): { buy: number; sell: number; stock: number; specialty: boolean } {

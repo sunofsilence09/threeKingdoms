@@ -7,8 +7,10 @@ import type { GameState } from './state';
 import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, isJourney, journeyLeg, resolveTravelEvent, restInCity, startTravel, type TravelEventKind } from './travel';
 import { WORLD_CITIES } from './world';
 import { createMartialProgress } from './martial';
+import { createLifeState } from './personLife';
 
 const cityState = (): GameState => ({
+  life: createLifeState({year:184,month:3,day:1},42),
   martial: createMartialProgress(),
   date: { year: 184, month: 3, day: 1 }, phase: 'overworld', originId: 'yingchuan', currentCityId: 'yingchuan',
   travelCount: 0, travelDays: 3, route: null, supplies: 3, morale: 2, flags: {},
@@ -77,9 +79,9 @@ describe('custom travel days and actual daily progress', () => {
     expect(result.travelNotice).toContain('本次赶路1日');
   });
   it('never advances journey progress or randomness beyond the calendar cap', () => {
-    const started = startTravel({ ...cityState(), date: { year: 280, month: 12, day: 29 } }, 'nanhai', uninterruptedSeed(30));
+    const started = startTravel({ ...cityState(), date: { year: 310, month: 12, day: 29 } }, 'nanhai', uninterruptedSeed(30));
     const result = advanceTravel(started, 30);
-    expect(result.date).toEqual({ year: 280, month: 12, day: 30 });
+    expect(result.date).toEqual({ year: 310, month: 12, day: 30 });
     expect(result.journey?.elapsed).toBe(1);
     expect(result.journey?.seed).toBe(nextSeed(started.journey!.seed));
     expect(result.travelNotice).toContain('本次赶路1日');
@@ -224,7 +226,7 @@ describe('wolves and city work income', () => {
     }
   });
   it('cannot farm work rewards when the calendar cannot advance', () => {
-    const state = { ...cityState(), date: { year: 280, month: 12, day: 30 } };
+    const state = { ...cityState(), date: { year: 310, month: 12, day: 30 } };
     expect(restInCity(state, 1)).toBe(state);
   });
   it('keeps coins within safe integers for work and wolf rewards', () => {

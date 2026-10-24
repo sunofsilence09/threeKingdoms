@@ -1,7 +1,7 @@
 import './tradeUi.css';
 import { getState, setState } from './runtime';
 import { openInspection } from './inspectionOverlay';
-import { cityAt } from './world';
+import { cityAt, cityNameAt } from './world';
 import { dateLabel } from './history';
 import { GOODS, cargoUsed, marketQuote, tradeGoods, type GoodId } from './economy';
 import { gameDayNumber } from './recruitment';
@@ -21,7 +21,7 @@ function button(text:string,action:()=>void,disabled=false,quiet=false):HTMLButt
 export function showCityPanel(onClose?:()=>void):void {
   const entry=getState();
   if(entry.phase!=='overworld'||entry.journey||document.querySelector('.city-panel'))return;
-  const panel=el('section','','overlay-panel city-panel');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label',`${cityAt(entry.currentCityId).name}城内`);
+  const panel=el('section','','overlay-panel city-panel');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label',`${cityNameAt(entry.currentCityId,entry.date)}城内`);
   const header=el('header','','city-header'),heading=el('div'),title=el('h1'),summary=el('p');heading.append(title,summary);
   const exit=button('出城 · 返回地图',()=>close());header.append(heading,exit);
   const body=el('div','','city-body');panel.append(header,body);
@@ -30,7 +30,7 @@ export function showCityPanel(onClose?:()=>void):void {
   function render():void {
     const state=getState(),economy=state.economy,city=cityAt(state.currentCityId),day=gameDayNumber(state.date);
     const owner=state.conflictRecovery?undefined:state.worldConflict?.cities[city.id];
-    title.textContent=`${city.name} · ${owner?factionAt(owner.factionId).name:'城内'}`;
+    title.textContent=`${cityNameAt(city.id,state.date)} · ${owner?factionAt(owner.factionId).name:'城内'}`;
     summary.textContent=`${dateLabel(state.date)} · 铜钱 ${economy.coins} · 货舱 ${cargoUsed(economy)}/${economy.capacity}`;
     body.replaceChildren();
     const banner=el('img','','city-banner');banner.src='/assets/events/event-merchant-v1.png';banner.alt='汉末城邑市集与货担';banner.loading='lazy';banner.addEventListener('error',()=>banner.hidden=true);body.append(banner);
@@ -76,14 +76,14 @@ export function showCityPanel(onClose?:()=>void):void {
     if(tab==='cargo'){
       body.append(el('h2','最近交易'));
       const list=el('ol','','trade-ledger');
-      for(const record of economy.ledger.slice().reverse())list.append(el('li',`${dateLabel(record.date)} · ${cityAt(record.cityId).name} · ${record.side==='buy'?'购入':'售出'}${GOODS.find(g=>g.id===record.goodId)!.name}${record.quantity}份 · ${record.amount}铜钱${record.side==='sell'?` · 盈亏 ${record.profit>=0?'+':''}${record.profit}`:''}`));
+      for(const record of economy.ledger.slice().reverse())list.append(el('li',`${dateLabel(record.date)} · ${cityNameAt(record.cityId,record.date)} · ${record.side==='buy'?'购入':'售出'}${GOODS.find(g=>g.id===record.goodId)!.name}${record.quantity}份 · ${record.amount}铜钱${record.side==='sell'?` · 盈亏 ${record.profit>=0?'+':''}${record.profit}`:''}`));
       if(!economy.ledger.length)list.append(el('li','尚无交易记录。'));body.append(list);
     }
     body.append(el('h2','市价消息'));
     if(!economy.news.length)body.append(el('p','还没有听到行情。路上的商旅可能带来消息。','trade-muted'));
     for(const news of economy.news.slice().sort((a,b)=>b.fromDay-a.fromDay)){
       const active=day>=news.fromDay&&day<news.untilDay;
-      body.append(el('p',`${cityAt(news.cityId).name} · ${GOODS.find(g=>g.id===news.goodId)!.name} ${news.change>0?'涨':'跌'}${Math.round(Math.abs(news.change)*100)}% · ${active?'生效中':'已过期'} · 截至${marketDayLabel(news.untilDay-1)}。${news.reason}`,`trade-news${active?'':' is-expired'}`));
+      body.append(el('p',`${cityNameAt(news.cityId,state.date)} · ${GOODS.find(g=>g.id===news.goodId)!.name} ${news.change>0?'涨':'跌'}${Math.round(Math.abs(news.change)*100)}% · ${active?'生效中':'已过期'} · 截至${marketDayLabel(news.untilDay-1)}。${news.reason}`,`trade-news${active?'':' is-expired'}`));
     }
   }
   render();exit.focus({preventScroll:true});

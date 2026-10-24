@@ -7,6 +7,7 @@ import { canRequestTeaching, canStartDuel, equipMartial, requestTeaching, startD
 import { getState, setState } from './runtime';
 import type { GameState } from './state';
 import { dateLabel } from './history';
+import { lifeAccessNote } from './lifeView';
 
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = ''): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag); node.textContent = text; node.className = className; return node;
@@ -25,6 +26,7 @@ function unavailable(state: GameState, id: string): string {
   const skill = martialForPerson(id);
   if (!skill) return '此人物仅有基础行动与原有绝招。';
   if (skill.readOnly) return '仅供资料查看，不开放相遇、切磋或传授。';
+  const life=lifeAccessNote(state,id);if(life)return `${life}${state.martial.learned.includes(skill.id)?'主角已学会的武学继续保留。':''}`;
   if (state.phase === 'battle') return '战斗中仅供查看；战后可请教或调整装配。';
   if (!canInteractPerson(state,id)) return '须在当前城市真实相遇或已经同行；途中和出征时不能隔城请教。';
   if (state.martial.learned.includes(skill.id)) return `已掌握《${skill.name}》，可在主角武学中装配；再次切磋不重复授予。`;
@@ -34,7 +36,7 @@ function unavailable(state: GameState, id: string): string {
 }
 
 /** A reachable card shared by character details, growth and the martial library. */
-export function createMartialCard(id: string, readOnly = false): HTMLElement {
+export function createMartialCard(id: string, readOnly = false, onChange?: () => void): HTMLElement {
   id = id.replace(/^enemy:/,'');
   const card = element('section','','character-martial'); card.dataset.martialPerson = id;
   function render(): void {
@@ -47,7 +49,7 @@ export function createMartialCard(id: string, readOnly = false): HTMLElement {
     }
     if (!skill) { card.append(element('p',unavailable(state,id))); return; }
     card.append(skillDescription(skill,state));
-    const known = state.martial.learned.includes(skill.id), affinity = state.relationships[id]?.affinity ?? 0;
+    const known = state.martial.learned.includes(skill.id), affinity = state.relationships[id]?.affinity ?? state.life?.memorials[id]?.relationship?.affinity ?? 0;
     card.append(element('p',`${known ? '已掌握' : '尚未学会'} · 亲密${affinity}/100 · 请教传授率${affinity >= 80 ? `${teachingChance(state,id)}%` : '需亲密80'} · 切磋胜后40%`));
     card.append(element('p',unavailable(state,id),'company-note'));
     if (!skill.readOnly) {
@@ -59,9 +61,16 @@ export function createMartialCard(id: string, readOnly = false): HTMLElement {
           window.dispatchEvent(new CustomEvent('world-state-changed'));
         }
         render();
+        if (next !== current) onChange?.();
       },readOnly || !canRequestTeaching(state,id)),button('切磋 · 1对1 · 1日',() => {
         const current = getState(), next = startDuel(current,id); if (next === current) { render(); return; }
-        setState(next); clearInspections(); window.dispatchEvent(new CustomEvent('start-duel'));
+        setState(next);
+        if (next.phase === 'battle' && next.duel?.status === 'active') {
+          clearInspections(); window.dispatchEvent(new CustomEvent('start-duel'));
+        } else {
+          window.dispatchEvent(new CustomEvent('world-state-changed'));
+          render();onChange?.();
+        }
       },readOnly || !canStartDuel(state,id)));
       card.append(actions);
     }
@@ -84,7 +93,7 @@ export function showMartialPanel(onClose?: () => void, readOnly = false): void {
   const close = openInspection(panel,onClose);
   function render(): void {
     const state = getState(); body.replaceChildren();
-    body.append(element('p',`永久已学${state.martial.learned.length}种 · 当前装配${state.martial.equipped.length}/3。战外可更换，下一场战斗生效。`,'company-summary'));
+    body.append(element('p',`永久已学${state.martial.learned.length}种 · 当前装配${state.martial.equipped.length}/3。战外可更换，下一场战斗生效；师父离世后已学武学仍然保留。`,'company-summary'));
     if (readOnly || !canManageParty(state)) body.append(element('p','当前仅可查看，战后可更换装配。','company-notice'));
     if (!state.martial.learned.length) body.append(element('p','尚未学会武学。人物详情中可请教或发起切磋；亲密不足80时也能通过切磋获传。'));
     for (const id of state.martial.learned) {

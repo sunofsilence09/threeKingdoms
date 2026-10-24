@@ -13,13 +13,13 @@ import { isWorldConflict, createWorldConflict } from './worldConflict';
 const fixture = (): GameState => {
   const date = { year: 196, month: 6, day: 1 };
   const snapshot=createWorldConflict(date);
-  const world: WorldConflict = { version: 1, lastDay: 4470, seed: 42, nextArmyId: 2, nextReportId: 1,
+  const world: WorldConflict = { version: 2, lastDay: 4470, seed: 42, nextArmyId: 2, nextReportId: 1,
     cities: Object.fromEntries(WORLD_CITIES.map(city => [city.id, { factionId: 'han', troops: 5000, occupationDay: -1 }])),
     armies: [], founded: snapshot.founded, nextDecision: snapshot.nextDecision, reports: [], ledger: { initial: 180000, recruited: 0, raised: 0, losses: 0 } };
   world.cities.xiapi = { factionId: 'lu-bu', troops: 1234, occupationDay: -1, governorId: 'lu-bu' };
   world.cities.donghai = { factionId: 'lu-bu', troops: 4321, occupationDay: -1 };
   world.ledger.initial = Object.values(world.cities).reduce((total, city) => total + city.troops, 0);
-  return { ...createInitialState(() => 0), phase: 'overworld', currentCityId: 'xiapi', date, worldConflict: world };
+  return { ...createInitialState(() => 0), life: undefined, phase: 'overworld', currentCityId: 'xiapi', date, worldConflict: world };
 };
 
 describe('current personnel projection', () => {
@@ -126,7 +126,7 @@ describe('current personnel projection', () => {
     expect(canMeetPerson('cai-yan', 'chenliu', state.date, state)).toBe(true);
     expect(canMeetPerson('cai-yan', 'xuxian', state.date, state)).toBe(true);
     expect(personPosting({ ...state, date: { year: 184, month: 6 } }, 'sun-ce')).toBeUndefined();
-    expect(RECRUIT_PROFILES).toHaveLength(124);
-    expect(new Set(RECRUIT_PROFILES.map(person => person.id)).size).toBe(124);
+    expect(RECRUIT_PROFILES).toHaveLength(198);
+    expect(new Set(RECRUIT_PROFILES.map(person => person.id)).size).toBe(198);
   });
 });

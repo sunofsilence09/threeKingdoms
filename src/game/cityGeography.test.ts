@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { WORLD_CITIES, WORLD_ROADS, cityAt, planRoute } from './world';
+import { LEGACY_CITY_IDS, WORLD_CITIES, WORLD_ROADS, cityAt, directRoadLeg, planRoute } from './world';
 import { ORIGINS } from './history';
 import { localCityOfficeRecords } from './localOfficials';
 import { createInitialState, loadState, saveState } from './state';
@@ -12,7 +12,7 @@ beforeEach(()=>{
 });
 describe('office cities and legacy geography',()=>{
   it('adds Shouchun and Xiapi without altering the sixteen birthplaces',()=>{
-    expect(WORLD_CITIES).toHaveLength(36);expect(WORLD_ROADS).toHaveLength(47);
+    expect(WORLD_CITIES).toHaveLength(60);expect(WORLD_ROADS.filter(road=>LEGACY_CITY_IDS.includes(road.from)&&LEGACY_CITY_IDS.includes(road.to))).toHaveLength(47);
     expect(ORIGINS).toHaveLength(16);
     expect(cityAt('shouchun')).toMatchObject({name:'寿春',provinceId:'yang',prefecture:'九江郡'});
     expect(cityAt('xiapi')).toMatchObject({name:'下邳',provinceId:'xu',prefecture:'下邳国'});
@@ -40,8 +40,8 @@ describe('office cities and legacy geography',()=>{
   });
   it('keeps every original corridor a valid direct saved-journey leg',()=>{
     const added=new Set(['shouchun','xiapi']);
-    const previous=WORLD_ROADS.filter(road=>!added.has(road.from)&&!added.has(road.to));
+    const previous=WORLD_ROADS.filter(road=>LEGACY_CITY_IDS.includes(road.from)&&LEGACY_CITY_IDS.includes(road.to)&&!added.has(road.from)&&!added.has(road.to));
     expect(previous).toHaveLength(42);
-    for(const road of previous)expect(planRoute(road.from,road.to)!.legs,`${road.from}→${road.to}`).toHaveLength(1);
+    for(const road of previous)expect(directRoadLeg(road.from,road.to),`${road.from}→${road.to}`).toMatchObject({from:road.from,to:road.to,kind:road.kind});
   });
 });

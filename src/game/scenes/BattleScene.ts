@@ -19,7 +19,7 @@ import { getState, resetState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 import { isInspecting } from '../inspectionOverlay';
 import { finishTravelBattle, journeyLeg } from '../travel';
-import { cityAt } from '../world';
+import { cityAt, cityNameAt } from '../world';
 import { recruitProfile } from '../recruitmentCatalog';
 import { showPartyPanel } from '../partyPanel';
 import { heroName, personName } from '../heroName';
@@ -102,7 +102,7 @@ export class BattleScene extends Phaser.Scene {
     g.lineStyle(1, 0x6d8174, 0.55).strokeRect(BATTLE_VIEW.x - 1, BATTLE_VIEW.y - 1, BATTLE_VIEW.width + 2, BATTLE_VIEW.height + 2);
     const route = getState().route;
     const trip = getState().journey;
-    addText(this, 24, 20, getState().duel ? `${heroName(getState())} · 切磋${personName(getState().duel!.teacherId, getState())}` : trip ? `${cityAt(journeyLeg(trip).from).name}至${cityAt(journeyLeg(trip).to).name} · ${trip.event?.kind === 'wolves' ? '山狼袭击' : '途中匪患'}` : route ? ROUTES[route].title : `${cityAt(getState().currentCityId).name} · ${heroName(getState())}一行`, { color: hex(theme.ink), fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
+    addText(this, 24, 20, getState().duel ? `${heroName(getState())} · 切磋${personName(getState().duel!.teacherId, getState())}` : trip ? `${cityNameAt(journeyLeg(trip).from,getState().date)}至${cityNameAt(journeyLeg(trip).to,getState().date)} · ${trip.event?.kind === 'wolves' ? '山狼袭击' : '途中匪患'}` : route ? ROUTES[route].title : `${cityNameAt(getState().currentCityId,getState().date)} · ${heroName(getState())}一行`, { color: hex(theme.ink), fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
     addText(this, 26, 60, getState().duel ? '一对一切磋：胜后40%概率获传秘籍；没有普通战斗经验或物资奖励。' : trip?.event?.kind === 'wolves' ? '击退狼群，出战成员基础经验30，获得20铜钱；候补不分经验。' : this.mode === 'ambush' ? '击退拦路山贼，出战成员各获基础经验30；候补不分战斗经验。' : '护送乡民过桥，出战成员各获基础经验45；候补不分战斗经验。', { color: hex(theme.muted), fontSize: '14px' });
     const state = getState();
     addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: hex(theme.ink), fontSize: '14px' });
@@ -321,14 +321,14 @@ export class BattleScene extends Phaser.Scene {
     }
     const rewarded = this.mode === 'route' ? completeLocalEscort(state) : rewardVictory(state, 'ambush');
     const summary = (state.battleParty ?? state.deployed).map(id => {
-      const before = state.party[id], after = rewarded.party[id];
+      const before = state.party[id], after = rewarded.party[id] ?? rewarded.life?.memorials[id]?.progress ?? before;
       const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
       const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, before.attributes);
       return `${personName(id, state)}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）`;
     }).join('\n');
     if (this.mode === 'ambush') {
       setState(completeJourneyTask({ ...rewarded, phase: 'overworld', battleParty: undefined, supplies: Math.max(0, rewarded.supplies - (state.flags.ambushWon ? 0 : 1)) }, 'ambushWon'));
-      showPanel({ eyebrow: `${cityAt(state.currentCityId).name}城外 · 战斗胜利`, title: '路口让开了，你们也更坚韧了。', body: `基础经验 30，魅力可提供额外经验。\n${summary}\n\n菜刀和拳脚撑过了这段路。去村里换些粮水，再护送乡民。`, actions: [{ label: '分配技能点', onClick: () => showCharacterPanel() }, { label: '继续行旅', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
+      showPanel({ eyebrow: `${cityNameAt(state.currentCityId,state.date)}城外 · 战斗胜利`, title: '路口让开了，你们也更坚韧了。', body: `基础经验 30，魅力可提供额外经验。\n${summary}\n\n菜刀和拳脚撑过了这段路。去村里换些粮水，再护送乡民。`, actions: [{ label: '分配技能点', onClick: () => showCharacterPanel() }, { label: '继续行旅', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
       return;
     }
     setState({ ...rewarded, phase: 'ending', battleParty: undefined });

@@ -142,3 +142,15 @@
 现有姓名姜垣分散在8文件/15行含测试和人物简介，角色稳定ID为traveler；姓名不能直接改静态名册以免破坏招募/成长。战斗只有道路/森林等地形与速度队列，无weather/wind/fire或切磋；advanceTurn轮末是统一环境结算入口。BattleScene目前开战重新构造combat，只有遭遇/名单存档，需新增完整快照避免刷新重抽火势和传授。人物37历史目录+孙坚孙策2+地方官员8=47，卑弥呼只读不变。战斗兵团生命变化需统一formationStrength，火伤/治疗也须同步兵力。亲密交往耗时通过worldTime推进，学习随机流不能改变战略战争。新增设计见docs/superpowers/specs/2026-10-24-fire-martial-name-design.md，待确认数值。
 
 0.8最终接口：battleEnvironment纯随机/天气，combat统一行动/环境/生命更新，martialCatalog47映射，martial学习日程与传授，martialCombat11模板，battleSave按遭遇完整校验。新BattleCommands为可访问DOM指令，地图仍由Phaser绘制。start-duel在main全局导航，防止成长/结局详情调用缺场景处理；请教只标记Overworld失效，等inspection关闭才刷新，避免重绘导致inert失效。performMartial的turnEvents包含内部火伤/两次点火并以公共事件收尾，不复用旧事件；native与learned装备只在开局初始化，恢复快照不重置。包内Node与v24.19.0捆绑运行时SHA一致，因此复用打开的同一文件即可安全更新资源，无需结束用户服务。
+
+## 1.0世代更迭设计发现
+基线已在main c0b2df1，0.8合并前复查记录437测试；开始时工作区干净。36城47路缺南京/柴桑/南皮。personPosting和天下activePerson依赖静态相遇窗口，已入队者绕过死亡概念；worldTime是统一时间桥。worldConflict v1严格要求城市数等于WORLD_CITIES，扩城需先识别旧36城快照迁移，不能直接当损坏世界重建；founded/nextDecision也有全量阶段校验。用户先选生卒都±5后明确改为“生年固定、卒年必须浮动”，以后者为准。推荐升1.0.0而非0.9。主角/故事人物/不详生卒需显式游戏设定标签，不能伪造史实。南京官方资料记211徙秣陵、212改建业，建邺作为搜索别名而非184固定城名。
+
+1.0额外兼容风险：travel.journeyLeg/remainingDays/isJourney目前用planRoute查询保存路径中每一对端点。新增道路即使保留47旧边，也可能使该端点间最短路变为多跳，从而错误拒绝旧行程；需按真实直接边读取旧路段，或迁移为固定路段快照，不能重新规划进行中的腿。0.8战斗结算的成长摘要在推进日期后访问party成员，若本次跨卒年并归档死亡同伴，须先保存奖励摘要再清理，避免undefined。人物生命与任职窗口须分开，不能把窗口结束当死亡；寿命延长者不得继续挂已结束的旧官职。主要方案拟60城、26新人、73具名人物/武学、198资料身份，日历到310以覆盖曹奂302±5。新增地名有南京212建业/282建邺等沿革，地方沿革有异说者并列别称而非假定精确切年。
+## 1.0 implementation findings
+
+- Old journeys must resolve saved adjacent IDs as direct road legs: the new Shu corridor can beat the old 南郑—成都 edge, so shortest-path lookup corrupts old leg progress. All47old road geometries/costs are retained and verified against a pre-expansion fixture.
+- Life draws use an independent campaign seed and a stable per-person stream. A valid saved lifespan is authoritative; corrupted seed metadata must not reroll good records. Complete validated memorials outrank a contradictory future death draw during module repair, preventing revival or lost cultivation.
+- New-world migration uses an explicit version2 schema and ledger.expansion120000, retaining all old stocks, troops, army legs and world seed. Only added nodes use dated institutional scene parameters; the scene table never replays over a running campaign.
+- On portrait phones, the battle command text changes height. A vertically centered app moved the canvas by11px, almost a full tile at that scale, producing real rapid-tap off-by-one targets. Battle-only top alignment fixes the root cause; real pointer QA now asserts unchanged canvas top through selection and movement.
+- Startup is now a separate explicit choice. Merely opening a fresh title screen does not create a continue slot; existing snapshots remain unchanged until choosing continue or explicitly restarting.

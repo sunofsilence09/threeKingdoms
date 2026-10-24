@@ -1,0 +1,3690 @@
+{
+  "city248": {
+    "martial": {
+      "learned": [],
+      "equipped": [],
+      "teachingDates": {},
+      "challengeDates": {},
+      "seed": 734851,
+      "settled": [],
+      "acquisitions": {}
+    },
+    "date": {
+      "year": 248,
+      "month": 3,
+      "day": 1
+    },
+    "originId": "henan",
+    "currentCityId": "yingchuan",
+    "travelCount": 0,
+    "phase": "overworld",
+    "route": null,
+    "supplies": 3,
+    "morale": 2,
+    "flags": {},
+    "party": {
+      "traveler": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "aman": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "chen-da": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "guan-yu": {
+        "level": 3,
+        "xp": 0,
+        "points": 6,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "zhou-yu": {
+        "level": 2,
+        "xp": 0,
+        "points": 3,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "sun-quan": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      }
+    },
+    "deployed": [
+      "traveler",
+      "guan-yu",
+      "aman"
+    ],
+    "relationships": {
+      "traveler": {
+        "affinity": 100
+      },
+      "aman": {
+        "affinity": 60
+      },
+      "chen-da": {
+        "affinity": 60
+      }
+    },
+    "economy": {
+      "coins": 600,
+      "capacity": 40,
+      "cargo": {},
+      "markets": {
+        "yingchuan": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "runan": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanyang": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "zhuo": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "henan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "dongjun": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "donghai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "beihai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "julu": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "taiyuan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "wuwei": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "shujun": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "changsha": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "wujun": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "danyang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanhai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "changan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "chenliu": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "xuxian": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "ye": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "ji": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "linzi": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "xiangyang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "jiangling": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "nanzheng": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "jiangzhou": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "guangling": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanchang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "shanyin": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "quanling": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "chen": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "guangxin": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "jincheng": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "didao": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "shouchun": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "xiapi": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        }
+      },
+      "news": [],
+      "ledger": [],
+      "profit": 0
+    },
+    "travelDays": 3,
+    "worldConflict": {
+      "version": 1,
+      "lastDay": 23100,
+      "seed": 1908473838,
+      "nextArmyId": 13,
+      "nextReportId": 13,
+      "cities": {
+        "yingchuan": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "runan": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "nanyang": {
+          "factionId": "yuan-shu",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "zhuo": {
+          "factionId": "gongsun-zan",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "henan": {
+          "factionId": "dong-zhuo",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "dongjun": {
+          "factionId": "lu-bu",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "donghai": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "beihai": {
+          "factionId": "liu",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "julu": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "taiyuan": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "wuwei": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "shujun": {
+          "factionId": "yi",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "changsha": {
+          "factionId": "sun",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "wujun": {
+          "factionId": "sun",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "danyang": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "nanhai": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "changan": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "chenliu": {
+          "factionId": "cao",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "xuxian": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "ye": {
+          "factionId": "yuan-shao",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "ji": {
+          "factionId": "liu-yu",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "linzi": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "xiangyang": {
+          "factionId": "liu-biao",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "jiangling": {
+          "factionId": "liu-biao",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "nanzheng": {
+          "factionId": "zhang-lu",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "jiangzhou": {
+          "factionId": "yi",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "guangling": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "nanchang": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "shanyin": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "quanling": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "chen": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "guangxin": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "jincheng": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "didao": {
+          "factionId": "ma-teng",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "shouchun": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        },
+        "xiapi": {
+          "factionId": "han",
+          "troops": 20000,
+          "occupationDay": -1
+        }
+      },
+      "armies": [
+        {
+          "id": "army-1",
+          "factionId": "sun",
+          "sourceCityId": "changsha",
+          "targetCityId": "jiangling",
+          "troops": 2000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "changsha",
+            "jiangling"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-2",
+          "factionId": "ma-teng",
+          "sourceCityId": "didao",
+          "targetCityId": "jincheng",
+          "troops": 2400,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "didao",
+            "jincheng"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-3",
+          "factionId": "gongsun-zan",
+          "sourceCityId": "zhuo",
+          "targetCityId": "julu",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "zhuo",
+            "julu"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-4",
+          "factionId": "dong-zhuo",
+          "sourceCityId": "henan",
+          "targetCityId": "changan",
+          "troops": 3000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "henan",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-5",
+          "factionId": "cao",
+          "sourceCityId": "chenliu",
+          "targetCityId": "henan",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "chenliu",
+            "henan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-6",
+          "factionId": "yuan-shu",
+          "sourceCityId": "nanyang",
+          "targetCityId": "changan",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "nanyang",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-7",
+          "factionId": "yuan-shao",
+          "sourceCityId": "ye",
+          "targetCityId": "dongjun",
+          "troops": 2000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "ye",
+            "dongjun"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-8",
+          "factionId": "liu",
+          "sourceCityId": "beihai",
+          "targetCityId": "linzi",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "beihai",
+            "linzi"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-9",
+          "factionId": "lu-bu",
+          "sourceCityId": "dongjun",
+          "targetCityId": "chenliu",
+          "troops": 2600,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "dongjun",
+            "chenliu"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-10",
+          "factionId": "zhang-lu",
+          "sourceCityId": "nanzheng",
+          "targetCityId": "changan",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "nanzheng",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-11",
+          "factionId": "sun",
+          "sourceCityId": "wujun",
+          "targetCityId": "guangling",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "wujun",
+            "guangling"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-12",
+          "factionId": "zhang-yan",
+          "sourceCityId": "taiyuan",
+          "targetCityId": "taiyuan",
+          "troops": 4000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "taiyuan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        }
+      ],
+      "founded": [
+        "yellow-184",
+        "sun-187",
+        "yi-188",
+        "ma-188",
+        "gongsun-188",
+        "liuyu-188",
+        "dong-189",
+        "cao-190",
+        "yuanshu-190",
+        "liubiao-190",
+        "yuanshao-191",
+        "liu-191",
+        "lu-193",
+        "zhanglu-194",
+        "sun-195",
+        "black-mountain-185"
+      ],
+      "nextDecision": {
+        "han": 23101,
+        "yellow-turban": 23101,
+        "sun": 23101,
+        "yi": 23101,
+        "ma-teng": 23101,
+        "gongsun-zan": 23101,
+        "liu-yu": 23101,
+        "dong-zhuo": 23101,
+        "cao": 23101,
+        "yuan-shu": 23101,
+        "liu-biao": 23101,
+        "yuan-shao": 23101,
+        "liu": 23101,
+        "lu-bu": 23101,
+        "zhang-lu": 23101,
+        "zhang-yan": 23101
+      },
+      "reports": [
+        {
+          "id": 1,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "sun",
+          "cityId": "jiangling",
+          "armyId": "army-1",
+          "troops": 2000,
+          "text": "孙氏军府起兵2000人。长沙军府情景"
+        },
+        {
+          "id": 2,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "ma-teng",
+          "cityId": "jincheng",
+          "armyId": "army-2",
+          "troops": 2400,
+          "text": "马腾军府起兵2400人。凉州起兵区域；长安联络处不代表占城"
+        },
+        {
+          "id": 3,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "gongsun-zan",
+          "cityId": "julu",
+          "armyId": "army-3",
+          "troops": 1800,
+          "text": "公孙瓒军府起兵1800人。北方军府情景"
+        },
+        {
+          "id": 4,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "dong-zhuo",
+          "cityId": "changan",
+          "armyId": "army-4",
+          "troops": 3000,
+          "text": "董卓军府起兵3000人。入洛阳的情景节点；其后不按历史强制易主"
+        },
+        {
+          "id": 5,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "cao",
+          "cityId": "henan",
+          "armyId": "army-5",
+          "troops": 2200,
+          "text": "曹氏军府起兵2200人。起兵区域压缩为陈留节点"
+        },
+        {
+          "id": 6,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "yuan-shu",
+          "cityId": "changan",
+          "armyId": "army-6",
+          "troops": 1800,
+          "text": "袁术军府起兵1800人。南阳军府情景"
+        },
+        {
+          "id": 7,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "yuan-shao",
+          "cityId": "dongjun",
+          "armyId": "army-7",
+          "troops": 2000,
+          "text": "袁绍军府起兵2000人。冀州军府情景"
+        },
+        {
+          "id": 8,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "liu",
+          "cityId": "linzi",
+          "armyId": "army-8",
+          "troops": 2200,
+          "text": "刘备军府起兵2200人。北方活动区域游戏落脚点，并非宣称刘备当年占领北海"
+        },
+        {
+          "id": 9,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "lu-bu",
+          "cityId": "chenliu",
+          "armyId": "army-9",
+          "troops": 2600,
+          "text": "吕布军府起兵2600人。东行活动区域游戏落脚点"
+        },
+        {
+          "id": 10,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "zhang-lu",
+          "cityId": "changan",
+          "armyId": "army-10",
+          "troops": 1800,
+          "text": "张鲁军府起兵1800人。汉中军府情景"
+        },
+        {
+          "id": 11,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "sun",
+          "cityId": "guangling",
+          "armyId": "army-11",
+          "troops": 2200,
+          "text": "孙氏军府起兵2200人。成年孙策江东阶段；不覆盖战后归属"
+        },
+        {
+          "id": 12,
+          "day": 23100,
+          "kind": "foundation",
+          "factionId": "zhang-yan",
+          "cityId": "taiyuan",
+          "armyId": "army-12",
+          "troops": 4000,
+          "text": "黑山部众起兵4000人。黑山区域有限野战部众；不因巨鹿联络处赠城"
+        }
+      ],
+      "ledger": {
+        "initial": 720000,
+        "recruited": 0,
+        "raised": 28000,
+        "losses": 0
+      }
+    },
+    "heroName": "旧档旅人"
+  },
+  "journey": {
+    "martial": {
+      "learned": [],
+      "equipped": [],
+      "teachingDates": {},
+      "challengeDates": {},
+      "seed": 734851,
+      "settled": [],
+      "acquisitions": {}
+    },
+    "date": {
+      "year": 200,
+      "month": 3,
+      "day": 1
+    },
+    "originId": "henan",
+    "currentCityId": "yingchuan",
+    "travelCount": 1,
+    "phase": "overworld",
+    "route": null,
+    "supplies": 3,
+    "morale": 2,
+    "flags": {},
+    "party": {
+      "traveler": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "aman": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "chen-da": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "guan-yu": {
+        "level": 3,
+        "xp": 0,
+        "points": 6,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "zhou-yu": {
+        "level": 2,
+        "xp": 0,
+        "points": 3,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "sun-quan": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      }
+    },
+    "deployed": [
+      "traveler",
+      "guan-yu",
+      "aman"
+    ],
+    "relationships": {
+      "traveler": {
+        "affinity": 100
+      },
+      "aman": {
+        "affinity": 60
+      },
+      "chen-da": {
+        "affinity": 60
+      }
+    },
+    "economy": {
+      "coins": 600,
+      "capacity": 40,
+      "cargo": {},
+      "markets": {
+        "yingchuan": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "runan": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanyang": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "zhuo": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "henan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "dongjun": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "donghai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "beihai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "julu": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "taiyuan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "wuwei": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "shujun": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "changsha": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "wujun": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "danyang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanhai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "changan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "chenliu": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "xuxian": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "ye": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "ji": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "linzi": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "xiangyang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "jiangling": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "nanzheng": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "jiangzhou": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "guangling": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanchang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "shanyin": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "quanling": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "chen": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "guangxin": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "jincheng": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "didao": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "shouchun": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "xiapi": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        }
+      },
+      "news": [],
+      "ledger": [],
+      "profit": 0
+    },
+    "travelDays": 3,
+    "worldConflict": {
+      "version": 1,
+      "lastDay": 5820,
+      "seed": 1908473838,
+      "nextArmyId": 13,
+      "nextReportId": 13,
+      "cities": {
+        "yingchuan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "runan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanyang": {
+          "factionId": "yuan-shu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "zhuo": {
+          "factionId": "gongsun-zan",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "henan": {
+          "factionId": "dong-zhuo",
+          "troops": 10300,
+          "occupationDay": -1
+        },
+        "dongjun": {
+          "factionId": "lu-bu",
+          "troops": 11255,
+          "occupationDay": -1
+        },
+        "donghai": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "beihai": {
+          "factionId": "liu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "julu": {
+          "factionId": "han",
+          "troops": 12980,
+          "occupationDay": -1
+        },
+        "taiyuan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "wuwei": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "shujun": {
+          "factionId": "yi",
+          "troops": 14600,
+          "occupationDay": -1,
+          "governorId": "liu-zhang"
+        },
+        "changsha": {
+          "factionId": "sun",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "wujun": {
+          "factionId": "sun",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "danyang": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanhai": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "changan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "chenliu": {
+          "factionId": "cao",
+          "troops": 11812,
+          "occupationDay": -1
+        },
+        "xuxian": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "ye": {
+          "factionId": "yuan-shao",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "ji": {
+          "factionId": "liu-yu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "linzi": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "xiangyang": {
+          "factionId": "liu-biao",
+          "troops": 14600,
+          "occupationDay": -1,
+          "governorId": "liu-biao"
+        },
+        "jiangling": {
+          "factionId": "liu-biao",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanzheng": {
+          "factionId": "zhang-lu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "jiangzhou": {
+          "factionId": "yi",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "guangling": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanchang": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "shanyin": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "quanling": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "chen": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "guangxin": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "jincheng": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "didao": {
+          "factionId": "ma-teng",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "shouchun": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "xiapi": {
+          "factionId": "han",
+          "troops": 6290,
+          "occupationDay": -1
+        }
+      },
+      "armies": [
+        {
+          "id": "army-1",
+          "factionId": "sun",
+          "commanderId": "han-dang",
+          "sourceCityId": "changsha",
+          "targetCityId": "jiangling",
+          "troops": 2000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "changsha",
+            "jiangling"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-2",
+          "factionId": "ma-teng",
+          "commanderId": "ma-teng",
+          "sourceCityId": "didao",
+          "targetCityId": "jincheng",
+          "troops": 2400,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "didao",
+            "jincheng"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-3",
+          "factionId": "gongsun-zan",
+          "sourceCityId": "zhuo",
+          "targetCityId": "julu",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "zhuo",
+            "julu"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-4",
+          "factionId": "dong-zhuo",
+          "sourceCityId": "henan",
+          "targetCityId": "changan",
+          "troops": 3000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "henan",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-5",
+          "factionId": "cao",
+          "commanderId": "cao-cao",
+          "sourceCityId": "chenliu",
+          "targetCityId": "henan",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "chenliu",
+            "henan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-6",
+          "factionId": "yuan-shu",
+          "sourceCityId": "nanyang",
+          "targetCityId": "changan",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "nanyang",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-7",
+          "factionId": "yuan-shao",
+          "commanderId": "yuan-shao",
+          "sourceCityId": "ye",
+          "targetCityId": "dongjun",
+          "troops": 2000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "ye",
+            "dongjun"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-8",
+          "factionId": "liu",
+          "commanderId": "liu-bei",
+          "sourceCityId": "beihai",
+          "targetCityId": "linzi",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "beihai",
+            "linzi"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-9",
+          "factionId": "lu-bu",
+          "sourceCityId": "dongjun",
+          "targetCityId": "chenliu",
+          "troops": 2600,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "dongjun",
+            "chenliu"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-10",
+          "factionId": "zhang-lu",
+          "commanderId": "zhang-lu",
+          "sourceCityId": "nanzheng",
+          "targetCityId": "changan",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "nanzheng",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-11",
+          "factionId": "sun",
+          "sourceCityId": "wujun",
+          "targetCityId": "guangling",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "wujun",
+            "guangling"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-12",
+          "factionId": "zhang-yan",
+          "commanderId": "zhang-yan",
+          "sourceCityId": "taiyuan",
+          "targetCityId": "taiyuan",
+          "troops": 4000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "taiyuan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        }
+      ],
+      "founded": [
+        "yellow-184",
+        "sun-187",
+        "yi-188",
+        "ma-188",
+        "gongsun-188",
+        "liuyu-188",
+        "dong-189",
+        "cao-190",
+        "yuanshu-190",
+        "liubiao-190",
+        "yuanshao-191",
+        "liu-191",
+        "lu-193",
+        "zhanglu-194",
+        "sun-195",
+        "black-mountain-185"
+      ],
+      "nextDecision": {
+        "han": 5821,
+        "yellow-turban": 5821,
+        "sun": 5821,
+        "yi": 5821,
+        "ma-teng": 5821,
+        "gongsun-zan": 5821,
+        "liu-yu": 5821,
+        "dong-zhuo": 5821,
+        "cao": 5821,
+        "yuan-shu": 5821,
+        "liu-biao": 5821,
+        "yuan-shao": 5821,
+        "liu": 5821,
+        "lu-bu": 5821,
+        "zhang-lu": 5821,
+        "zhang-yan": 5821
+      },
+      "reports": [
+        {
+          "id": 1,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "sun",
+          "cityId": "jiangling",
+          "armyId": "army-1",
+          "troops": 2000,
+          "text": "孙氏军府起兵2000人。长沙军府情景"
+        },
+        {
+          "id": 2,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "ma-teng",
+          "cityId": "jincheng",
+          "armyId": "army-2",
+          "troops": 2400,
+          "text": "马腾军府起兵2400人。凉州起兵区域；长安联络处不代表占城"
+        },
+        {
+          "id": 3,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "gongsun-zan",
+          "cityId": "julu",
+          "armyId": "army-3",
+          "troops": 1800,
+          "text": "公孙瓒军府起兵1800人。北方军府情景"
+        },
+        {
+          "id": 4,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "dong-zhuo",
+          "cityId": "changan",
+          "armyId": "army-4",
+          "troops": 3000,
+          "text": "董卓军府起兵3000人。入洛阳的情景节点；其后不按历史强制易主"
+        },
+        {
+          "id": 5,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "cao",
+          "cityId": "henan",
+          "armyId": "army-5",
+          "troops": 2200,
+          "text": "曹氏军府起兵2200人。起兵区域压缩为陈留节点"
+        },
+        {
+          "id": 6,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "yuan-shu",
+          "cityId": "changan",
+          "armyId": "army-6",
+          "troops": 1800,
+          "text": "袁术军府起兵1800人。南阳军府情景"
+        },
+        {
+          "id": 7,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "yuan-shao",
+          "cityId": "dongjun",
+          "armyId": "army-7",
+          "troops": 2000,
+          "text": "袁绍军府起兵2000人。冀州军府情景"
+        },
+        {
+          "id": 8,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "liu",
+          "cityId": "linzi",
+          "armyId": "army-8",
+          "troops": 2200,
+          "text": "刘备军府起兵2200人。北方活动区域游戏落脚点，并非宣称刘备当年占领北海"
+        },
+        {
+          "id": 9,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "lu-bu",
+          "cityId": "chenliu",
+          "armyId": "army-9",
+          "troops": 2600,
+          "text": "吕布军府起兵2600人。东行活动区域游戏落脚点"
+        },
+        {
+          "id": 10,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "zhang-lu",
+          "cityId": "changan",
+          "armyId": "army-10",
+          "troops": 1800,
+          "text": "张鲁军府起兵1800人。汉中军府情景"
+        },
+        {
+          "id": 11,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "sun",
+          "cityId": "guangling",
+          "armyId": "army-11",
+          "troops": 2200,
+          "text": "孙氏军府起兵2200人。成年孙策江东阶段；不覆盖战后归属"
+        },
+        {
+          "id": 12,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "zhang-yan",
+          "cityId": "taiyuan",
+          "armyId": "army-12",
+          "troops": 4000,
+          "text": "黑山部众起兵4000人。黑山区域有限野战部众；不因巨鹿联络处赠城"
+        }
+      ],
+      "ledger": {
+        "initial": 505237,
+        "recruited": 0,
+        "raised": 28000,
+        "losses": 0
+      }
+    },
+    "heroName": "旧档旅人",
+    "journey": {
+      "path": [
+        "yingchuan",
+        "nanyang",
+        "xiangyang",
+        "jiangling",
+        "changsha",
+        "chen",
+        "nanhai"
+      ],
+      "legIndex": 0,
+      "legDay": 0,
+      "elapsed": 0,
+      "seed": 12345,
+      "serial": 1
+    }
+  },
+  "city200": {
+    "martial": {
+      "learned": [],
+      "equipped": [],
+      "teachingDates": {},
+      "challengeDates": {},
+      "seed": 734851,
+      "settled": [],
+      "acquisitions": {}
+    },
+    "date": {
+      "year": 200,
+      "month": 3,
+      "day": 1
+    },
+    "originId": "henan",
+    "currentCityId": "yingchuan",
+    "travelCount": 0,
+    "phase": "overworld",
+    "route": null,
+    "supplies": 3,
+    "morale": 2,
+    "flags": {},
+    "party": {
+      "traveler": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "aman": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "chen-da": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "guan-yu": {
+        "level": 3,
+        "xp": 0,
+        "points": 6,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "zhou-yu": {
+        "level": 2,
+        "xp": 0,
+        "points": 3,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      },
+      "sun-quan": {
+        "level": 1,
+        "xp": 0,
+        "points": 0,
+        "attributes": {
+          "command": 10,
+          "strength": 10,
+          "intellect": 10,
+          "politics": 10,
+          "charisma": 10,
+          "courage": 10
+        }
+      }
+    },
+    "deployed": [
+      "traveler",
+      "guan-yu",
+      "aman"
+    ],
+    "relationships": {
+      "traveler": {
+        "affinity": 100
+      },
+      "aman": {
+        "affinity": 60
+      },
+      "chen-da": {
+        "affinity": 60
+      }
+    },
+    "economy": {
+      "coins": 600,
+      "capacity": 40,
+      "cargo": {},
+      "markets": {
+        "yingchuan": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "runan": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanyang": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "zhuo": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "henan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "dongjun": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "donghai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "beihai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "julu": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "taiyuan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "wuwei": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "shujun": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "changsha": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "wujun": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "danyang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanhai": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "changan": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "chenliu": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "xuxian": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "ye": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "ji": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 80
+          }
+        },
+        "linzi": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "xiangyang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "jiangling": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "nanzheng": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "jiangzhou": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "guangling": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "nanchang": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "shanyin": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 80,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "quanling": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 80,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "chen": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "guangxin": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 80,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "jincheng": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "didao": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 80,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 80,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        },
+        "shouchun": {
+          "period": 0,
+          "stock": {
+            "grain": 80,
+            "cloth": 30,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 30,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 80,
+            "leather": 30
+          }
+        },
+        "xiapi": {
+          "period": 0,
+          "stock": {
+            "grain": 30,
+            "cloth": 80,
+            "salt": 30,
+            "iron": 30,
+            "pottery": 80,
+            "tea": 30,
+            "herbs": 30,
+            "silk": 30,
+            "wine": 30,
+            "leather": 30
+          }
+        }
+      },
+      "news": [],
+      "ledger": [],
+      "profit": 0
+    },
+    "travelDays": 3,
+    "worldConflict": {
+      "version": 1,
+      "lastDay": 5820,
+      "seed": 1908473838,
+      "nextArmyId": 13,
+      "nextReportId": 13,
+      "cities": {
+        "yingchuan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "runan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanyang": {
+          "factionId": "yuan-shu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "zhuo": {
+          "factionId": "gongsun-zan",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "henan": {
+          "factionId": "dong-zhuo",
+          "troops": 10300,
+          "occupationDay": -1
+        },
+        "dongjun": {
+          "factionId": "lu-bu",
+          "troops": 11255,
+          "occupationDay": -1
+        },
+        "donghai": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "beihai": {
+          "factionId": "liu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "julu": {
+          "factionId": "han",
+          "troops": 12980,
+          "occupationDay": -1
+        },
+        "taiyuan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "wuwei": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "shujun": {
+          "factionId": "yi",
+          "troops": 14600,
+          "occupationDay": -1,
+          "governorId": "liu-zhang"
+        },
+        "changsha": {
+          "factionId": "sun",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "wujun": {
+          "factionId": "sun",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "danyang": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanhai": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "changan": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "chenliu": {
+          "factionId": "cao",
+          "troops": 11812,
+          "occupationDay": -1
+        },
+        "xuxian": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "ye": {
+          "factionId": "yuan-shao",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "ji": {
+          "factionId": "liu-yu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "linzi": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "xiangyang": {
+          "factionId": "liu-biao",
+          "troops": 14600,
+          "occupationDay": -1,
+          "governorId": "liu-biao"
+        },
+        "jiangling": {
+          "factionId": "liu-biao",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanzheng": {
+          "factionId": "zhang-lu",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "jiangzhou": {
+          "factionId": "yi",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "guangling": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "nanchang": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "shanyin": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "quanling": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "chen": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "guangxin": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "jincheng": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "didao": {
+          "factionId": "ma-teng",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "shouchun": {
+          "factionId": "han",
+          "troops": 14600,
+          "occupationDay": -1
+        },
+        "xiapi": {
+          "factionId": "han",
+          "troops": 6290,
+          "occupationDay": -1
+        }
+      },
+      "armies": [
+        {
+          "id": "army-1",
+          "factionId": "sun",
+          "commanderId": "han-dang",
+          "sourceCityId": "changsha",
+          "targetCityId": "jiangling",
+          "troops": 2000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "changsha",
+            "jiangling"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-2",
+          "factionId": "ma-teng",
+          "commanderId": "ma-teng",
+          "sourceCityId": "didao",
+          "targetCityId": "jincheng",
+          "troops": 2400,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "didao",
+            "jincheng"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-3",
+          "factionId": "gongsun-zan",
+          "sourceCityId": "zhuo",
+          "targetCityId": "julu",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "zhuo",
+            "julu"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-4",
+          "factionId": "dong-zhuo",
+          "sourceCityId": "henan",
+          "targetCityId": "changan",
+          "troops": 3000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "henan",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-5",
+          "factionId": "cao",
+          "commanderId": "cao-cao",
+          "sourceCityId": "chenliu",
+          "targetCityId": "henan",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "chenliu",
+            "henan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-6",
+          "factionId": "yuan-shu",
+          "sourceCityId": "nanyang",
+          "targetCityId": "changan",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "nanyang",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-7",
+          "factionId": "yuan-shao",
+          "commanderId": "yuan-shao",
+          "sourceCityId": "ye",
+          "targetCityId": "dongjun",
+          "troops": 2000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "ye",
+            "dongjun"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-8",
+          "factionId": "liu",
+          "commanderId": "liu-bei",
+          "sourceCityId": "beihai",
+          "targetCityId": "linzi",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "beihai",
+            "linzi"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-9",
+          "factionId": "lu-bu",
+          "sourceCityId": "dongjun",
+          "targetCityId": "chenliu",
+          "troops": 2600,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "dongjun",
+            "chenliu"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-10",
+          "factionId": "zhang-lu",
+          "commanderId": "zhang-lu",
+          "sourceCityId": "nanzheng",
+          "targetCityId": "changan",
+          "troops": 1800,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "nanzheng",
+            "changan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-11",
+          "factionId": "sun",
+          "sourceCityId": "wujun",
+          "targetCityId": "guangling",
+          "troops": 2200,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "wujun",
+            "guangling"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        },
+        {
+          "id": "army-12",
+          "factionId": "zhang-yan",
+          "commanderId": "zhang-yan",
+          "sourceCityId": "taiyuan",
+          "targetCityId": "taiyuan",
+          "troops": 4000,
+          "contributions": [],
+          "phase": "marching",
+          "path": [
+            "taiyuan"
+          ],
+          "legIndex": 0,
+          "legDay": 0,
+          "phaseDays": 0
+        }
+      ],
+      "founded": [
+        "yellow-184",
+        "sun-187",
+        "yi-188",
+        "ma-188",
+        "gongsun-188",
+        "liuyu-188",
+        "dong-189",
+        "cao-190",
+        "yuanshu-190",
+        "liubiao-190",
+        "yuanshao-191",
+        "liu-191",
+        "lu-193",
+        "zhanglu-194",
+        "sun-195",
+        "black-mountain-185"
+      ],
+      "nextDecision": {
+        "han": 5821,
+        "yellow-turban": 5821,
+        "sun": 5821,
+        "yi": 5821,
+        "ma-teng": 5821,
+        "gongsun-zan": 5821,
+        "liu-yu": 5821,
+        "dong-zhuo": 5821,
+        "cao": 5821,
+        "yuan-shu": 5821,
+        "liu-biao": 5821,
+        "yuan-shao": 5821,
+        "liu": 5821,
+        "lu-bu": 5821,
+        "zhang-lu": 5821,
+        "zhang-yan": 5821
+      },
+      "reports": [
+        {
+          "id": 1,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "sun",
+          "cityId": "jiangling",
+          "armyId": "army-1",
+          "troops": 2000,
+          "text": "孙氏军府起兵2000人。长沙军府情景"
+        },
+        {
+          "id": 2,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "ma-teng",
+          "cityId": "jincheng",
+          "armyId": "army-2",
+          "troops": 2400,
+          "text": "马腾军府起兵2400人。凉州起兵区域；长安联络处不代表占城"
+        },
+        {
+          "id": 3,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "gongsun-zan",
+          "cityId": "julu",
+          "armyId": "army-3",
+          "troops": 1800,
+          "text": "公孙瓒军府起兵1800人。北方军府情景"
+        },
+        {
+          "id": 4,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "dong-zhuo",
+          "cityId": "changan",
+          "armyId": "army-4",
+          "troops": 3000,
+          "text": "董卓军府起兵3000人。入洛阳的情景节点；其后不按历史强制易主"
+        },
+        {
+          "id": 5,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "cao",
+          "cityId": "henan",
+          "armyId": "army-5",
+          "troops": 2200,
+          "text": "曹氏军府起兵2200人。起兵区域压缩为陈留节点"
+        },
+        {
+          "id": 6,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "yuan-shu",
+          "cityId": "changan",
+          "armyId": "army-6",
+          "troops": 1800,
+          "text": "袁术军府起兵1800人。南阳军府情景"
+        },
+        {
+          "id": 7,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "yuan-shao",
+          "cityId": "dongjun",
+          "armyId": "army-7",
+          "troops": 2000,
+          "text": "袁绍军府起兵2000人。冀州军府情景"
+        },
+        {
+          "id": 8,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "liu",
+          "cityId": "linzi",
+          "armyId": "army-8",
+          "troops": 2200,
+          "text": "刘备军府起兵2200人。北方活动区域游戏落脚点，并非宣称刘备当年占领北海"
+        },
+        {
+          "id": 9,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "lu-bu",
+          "cityId": "chenliu",
+          "armyId": "army-9",
+          "troops": 2600,
+          "text": "吕布军府起兵2600人。东行活动区域游戏落脚点"
+        },
+        {
+          "id": 10,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "zhang-lu",
+          "cityId": "changan",
+          "armyId": "army-10",
+          "troops": 1800,
+          "text": "张鲁军府起兵1800人。汉中军府情景"
+        },
+        {
+          "id": 11,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "sun",
+          "cityId": "guangling",
+          "armyId": "army-11",
+          "troops": 2200,
+          "text": "孙氏军府起兵2200人。成年孙策江东阶段；不覆盖战后归属"
+        },
+        {
+          "id": 12,
+          "day": 5820,
+          "kind": "foundation",
+          "factionId": "zhang-yan",
+          "cityId": "taiyuan",
+          "armyId": "army-12",
+          "troops": 4000,
+          "text": "黑山部众起兵4000人。黑山区域有限野战部众；不因巨鹿联络处赠城"
+        }
+      ],
+      "ledger": {
+        "initial": 505237,
+        "recruited": 0,
+        "raised": 28000,
+        "losses": 0
+      }
+    },
+    "heroName": "旧档旅人"
+  }
+}

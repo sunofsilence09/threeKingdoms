@@ -1,0 +1,19 @@
+#overlay-root:has(> .start-menu) {
+  position: fixed;
+  inset: 0;
+  height: auto;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--game-background);
+}
+#overlay-root > .start-menu {
+  width: min(520px, 100%);
+  max-height: calc(100svh - 32px);
+  padding: clamp(20px, 4vw, 32px);
+  overflow: auto;
+}
+.start-menu .panel-body { margin-top: 14px; line-height: 1.65; }
+.start-menu .panel-actions { margin-top: 18px; }
+.start-menu .panel-button { min-height: 44px; }

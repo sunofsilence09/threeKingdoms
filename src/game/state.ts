@@ -8,12 +8,14 @@ import { gameDayNumber, initialRelationships, isDeployment, isRelationships, typ
 import { recruitProfile } from './recruitmentCatalog';
 import { createEconomy, migrateEconomy, type Economy } from './economy';
 import type { WorldConflict } from './worldConflictTypes';
-import { createWorldConflict, isWorldConflict } from './worldConflict';
+import { createWorldConflict, migrateWorldConflict } from './worldConflict';
 import { withWorldDate } from './worldTime';
 import { validHeroName } from './heroName';
 import { createMartialProgress, isDuelEncounter, isMartialProgress, type DuelEncounter, type MartialProgress } from './martial';
 import { isBattleSnapshot } from './battleSave';
 import type { CombatState } from './combat';
+import type { LifeState } from './lifeTypes';
+import { createLifeState, repairLifeState, isAliveAt } from './personLife';
 
 export type RouteId = 'cao' | 'sun' | 'liu';
 
@@ -21,6 +23,9 @@ export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | '
 
 export interface GameState {
   heroName?: string;
+  life?: LifeState;
+  lifeMigration?: boolean;
+  lifeRecovery?: boolean;
   martial: MartialProgress;
   duel?: DuelEncounter;
   activeBattle?: CombatState;
@@ -59,7 +64,10 @@ const routeAdvantages: Record<RouteId, Pick<GameState, 'supplies' | 'morale'>> =
 
 export function createInitialState(random: () => number = Math.random): GameState {
   const origin = randomOrigin(random);
+  const date = { year: 184, month: 3, day: 1 };
+  const life = createLifeState(date);
   return {
+    life,
     martial: createMartialProgress(),
     date: { year: 184, month: 3, day: 1 },
     originId: origin.id,
@@ -75,7 +83,7 @@ export function createInitialState(random: () => number = Math.random): GameStat
     relationships: initialRelationships(),
     economy: createEconomy(),
     travelDays: 3,
-    worldConflict: createWorldConflict({ year: 184, month: 3, day: 1 }, [...PARTY_IDS]),
+    worldConflict: createWorldConflict(date, [...PARTY_IDS], undefined, life),
   };
 }
 
@@ -125,6 +133,15 @@ export function loadState(): GameState | null {
     const backup = (module: string, data: unknown): void => {
       try { const key = `${STORAGE_KEY}:${module}-backup`; if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(data)); } catch { /* Recovery still works with unavailable storage. */ }
     };
+    if(parsed.life===undefined || (parsed.worldConflict as unknown as {version?:number})?.version===1) {
+      try { if(!localStorage.getItem(`${STORAGE_KEY}:pre-1.0-backup`))localStorage.setItem(`${STORAGE_KEY}:pre-1.0-backup`,raw); } catch { /* Preserve the playable campaign even if quota prevents a backup. */ }
+    }
+    if(parsed.life===undefined) { restored.life=createLifeState(restored.date); restored.lifeMigration=true; }
+    else {
+      const repaired=repairLifeState(parsed.life,restored.date);
+      restored.life=repaired?.life??createLifeState(restored.date);
+      if(!repaired||repaired.repaired) {backup('life',parsed.life);restored.lifeRecovery=true;}
+    }
     if (parsed.heroName !== undefined) {
       const name = validHeroName(parsed.heroName);
       if (name) restored.heroName = name;
@@ -147,14 +164,28 @@ export function loadState(): GameState | null {
     if (parsed.activeBattle !== undefined && !isBattleSnapshot(parsed.activeBattle, restored)) {
       backup('active-battle', parsed.activeBattle); delete restored.activeBattle; restored.battleRecovery = true;
     }
-    if (parsed.conflictRecovery) return { ...restored, worldConflict: undefined, conflictRecovery: true };
-    if (parsed.worldConflict !== undefined && !isWorldConflict(parsed.worldConflict, restored.date, Object.keys(restored.party))) {
+    const migratedWorld=parsed.worldConflict===undefined ? undefined : migrateWorldConflict(parsed.worldConflict,restored.date,Object.keys(restored.party));
+    if (parsed.conflictRecovery) {restored.worldConflict=undefined;restored.conflictRecovery=true;}
+    else if (parsed.worldConflict !== undefined && !migratedWorld) {
       // Keep both the untouched original and all valid RPG progress until an explicit rebuild.
       try { if (!localStorage.getItem(`${STORAGE_KEY}:conflict-backup`)) localStorage.setItem(`${STORAGE_KEY}:conflict-backup`, raw); } catch { /* Storage may be unavailable. */ }
-      return { ...restored, worldConflict: undefined, conflictRecovery: true };
+      restored.worldConflict=undefined;restored.conflictRecovery=true;
     }
-    const initialized=withWorldDate(restored, restored.date);
-    return parsed.worldConflict===undefined ? {...initialized,conflictMigration:true} : initialized;
+    else if(migratedWorld) {restored.worldConflict=migratedWorld;if((parsed.worldConflict as unknown as {version:number}).version===1)restored.conflictMigration=true;}
+    let initialized=withWorldDate(restored, restored.date);
+    if(initialized.duel&&!isAliveAt(initialized.life,initialized.duel.teacherId,initialized.date,true)) {
+      backup('duel-life',parsed.duel);backup('active-battle-life',parsed.activeBattle);
+      initialized={...initialized,phase:'overworld',duel:undefined,activeBattle:undefined,battleParty:undefined,encounter:undefined,
+        martial:{...initialized.martial,settled:[...new Set([...initialized.martial.settled,initialized.duel.id])]},
+        travelNotice:'寿命迁移：切磋对手已在本局离世，此次切磋已结束，未发放武学。'};
+    }
+    else if(parsed.activeBattle!==undefined && initialized.battleParty?.join('|')!==restored.battleParty?.join('|')) {
+      backup('active-battle-life',parsed.activeBattle);initialized={...initialized,activeBattle:undefined,battleRecovery:true};
+    }
+    if(parsed.worldConflict===undefined&&!initialized.conflictRecovery)initialized={...initialized,conflictMigration:true};
+    // Persist the first life draw and expansion immediately; refreshing must never reroll it.
+    saveState(initialized);
+    return initialized;
   } catch {
     return null;
   }
@@ -222,7 +253,7 @@ export function rewardVictory(state: GameState, encounter: 'ambush' | 'route' | 
   const key = `xp:${encounter}`;
   if (state.flags[key]) return state;
   const party = { ...state.party };
-  const fighters = state.battleParty ?? state.deployed;
+  const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
   for (const id of fighters) {
     const base = encounter === 'ambush' ? 30 : 45;
     party[id] = grantExperience(party[id], victoryExperience(base, party[id].attributes));
@@ -244,7 +275,7 @@ export function completeLocalEscort(state: GameState): GameState {
 
 
 export function spendSkillPoints(state: GameState, id: PartyId, allocation: Partial<Record<AttributeId, number>>): GameState {
-  if (state.phase === 'battle' || state.journey?.event || !Object.hasOwn(state.party, id) || !allocation || typeof allocation !== 'object') return state;
+  if (state.phase === 'battle' || state.journey?.event || !isAliveAt(state.life,id,state.date,true) || !Object.hasOwn(state.party, id) || !allocation || typeof allocation !== 'object') return state;
   const current = state.party[id];
   const attrs = { ...current.attributes };
   let cost = 0;

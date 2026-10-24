@@ -4,6 +4,7 @@ import { martialAt, martialForPerson } from './martialCatalog';
 import { recruitProfile } from './recruitmentCatalog';
 import type { GameState } from './state';
 import { withWorldDate } from './worldTime';
+import { isAliveAt } from './personLife';
 export interface MartialResult {
   kind: 'teaching' | 'duel'; teacherId: string; skillId: string;
   outcome: 'learned' | 'declined' | 'known' | 'lost'; date: GameDate; encounterId?: string;
@@ -44,13 +45,14 @@ export function canRequestTeaching(state: GameState, id: string): boolean {
 }
 export function requestTeaching(state: GameState, id: string): GameState {
   if (!canRequestTeaching(state,id)) return state;
-  const skill = martialForPerson(id)!, date = advanceDays(state.date,1), random = draw(state.martial.seed);
-  const success = random.roll < teachingChance(state,id)/100;
+  const skill = martialForPerson(id)!, date = advanceDays(state.date,1), advanced = withWorldDate(state,date);
+  if (!isAliveAt(advanced.life,id,advanced.date,true)) return { ...advanced, travelNotice: `${recruitProfile(id)!.name}已于本局离世；停留1日，未传授武学。` };
+  const random = draw(advanced.martial.seed), success = random.roll < teachingChance(advanced,id)/100;
   const lastResult: MartialResult = { kind:'teaching',teacherId:id,skillId:skill.id,outcome:success?'learned':'declined',date };
-  const martial: MartialProgress = { ...state.martial, seed: random.seed, teachingDates: { ...state.martial.teachingDates,[id]: date },
-    learned: success ? [...state.martial.learned,skill.id] : state.martial.learned,
-    acquisitions: success ? { ...state.martial.acquisitions,[skill.id]:lastResult } : state.martial.acquisitions,lastResult };
-  return withWorldDate({ ...state,martial,travelNotice: `${recruitProfile(id)!.name}${success ? `传授了《${skill.name}》` : '此次未传授武学'}；停留1日。` },date);
+  const martial: MartialProgress = { ...advanced.martial, seed: random.seed, teachingDates: { ...advanced.martial.teachingDates,[id]: date },
+    learned: success ? [...advanced.martial.learned,skill.id] : advanced.martial.learned,
+    acquisitions: success ? { ...advanced.martial.acquisitions,[skill.id]:lastResult } : advanced.martial.acquisitions,lastResult };
+  return { ...advanced,martial,travelNotice: `${recruitProfile(id)!.name}${success ? `传授了《${skill.name}》` : '此次未传授武学'}；停留1日。` };
 }
 export function canStartDuel(state: GameState, id: string): boolean {
   return !state.duel && teachable(id) && canInteractPerson(state,id) &&
@@ -58,15 +60,19 @@ export function canStartDuel(state: GameState, id: string): boolean {
 }
 export function startDuel(state: GameState, id: string): GameState {
   if (!canStartDuel(state,id)) return state;
-  const date = advanceDays(state.date,1), random = draw(state.martial.seed);
+  const date = advanceDays(state.date,1), advanced = withWorldDate(state,date);
+  if (!isAliveAt(advanced.life,id,advanced.date,true)) return { ...advanced, travelNotice: `${recruitProfile(id)!.name}已于本局离世；停留1日，切磋取消。` };
+  const random = draw(advanced.martial.seed);
   const duel: DuelEncounter = { id:`duel-${gameDayNumber(date)}-${random.seed}`,teacherId:id,started:date,status:'active' };
-  return withWorldDate({ ...state,phase:'battle',encounter:'ambush',battleParty:['traveler'],activeBattle:undefined,duel,
-    martial: { ...state.martial,seed:random.seed,challengeDates: { ...state.martial.challengeDates,[id]:date } },travelNotice:`与${recruitProfile(id)!.name}切磋；停留1日。` },date);
+  return { ...advanced,phase:'battle',encounter:'ambush',battleParty:['traveler'],activeBattle:undefined,duel,
+    martial: { ...advanced.martial,seed:random.seed,challengeDates: { ...advanced.martial.challengeDates,[id]:date } },travelNotice:`与${recruitProfile(id)!.name}切磋；停留1日。` };
 }
 export function settleDuel(state: GameState, win: boolean): GameState {
   const duel = state.duel;
   if (!duel || state.phase !== 'battle' || !isDuelEncounter(duel,state.date) || duel.status !== 'active' || state.martial.settled.includes(duel.id) ||
       !state.martial.challengeDates[duel.teacherId] || gameDayNumber(state.martial.challengeDates[duel.teacherId]) !== gameDayNumber(duel.started)) return state;
+  if (!isAliveAt(state.life,duel.teacherId,state.date,true)) return { ...state, phase:'overworld',duel:undefined,activeBattle:undefined,battleParty:undefined,encounter:undefined,
+    martial: { ...state.martial, settled:[...state.martial.settled,duel.id] }, travelNotice:`${recruitProfile(duel.teacherId)!.name}已于本局离世；切磋结束，未获传授。` };
   const skill = martialForPerson(duel.teacherId)!, known = state.martial.learned.includes(skill.id);
   const random = win && !known ? draw(state.martial.seed) : { seed:state.martial.seed,roll:1 };
   const outcome = !win ? 'lost' : known ? 'known' : random.roll < .4 ? 'learned' : 'declined';

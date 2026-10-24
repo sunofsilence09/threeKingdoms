@@ -12,6 +12,7 @@ import {
   type GameState,
 } from './state';
 import { createWorldConflict } from './worldConflict';
+import { createLifeState } from './personLife';
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>();
@@ -44,7 +45,8 @@ class MemoryStorage implements Storage {
 describe('game state', () => {
   const eligible = () => {
     const state=createInitialState(),date={year:200,month:9,day:1};
-    return {...state,date,worldConflict:createWorldConflict(date,Object.keys(state.party)),flags:{ambushWon:true,recovered:true}};
+    const life=createLifeState(date,23);
+    return {...state,date,life,worldConflict:createWorldConflict(date,Object.keys(state.party),undefined,life),flags:{ambushWon:true,recovered:true}};
   };
   it('starts in 184 with a random origin that survives saves', () => {
     const first = createInitialState(() => 0);
@@ -215,7 +217,8 @@ describe('game state', () => {
     expect(rewardVictory(rewarded, 'ambush')).toBe(rewarded);
     expect(initial.party.traveler.level).toBe(1);
     const date={year:200,month:9};
-    const route = rewardVictory(selectRoute({ ...rewarded, date, worldConflict:createWorldConflict(date,Object.keys(rewarded.party)), flags: { ...rewarded.flags, ambushWon: true, recovered: true } }, 'liu'), 'route');
+    const life=createLifeState(date,23);
+    const route = rewardVictory(selectRoute({ ...rewarded, date, life, worldConflict:createWorldConflict(date,Object.keys(rewarded.party),undefined,life), flags: { ...rewarded.flags, ambushWon: true, recovered: true } }, 'liu'), 'route');
     expect(route.party.traveler).toMatchObject({ level: 3, xp: 25 });
     saveState(route);
     expect(loadState()).toEqual({ ...route, date: { ...route.date, day: 1 } });

@@ -23,7 +23,7 @@ export class RouteChoiceScene extends Phaser.Scene {
     showRouteChoice(Object.values(ROUTES), (route) => {
       setState(selectRoute(getState(), route.id));
       this.scene.start('Overworld');
-    }, { available, year: state.date.year, onLeave: () => this.scene.start('Overworld') });
+    }, { available, year: state.date.year, state, onLeave: () => this.scene.start('Overworld') });
   }
 
   private drawBackdrop(): void {

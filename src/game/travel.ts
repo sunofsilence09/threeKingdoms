@@ -5,24 +5,27 @@ import { applyMarketNews, GOODS, isMarketNews, type MarketNews } from './economy
 import { gameDayNumber } from './recruitment';
 import type { GameState, RouteId } from './state';
 import { withWorldDate } from './worldTime';
-import { cityAt, planRoute, WORLD_CITIES } from './world';
+import { cityAt, directRoadLeg, planRoute, WORLD_CITIES } from './world';
 import { canMeetPerson } from './recruitmentCatalog';
+import { cityNameAt } from './cityNames';
+import { leaderForFaction } from './worldConflictData';
+import { isAliveAt } from './personLife';
 
 export type TravelEventKind = 'rain' | 'merchant' | 'refugees' | 'ferry' | 'bandits' | 'contact' | 'market-news' | 'wolves';
 export interface TravelEvent { id: number; kind: TravelEventKind; contact?: RouteId; inBattle?: boolean; cgSeen?: boolean; news?: MarketNews }
 export interface Journey { path: string[]; legIndex: number; legDay: number; elapsed: number; seed: number; serial: number; event?: TravelEvent }
 export const ROAD_NAMES = { road: '陆路', water: '水路', mountain: '山道' };
 export function journeyLeg(journey: Journey) {
-  return planRoute(journey.path[journey.legIndex], journey.path[journey.legIndex + 1])!.legs[0];
+  return directRoadLeg(journey.path[journey.legIndex], journey.path[journey.legIndex + 1])!;
 }
 export function remainingDays(journey: Journey): number {
-  return journey.path.slice(journey.legIndex, -1).reduce((days, from, offset) => days + planRoute(from, journey.path[journey.legIndex + offset + 1])!.days, 0) - journey.legDay;
+  return journey.path.slice(journey.legIndex, -1).reduce((days, from, offset) => days + directRoadLeg(from, journey.path[journey.legIndex + offset + 1])!.days, 0) - journey.legDay;
 }
 /** Encounters are fictional meetings within historically plausible campaign regions. */
 export function cityContact(id: string, date: GameDate, state?: GameState): RouteId | undefined {
-  if(state?.worldConflict&&!state.conflictRecovery) {
-    const leaders:[RouteId,string][]=[['cao','cao-cao'],['liu','liu-bei'],['sun',date.year<192?'sun-jian':date.year<200?'sun-ce':'sun-quan']];
-    return leaders.find(([,personId])=>canMeetPerson(personId,id,date,state))?.[0];
+  if(state&&(state.life||state.worldConflict&&!state.conflictRecovery)) {
+    const leaders=(['cao','liu','sun'] as RouteId[]).map(route=>[route,leaderForFaction(route,date,state.life)] as const);
+    return leaders.find(([,personId])=>!!personId&&!Object.hasOwn(state.party,personId)&&canMeetPerson(personId,id,date,state))?.[0];
   }
   const y = date.year, m = date.month;
   if (y === 184) {
@@ -59,7 +62,7 @@ function createTravelNews(journey: Journey, date: GameDate): MarketNews {
   const fromDay = gameDayNumber(date);
   return { id: `travel:${journey.serial}:${journey.elapsed}:${journey.seed}`, cityId, goodId: good.id, change,
     fromDay, untilDay: fromDay + 30,
-    reason: `${cityAt(cityId).name}${change > 0 ? `商户急需${good.name}，收购价随之上涨。` : `新货抵市，${good.name}供应充足，价格回落。`}` };
+    reason: `${cityNameAt(cityId,date)}${change > 0 ? `商户急需${good.name}，收购价随之上涨。` : `新货抵市，${good.name}供应充足，价格回落。`}` };
 }
 export function advanceTravel(state: GameState, days = 3): GameState {
   if (!Number.isInteger(days) || days < 1 || days > 30 || !state.journey || state.journey.event || state.phase === 'battle') return state;
@@ -78,7 +81,7 @@ export function advanceTravel(state: GameState, days = 3): GameState {
     if (journey.legDay >= leg.days) {
       if (journey.legIndex === journey.path.length - 2) {
         const destination = journey.path.at(-1)!;
-        return withWorldDate({ ...simulation, economy, travelDays: days, journey: undefined, currentCityId: destination, travelNotice: `本次赶路${actualDays}日；抵达${cityAt(destination).name}，此行赶路${journey.elapsed}日。沿途耽搁已计入日期。` }, date);
+        return withWorldDate({ ...simulation, economy, travelDays: days, journey: undefined, currentCityId: destination, travelNotice: `本次赶路${actualDays}日；抵达${cityNameAt(destination,date)}，此行赶路${journey.elapsed}日。沿途耽搁已计入日期。` }, date);
       }
       journey = { ...journey, legIndex: journey.legIndex + 1, legDay: 0 };
     }
@@ -118,11 +121,13 @@ export function resolveTravelEvent(state: GameState, choice: 'safe' | 'pay' | 'f
     if (!['merchant', 'refugees', 'contact', 'market-news'].includes(event.kind)) return state;
   } else if (choice === 'meet') {
     if (event.kind !== 'contact' || !event.contact) return state;
-    if(state.worldConflict&&!state.conflictRecovery) {
+    if(state.life||state.worldConflict&&!state.conflictRecovery) {
       const leg=journeyLeg(journey);
-      if(![cityContact(leg.from,state.date,state),cityContact(leg.to,state.date,state)].includes(event.contact)) {
-        return withWorldDate({...state,journey:{...journey,event:undefined},travelNotice:'对方行踪已有变化，未能亲自相遇；打听1日后继续原行程。'},advanceDays(state.date,1));
+      const advanced=withWorldDate({...state,journey:{...journey,event:undefined}},advanceDays(state.date,1));
+      if(![cityContact(leg.from,advanced.date,advanced),cityContact(leg.to,advanced.date,advanced)].includes(event.contact)) {
+        return {...advanced,travelNotice:'对方行踪已有变化，未能亲自相遇；打听1日后继续原行程。'};
       }
+      return {...advanced,flags:{...advanced.flags,[`met:${event.contact}`]:true},travelNotice:'拜访了当地军府；停留1日，继续原路。'};
     }
     flags = { ...flags, [`met:${event.contact}`]: true };
     days = 1;
@@ -143,7 +148,7 @@ export function finishTravelBattle(state: GameState, won: boolean): GameState {
   if (!state.journey?.event?.inBattle) return state;
   const wolves = state.journey.event.kind === 'wolves';
   const party = { ...state.party };
-  const fighters = state.battleParty ?? state.deployed;
+  const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
   if (won) for (const id of fighters) party[id] = grantExperience(party[id], victoryExperience(30, party[id].attributes));
   const bonus = won ? fighters.reduce((sum, id) => sum + attributeBonuses(party[id].attributes).supplies, 0) : 0;
   return withWorldDate({ ...state, phase: 'overworld', encounter: undefined, battleParty: undefined, party,
@@ -159,7 +164,7 @@ export function restInCity(state: GameState, days: number): GameState {
   const date = advanceDays(state.date, days);
   if (gameDayNumber(date) === gameDayNumber(state.date)) return state;
   return withWorldDate({ ...state, economy: days === 1 ? { ...state.economy, coins: Math.min(Number.MAX_SAFE_INTEGER, state.economy.coins + 20) } : state.economy,
-    supplies: state.supplies + (days === 1 ? 1 : 3), travelNotice: `在${cityAt(state.currentCityId).name}${days === 1 ? '帮工休整1日，获得20铜钱' : `安居${days === 30 ? '一月' : '一年'}`}，军需有所补充。` }, date);
+    supplies: state.supplies + (days === 1 ? 1 : 3), travelNotice: `在${cityNameAt(state.currentCityId,date)}${days === 1 ? '帮工休整1日，获得20铜钱' : `安居${days === 30 ? '一月' : '一年'}`}，军需有所补充。` }, date);
 }
 
 export function isJourney(value: unknown, currentCityId: string, phase: string): value is Journey {
@@ -169,8 +174,8 @@ export function isJourney(value: unknown, currentCityId: string, phase: string):
   if (!Array.isArray(j.path) || j.path.length < 2 || j.path.length > WORLD_CITIES.length || j.path[0] !== currentCityId || new Set(j.path).size !== j.path.length || !j.path.every(id => WORLD_CITIES.some(c => c.id === id)) || !integer(j.legIndex) || j.legIndex >= j.path.length - 1 || !integer(j.legDay) || !integer(j.elapsed) || !integer(j.seed) || j.seed > 0xffffffff || !integer(j.serial) || j.serial < 1) return false;
   let elapsed = j.legDay;
   for (let i = 0; i < j.path.length - 1; i++) {
-    const leg = planRoute(j.path[i], j.path[i + 1]);
-    if (!leg || leg.path.length !== 2 || i === j.legIndex && j.legDay >= leg.days) return false;
+    const leg = directRoadLeg(j.path[i], j.path[i + 1]);
+    if (!leg || i === j.legIndex && j.legDay >= leg.days) return false;
     if (i < j.legIndex) elapsed += leg.days;
   }
   if (elapsed !== j.elapsed) return false;
@@ -182,7 +187,7 @@ export function isJourney(value: unknown, currentCityId: string, phase: string):
     if (e.kind === 'wolves') {
       // At a leg boundary, this day's encounter belongs to the leg just completed.
       const eventLegIndex = j.legDay === 0 && j.legIndex > 0 ? j.legIndex - 1 : j.legIndex;
-      if (planRoute(j.path[eventLegIndex], j.path[eventLegIndex + 1])!.legs[0].kind === 'water') return false;
+      if (directRoadLeg(j.path[eventLegIndex], j.path[eventLegIndex + 1])!.kind === 'water') return false;
     }
   }
   return phase !== 'battle' || j.event?.inBattle === true;

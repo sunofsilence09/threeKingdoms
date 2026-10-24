@@ -1,0 +1,632 @@
+{
+  "count": 26,
+  "uniqueHashes": 26,
+  "visualReview": "Each independently viewed; full headwear, hands, footwear and props present.",
+  "alphaNote": "Up to1/255 invisible corner dither is recorded; effective opaque silhouette must be wholly within canvas. Original PNGs are unmodified.",
+  "portraits": [
+    {
+      "id": "cao-pi",
+      "assetPath": "public/assets/characters/cao-pi-v1.png",
+      "sha256": "331e48ab32eda5e64bfad5a0bfbb6751b446172e69c5c62c152812f84b961f4c",
+      "bytes": 2147002,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        128,
+        10,
+        900,
+        1523
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "liu-shan",
+      "assetPath": "public/assets/characters/liu-shan-v1.png",
+      "sha256": "aafd5b0c408c3e0c3124f6e624bdfb86c6fd7aa94d469f51e7270270da467b53",
+      "bytes": 2312485,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        114,
+        10,
+        910,
+        1514
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sima-yi",
+      "assetPath": "public/assets/characters/sima-yi-v1.png",
+      "sha256": "0054e34680ce372cbc52dd213771b0aed4a38ab78f90a5a41293b1c7382bd1e5",
+      "bytes": 2268971,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        199,
+        21,
+        902,
+        1516
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sima-zhao",
+      "assetPath": "public/assets/characters/sima-zhao-v1.png",
+      "sha256": "cbbd1614f14cc8c5a91830ed9243d2699736c28a9197f26adb9d2a70fd63106d",
+      "bytes": 2185490,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        145,
+        17,
+        895,
+        1520
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sima-yan",
+      "assetPath": "public/assets/characters/sima-yan-v1.png",
+      "sha256": "c90410bccd38145a8b6382845de76803b4ffb32b0630a9dba3f4944871c113a6",
+      "bytes": 2224753,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        98,
+        3,
+        926,
+        1526
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "deng-ai",
+      "assetPath": "public/assets/characters/deng-ai-v1.png",
+      "sha256": "b1e51b5ff1998d96ec0f03783c8066b070c68be34cc32d36f2a1335ac198b312",
+      "bytes": 2360078,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        133,
+        19,
+        1007,
+        1497
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "jiang-wei",
+      "assetPath": "public/assets/characters/jiang-wei-v1.png",
+      "sha256": "0af4af461d583ae68d53e00ec9d27808398b724cb9defc1ce4fc02a30f50c152",
+      "bytes": 2202449,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        186,
+        13,
+        980,
+        1487
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "zhong-yao",
+      "assetPath": "public/assets/characters/zhong-yao-v1.png",
+      "sha256": "9dee1e4dab8cbe11152636f9b08361d96bb99eb0f756b8c43ded7c119590b25d",
+      "bytes": 2123851,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        204,
+        8,
+        870,
+        1523
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "zhong-hui",
+      "assetPath": "public/assets/characters/zhong-hui-v1.png",
+      "sha256": "a2295e8f0173642e70f4f6474626e814eca375d85e6024acab04e909536eb3a7",
+      "bytes": 1806849,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        210,
+        68,
+        799,
+        1486
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "xun-yu",
+      "assetPath": "public/assets/characters/xun-yu-v1.png",
+      "sha256": "cfe38ad51ec29b99da6e717057ad0594c90f1bd72a95947b5b8874063c07db9b",
+      "bytes": 1866988,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        204,
+        74,
+        809,
+        1458
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "xun-you",
+      "assetPath": "public/assets/characters/xun-you-v1.png",
+      "sha256": "e55dbb24526a3a9151465647921f10b01fbda7c47856ca65328e542e2337fe0a",
+      "bytes": 1809905,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        246,
+        80,
+        811,
+        1481
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sun-xiu",
+      "assetPath": "public/assets/characters/sun-xiu-v1.png",
+      "sha256": "cc30de8d1c6223bdaeabf054392112dd41c707560f2eb8e4b4a0915a6c4e720a",
+      "bytes": 1893959,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        159,
+        82,
+        886,
+        1478
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sun-liang",
+      "assetPath": "public/assets/characters/sun-liang-v1.png",
+      "sha256": "9a3664b1a0d5b099ad891765895b03c59d1a1c2a3e12b61155edd3d1738e8b25",
+      "bytes": 1995520,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        148,
+        55,
+        864,
+        1479
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "liu-chen",
+      "assetPath": "public/assets/characters/liu-chen-v1.png",
+      "sha256": "3703add82c4b8666ccb08663a711adf4af1cae44ad76b08df2a4a4d34ae4c7d8",
+      "bytes": 1819423,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        217,
+        96,
+        902,
+        1469
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "cao-rui",
+      "assetPath": "public/assets/characters/cao-rui-v1.png",
+      "sha256": "645fe2444397112795c3ba5c9d169c733484ddcaa4529c7bd06c55e726716167",
+      "bytes": 1861479,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        176,
+        52,
+        866,
+        1484
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "cao-fang",
+      "assetPath": "public/assets/characters/cao-fang-v1.png",
+      "sha256": "55b053613d167236031bbc784254a3f945ec6760ede88728f1983c9087cbc224",
+      "bytes": 1768662,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        235,
+        102,
+        810,
+        1459
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "cao-mao",
+      "assetPath": "public/assets/characters/cao-mao-v1.png",
+      "sha256": "ab06b9e3b88140f8553edc59f2bc6cb736a538d850b861758cdf1dc7f055477c",
+      "bytes": 2029148,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        69,
+        66,
+        924,
+        1481
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "cao-huan",
+      "assetPath": "public/assets/characters/cao-huan-v1.png",
+      "sha256": "a02f7a26173f5b71bb66f40844831cc75e95491dbdd483db32c5c0f2a354619e",
+      "bytes": 1771694,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        267,
+        75,
+        857,
+        1466
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sima-shi",
+      "assetPath": "public/assets/characters/sima-shi-v1.png",
+      "sha256": "1858859fad085cf6361605d2981445ac6819a5bb36d9135a7c2ec828b3cb2eea",
+      "bytes": 2258033,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        48,
+        48,
+        974,
+        1465
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "sun-hao",
+      "assetPath": "public/assets/characters/sun-hao-v1.png",
+      "sha256": "999fa37795fae3deebb3e452c94650684ea703e35858523a5831d6d926d63632",
+      "bytes": 1920176,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        147,
+        76,
+        820,
+        1466
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "lu-xun",
+      "assetPath": "public/assets/characters/lu-xun-v1.png",
+      "sha256": "62fd263463cd87c969a978fdf015772ca343b5368cba9be69f01b0596e756273",
+      "bytes": 2038214,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        136,
+        57,
+        901,
+        1478
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "lu-kang",
+      "assetPath": "public/assets/characters/lu-kang-v1.png",
+      "sha256": "9ad2a146f57530ed7f01bcc89ca6c2582c9e4329504d1743751e9f145654db7c",
+      "bytes": 2165441,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        176,
+        49,
+        868,
+        1495
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "zhuge-ke",
+      "assetPath": "public/assets/characters/zhuge-ke-v1.png",
+      "sha256": "2d411e2928f09984e978470985e4790d3f5977678cb1a72fecac873e8cc08cd4",
+      "bytes": 1931270,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        206,
+        98,
+        861,
+        1453
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "du-yu",
+      "assetPath": "public/assets/characters/du-yu-v1.png",
+      "sha256": "62a56dd1a57b20a740b358591e4535df94bbae096c65cafce109a0e913378ad0",
+      "bytes": 2011022,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        233,
+        35,
+        893,
+        1500
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "yang-hu",
+      "assetPath": "public/assets/characters/yang-hu-v1.png",
+      "sha256": "c33e6fdbd42a4ba26a39e033ba8c9faee9b8acce150d3036c33eb9eadb328ee4",
+      "bytes": 1944632,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        194,
+        69,
+        869,
+        1468
+      ],
+      "sourceUnmodified": true
+    },
+    {
+      "id": "wang-jun",
+      "assetPath": "public/assets/characters/wang-jun-v1.png",
+      "sha256": "64b0fc989735e261c47605f171c6f9b6eeeae38de9a7f9acd1c560932c99eec4",
+      "bytes": 2139964,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effectiveAlphaAbove200Bounds": [
+        101,
+        82,
+        916,
+        1481
+      ],
+      "sourceUnmodified": true
+    }
+  ]
+}

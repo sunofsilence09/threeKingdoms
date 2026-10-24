@@ -1,6 +1,8 @@
 import type { RouteId } from './state';
 
 export interface GameDate { year: number; month: number; day?: number }
+export const START_YEAR = 184;
+export const END_YEAR = 310;
 /** 184 CE province-level divisions; Sili and Jiaozhi are included as departments. */
 export const PROVINCES = [
   { id: 'sili', name: '司隶校尉部' }, { id: 'yu', name: '豫州' },
@@ -42,6 +44,12 @@ export const CHAPTERS = [
   { year: 190, month: 4, title: '关东讨董', context: '关东诸军讨伐董卓。远处是诸侯的旗号，眼前是要过河的百姓。', journey: '讨董之后，各地势力彼此争夺。你们随流民迁徙，送过粮，也修过桥。194年，又一批失去家园的人来到渡口。' },
   { year: 194, month: 7, title: '群雄逐鹿', context: '群雄争夺州郡。你们已有行旅的经验，仍要为每一次落脚作出选择。', journey: '数年行旅，有人留下，有人继续赶路。到200年，官渡一带战云密布；曹、孙、刘各方的人马也开始向你们递来消息。' },
   { year: 200, month: 8, title: '官渡风云', context: '北方大战将起，江东也在交接权柄。走完眼前这段路，再决定是否投奔一方。', journey: '' },
+  { year: 220, month: 1, title: '魏蜀吴间', context: '史事参考：汉魏之际，各地军府与人物渐入新一代。本局城池归属仍由实际争夺决定。', journey: '' },
+  { year: 234, month: 1, title: '两代军府', context: '史事参考：早年的名将逐渐老去，后辈开始承担军政。本局人物寿命与城池局势按已保存的规则演进。', journey: '' },
+  { year: 249, month: 1, title: '魏晋之间', context: '史事参考：魏廷与司马氏的军政关系进入转折期；这不是本局强制政变或易主的通知。', journey: '' },
+  { year: 263, month: 1, title: '西线风云', context: '史事参考：历史上的魏蜀西线大战发生在这一时期。本局仍由存活人物与实际军队推进，故人不会为剧情复活。', journey: '' },
+  { year: 265, month: 1, title: '西晋初年', context: '史事参考：历史进入西晋初年。本局势力与城邑归属保留实际演进结果，不自动交割城池。', journey: '' },
+  { year: 280, month: 1, title: '天下后续', context: '史事参考：历史上西晋于280年灭吴。本局不会因此强制统一，你仍可随时间与人物更替继续行旅。', journey: '' },
 ] as const;
 export function chapterAt(year: number) { return [...CHAPTERS].reverse().find(c => year >= c.year) ?? CHAPTERS[0]; }
 export function originAt(id: OriginId) { return ORIGINS.find(o => o.id === id)!; }
@@ -49,13 +57,13 @@ export function nextMonth(date: GameDate): GameDate { return date.month === 12 ?
 /** A deliberately simplified thirty-day game calendar, not a Gregorian/lunar conversion. */
 export function advanceDays(date: GameDate, days: number): GameDate {
   const start = ((date.year - 184) * 12 + date.month - 1) * 30 + (date.day ?? 1) - 1;
-  const total = Math.min(97 * 360 - 1, start + (Number.isSafeInteger(days) ? Math.max(0, days) : 0));
+  const total = Math.min((END_YEAR - START_YEAR + 1) * 360 - 1, start + (Number.isSafeInteger(days) ? Math.max(0, days) : 0));
   return { year: 184 + Math.floor(total / 360), month: Math.floor(total % 360 / 30) + 1, day: total % 30 + 1 };
 }
 export function isGameDate(value: unknown): value is GameDate {
   if (!value || typeof value !== 'object') return false;
   const d = value as GameDate;
-  return Number.isInteger(d.year) && d.year >= 184 && d.year <= 280 && Number.isInteger(d.month) && d.month >= 1 && d.month <= 12 && (d.day === undefined || Number.isInteger(d.day) && d.day >= 1 && d.day <= 30);
+  return Number.isInteger(d.year) && d.year >= START_YEAR && d.year <= END_YEAR && Number.isInteger(d.month) && d.month >= 1 && d.month <= 12 && (d.day === undefined || Number.isInteger(d.day) && d.day >= 1 && d.day <= 30);
 }
 export function dateLabel(date: GameDate): string { return `公元 ${date.year} 年 · ${date.month} 月 ${date.day ?? 1} 日 · ${chapterAt(date.year).title}`; }
 export function routeLeaderName(route: RouteId, year: number): string { return route === 'cao' ? '曹操' : route === 'liu' ? '刘备' : year < 192 ? '孙坚' : year < 200 ? '孙策' : '孙权'; }

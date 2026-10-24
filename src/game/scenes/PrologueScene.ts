@@ -4,7 +4,7 @@ import { hex, themeFor } from '../theme';
 import { addText } from '../text';
 import { getState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
-import { cityAt } from '../world';
+import { cityNameAt } from '../world';
 import { requireHeroName } from '../nameEntry';
 
 export class PrologueScene extends Phaser.Scene {
@@ -15,13 +15,13 @@ export class PrologueScene extends Phaser.Scene {
   create(): void {
     if (requireHeroName(() => this.create())) return;
     clearOverlay();
-    setStatus('乱世行旅 · H5 Demo');
+    setStatus('乱世行旅 · 1.0.0 世代更迭');
     this.drawBackdrop();
 
     showPanel({
       eyebrow: `${dateLabel(getState().date)} · ${originAt(getState().originId).name}`,
       title: '先把活着这件事，交给今天。',
-      body: `${originAt(getState().originId).detail}\n\n${chapterAt(getState().date.year).context}\n\n你们从${cityAt(getState().currentCityId).name}开始行旅。选择城邑可以预览路线与耗时，途中可能遇到商旅、流民、雨阻和匪患。也可以先处理当地事务，帮同行的人站稳脚跟。\n\n阿满：先找些粮食，再想去哪里。`,
+      body: `${originAt(getState().originId).detail}\n\n${chapterAt(getState().date.year).context}\n\n你们从${cityNameAt(getState().currentCityId,getState().date)}开始行旅。选择城邑可以预览路线与耗时，途中可能遇到商旅、流民、雨阻和匪患。也可以先处理当地事务，帮同行的人站稳脚跟。\n\n阿满：先找些粮食，再想去哪里。`,
       actions: [
         {
           label: '踏上逃难路',

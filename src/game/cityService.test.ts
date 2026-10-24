@@ -9,12 +9,12 @@ import { WORLD_CITIES } from './world';
 import { GARRISON_COMMANDERS } from './garrisonData';
 
 const at = (year: number, cityId = 'dongjun', month = 6): GameState => ({
-  ...createInitialState(() => 0), worldConflict: undefined, phase: 'overworld', currentCityId: cityId, date: { year, month, day: 1 },
+  ...createInitialState(() => 0), life: undefined, worldConflict: undefined, phase: 'overworld', currentCityId: cityId, date: { year, month, day: 1 },
 });
 
 describe('derived city appointments', () => {
   it('assigns each new person at most one appointment and the same city as the encounter for every month', () => {
-    expect(Object.keys(CITY_CAREERS)).toHaveLength(18);
+    expect(Object.keys(CITY_CAREERS)).toHaveLength(44);
     for (let year = 184; year <= 226; year++) for (let month = 1; month <= 12; month++) {
       const state = at(year, 'dongjun', month);
       const roster = cityServices(state);

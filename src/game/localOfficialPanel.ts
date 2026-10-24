@@ -2,7 +2,8 @@ import { dateLabel } from './history';
 import { openInspection } from './inspectionOverlay';
 import { LOCAL_OFFICIALS, localCityOfficeRecords, officialStatus, type LocalOfficial } from './localOfficials';
 import { getState } from './runtime';
-import { cityAt } from './world';
+import { cityAt, cityNameAt } from './world';
+import { lifeReferenceText } from './lifeView';
 
 export function showLocalOfficials(): void {
   const root = document.querySelector<HTMLElement>('#overlay-root');
@@ -25,7 +26,7 @@ export function showLocalOfficials(): void {
     <main class="official-detail"><figure class="official-art"><img alt=""><figcaption>历史题材人物设计 · 非历史真容复原</figcaption></figure>
     <article class="official-info"><p class="official-role"></p><h2></h2><p class="official-status"></p><p class="official-summary"></p><p class="official-date-note"></p><a class="official-source" target="_blank" rel="noopener noreferrer">查阅史料</a><a class="official-background-source" target="_blank" rel="noopener noreferrer" hidden></a><p class="official-art-note">面貌、服色与姿态为游戏美术创作。查看画像不代表此时在任，也不会自动加入阵营。</p></article>
     <div class="official-empty"><h2>本地人选暂留空缺</h2><p>首批八人资料中，还没有本地区此时的确证记录。可以切换“八人立绘”，查看已绘人物的画像和史事依据。</p></div></main></div>`;
-  panel.querySelector('.panel-eyebrow')!.textContent = `${dateLabel(state.date)} · ${city.name} · ${city.prefecture}`;
+  panel.querySelector('.panel-eyebrow')!.textContent = `${dateLabel(state.date)} · ${cityNameAt(city.id,state.date)} · ${city.prefecture}`;
   const close = openInspection(panel);
   const closeButton = panel.querySelector<HTMLButtonElement>('.official-close')!;
   closeButton.addEventListener('click', close);
@@ -88,6 +89,7 @@ export function showLocalOfficials(): void {
     info.querySelector('h2')!.textContent = selected.name;
     const r = selected.record;
     info.querySelector('.official-status')!.textContent = `${r.year} 年${r.month ? ` ${r.month} 月` : ''} · ${officialStatus(selected, state.date)}`;
+    let life=info.querySelector<HTMLParagraphElement>('.official-life');if(!life){life=document.createElement('p');life.className='official-life';info.querySelector('.official-status')!.after(life);}life.textContent=lifeReferenceText(state,selected.id);
     info.querySelector('.official-summary')!.textContent = selected.summary;
     info.querySelector('.official-date-note')!.textContent = selected.dateNote;
     const source = info.querySelector<HTMLAnchorElement>('.official-source')!;

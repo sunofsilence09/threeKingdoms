@@ -1,4 +1,6 @@
 import type { OriginId, ProvinceId } from './history';
+import { EXPANSION_CITIES, EXPANSION_ROADS } from './worldExpansion';
+export { cityNameAt, cityMatches } from './cityNames';
 
 export interface WorldCity {
   id: string;
@@ -21,7 +23,7 @@ export interface WorldRoute {
   days: number;
 }
 /** Original approximate positions, not survey coordinates or reconstructed borders. */
-export const WORLD_CITIES: WorldCity[] = [
+const LEGACY_CITIES: WorldCity[] = [
   { id: 'yingchuan', name: '阳翟', provinceId: 'yu', prefecture: '颍川郡', lon: 113.47, lat: 34.16, originId: 'yingchuan' },
   { id: 'runan', name: '平舆', provinceId: 'yu', prefecture: '汝南郡', lon: 114.62, lat: 32.96, originId: 'runan' },
   { id: 'nanyang', name: '宛', provinceId: 'jing', prefecture: '南阳郡', lon: 112.53, lat: 33.00, originId: 'nanyang' },
@@ -59,6 +61,9 @@ export const WORLD_CITIES: WorldCity[] = [
   { id: 'shouchun', name: '寿春', provinceId: 'yang', prefecture: '九江郡', lon: 116.78, lat: 32.58 },
   { id: 'xiapi', name: '下邳', provinceId: 'xu', prefecture: '下邳国', lon: 117.95, lat: 34.10 },
 ];
+export const LEGACY_CITY_IDS: readonly string[] = Object.freeze(LEGACY_CITIES.map(city => city.id));
+export const EXPANSION_CITY_IDS: readonly string[] = Object.freeze(EXPANSION_CITIES.map(city => city.id));
+export const WORLD_CITIES: WorldCity[] = [...LEGACY_CITIES, ...EXPANSION_CITIES];
 
 /** Undirected travel corridors. Intermediate points are [longitude, latitude]. */
 export const WORLD_ROADS: WorldRoad[] = [
@@ -114,6 +119,7 @@ export const WORLD_ROADS: WorldRoad[] = [
   { from: 'chen', to: 'nanhai', kind: 'mountain', via: [[113.02, 25.40], [113.37, 25.01], [113.60, 24.81], [113.46, 24.17], [113.06, 23.70]] },
   { from: 'quanling', to: 'guangxin', kind: 'mountain', via: [[111.30, 25.89], [111.22, 25.49], [111.53, 24.82], [111.56, 24.41], [111.30, 23.86]] },
   { from: 'guangxin', to: 'nanhai', kind: 'water', via: [[111.72, 23.36], [112.20, 23.07], [112.46, 23.05], [112.81, 23.16], [113.02, 23.08]] },
+  ...EXPANSION_ROADS,
 ];
 export function cityAt(id: string): WorldCity {
   const city = WORLD_CITIES.find(city => city.id === id);
@@ -135,6 +141,12 @@ function roadDays(road: WorldRoad): number {
   const km = points.slice(1).reduce((sum, point, index) => sum + distanceKm(points[index], point), 0);
   const dailyKm = { road: 30, water: 50, mountain: 20 };
   return Math.max(1, Math.ceil(km / dailyKm[road.kind]));
+}
+
+/** A saved path stores direct corridor endpoints, independent of today's shortest route. */
+export function directRoadLeg(from: string, to: string): WorldRoute['legs'][number] | undefined {
+  const road = WORLD_ROADS.find(road => road.from === from && road.to === to || road.from === to && road.to === from);
+  return road ? { from, to, days: roadDays(road), kind: road.kind } : undefined;
 }
 
 /** Dijkstra by whole travel days; ties follow the stable corridor declaration order. */

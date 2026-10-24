@@ -5,6 +5,7 @@ import { recruitProfile } from './recruitmentCatalog';
 import type { GameState } from './state';
 import { GARRISON_COMMANDERS, GARRISON_PROFILES } from './garrisonData';
 import { WORLD_CITIES } from './world';
+import { isAliveAt } from './personLife';
 
 export interface CityService {
   personId: string;
@@ -18,9 +19,9 @@ export interface CityService {
 
 /** Appointments are rebuilt from the calendar and saved party, never saved separately. */
 export function serviceForPerson(state: GameState, id: string): CityService | undefined {
-  if (Object.hasOwn(state.party, id) || !Number.isInteger(state.date.year) ||
+  if (!isAliveAt(state.life,id,state.date,true) || Object.hasOwn(state.party, id) || !Number.isInteger(state.date.year) ||
       !Number.isInteger(state.date.month) || state.date.month < 1 || state.date.month > 12) return undefined;
-  if (state.worldConflict && !state.conflictRecovery) {
+  if (state.life || state.worldConflict && !state.conflictRecovery) {
     const posting = personPosting(state, id);
     if (!posting?.cityId || posting.kind === 'dispersed' || posting.kind === 'campaign') return undefined;
     const { cityId, kind, title, office, employerId } = posting;
@@ -33,7 +34,7 @@ export function serviceForPerson(state: GameState, id: string): CityService | un
     if (state.date.year < 184) return undefined;
     const cityId = garrison.windows[0].cityIds[0];
     const city = WORLD_CITIES.find(city => city.id === cityId)!;
-    const commander = GARRISON_COMMANDERS.find(binding => binding.cityId === cityId &&
+    const commander = GARRISON_COMMANDERS.find(binding => binding.cityId === cityId && isAliveAt(state.life,binding.employerId,state.date,true) &&
       month >= binding.from.year * 12 + (binding.from.month ?? 1) && month <= binding.to.year * 12 + (binding.to.month ?? 12));
     if (commander && Object.hasOwn(state.party, commander.employerId)) {
       if(garrison.readOnly)return { personId:id,cityId,kind:'employed',title:garrison.role,office:'本城守备 · 地方长官缺任',employerName:'本城守备' };
@@ -47,7 +48,7 @@ export function serviceForPerson(state: GameState, id: string): CityService | un
     month <= stage.to.year * 12 + (stage.to.month ?? 12));
   if (!stage) return undefined;
   const { cityId, kind, title, office, employerId } = stage;
-  if (employerId && Object.hasOwn(state.party, employerId)) {
+  if (employerId && (!isAliveAt(state.life,employerId,state.date,true) || Object.hasOwn(state.party, employerId))) {
     return { personId: id, cityId, kind: 'waiting', title, office: '待聘' };
   }
   return { personId: id, cityId, kind, title, office,
@@ -56,7 +57,7 @@ export function serviceForPerson(state: GameState, id: string): CityService | un
 
 /** Omitting cityId returns the complete current roster across all cities. */
 export function cityServices(state: GameState, cityId?: string): CityService[] {
-  const ids = state.worldConflict && !state.conflictRecovery ? RECRUIT_PROFILES.map(profile => profile.id) : [...Object.keys(CITY_CAREERS), ...GARRISON_PROFILES.map(profile => profile.id)];
+  const ids = state.life || state.worldConflict && !state.conflictRecovery ? RECRUIT_PROFILES.map(profile => profile.id) : [...Object.keys(CITY_CAREERS), ...GARRISON_PROFILES.map(profile => profile.id)];
   return ids.flatMap(id => {
     const service = serviceForPerson(state, id);
     return service && (cityId === undefined || service.cityId === cityId) ? [service] : [];

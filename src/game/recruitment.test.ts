@@ -4,7 +4,7 @@ import { advanceDays } from './history';
 import { canManageParty, canInteractPerson, interactPerson, invitePerson, setDeployment } from './recruitment';
 import { createProgress, migratePartyProgress } from './growth';
 
-const inZhuo = () => ({ ...createInitialState(() => 0), worldConflict: undefined, phase: 'overworld' as const, currentCityId: 'zhuo' });
+const inZhuo = () => ({ ...createInitialState(() => 0), life: undefined, worldConflict: undefined, phase: 'overworld' as const, currentCityId: 'zhuo' });
 describe('affinity recruitment and five-person deployment', () => {
   it('refuses ordinary troops and Himiko even with forged party membership and full affinity', () => {
     for (const id of ['himiko', 'garrison:zhuo:soldier']) {

@@ -25,9 +25,9 @@ function until(w:WorldConflict,predicate:(w:WorldConflict)=>boolean,max=100) {
 }
 
 describe('persistent world conflict', () => {
-  it('starts 36 real stocks and a finite authored 184 rebellion without anachronistic rulers', () => {
+  it('starts60 real stocks and a finite authored184 rebellion without anachronistic rulers', () => {
     const w = createWorldConflict(date(60));
-    expect(Object.keys(w.cities)).toHaveLength(36);
+    expect(Object.keys(w.cities)).toHaveLength(60);
     expect(Object.values(w.cities).every(c=>c.troops===5000)).toBe(true);
     expect(new Set(CONFLICT_FACTIONS.map(f=>f.id)).size).toBe(CONFLICT_FACTIONS.length);
     expect(w.cities.julu.factionId).toBe('han');
@@ -199,7 +199,7 @@ describe('persistent world conflict', () => {
     const next=advanceWorldConflict(w,{year:184,month:11,day:1});
     expect(next.cities.julu.troops).toBe(w.cities.julu.troops+50);
     expect(next.cities.ye.troops).toBe(20000);
-    expect(next.ledger.recruited-w.ledger.recruited).toBe(35*50);
+    expect(next.ledger.recruited-w.ledger.recruited).toBe(59*50);
     expect(advanceWorldConflict(next,{year:184,month:11,day:1})).toBe(next);conserved(next);
   });
   it('does not resurrect an eliminated faction when its later historical leader becomes available',()=>{

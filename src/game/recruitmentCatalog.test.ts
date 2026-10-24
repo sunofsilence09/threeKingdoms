@@ -4,12 +4,14 @@ import { HISTORICAL_CHARACTERS } from './historicalCharacters';
 import { LOCAL_OFFICIALS } from './localOfficials';
 import { WORLD_CITIES } from './world';
 import { RECRUIT_PROFILES, canMeetPerson, recruitProfile } from './recruitmentCatalog';
+import { createLifeState, isAliveAt } from './personLife';
+import { createInitialState } from './state';
 
 describe('all-person recruitment catalog', () => {
-  it('contains exactly 124 unique identities covering every existing identity', () => {
+  it('contains exactly 198 unique identities covering every existing identity', () => {
     const ids = RECRUIT_PROFILES.map(p => p.id);
-    expect(ids).toHaveLength(124);
-    expect(new Set(ids).size).toBe(124);
+    expect(ids).toHaveLength(198);
+    expect(new Set(ids).size).toBe(198);
     expect(ids).toEqual(expect.arrayContaining([
       'traveler', 'aman', 'chen-da', 'bandit', 'bandit-leader', 'sun-jian', 'sun-ce',
       ...HISTORICAL_CHARACTERS.map(p => p.id), ...LOCAL_OFFICIALS.map(p => p.id),
@@ -17,7 +19,7 @@ describe('all-person recruitment catalog', () => {
   });
 
   it('provides two stable garrison identities per city and keeps ordinary troops unapproachable', () => {
-    expect(RECRUIT_PROFILES.filter(p => p.category === 'garrison')).toHaveLength(72);
+    expect(RECRUIT_PROFILES.filter(p => p.category === 'garrison')).toHaveLength(120);
     for (const city of WORLD_CITIES) {
       const soldier = recruitProfile(`garrison:${city.id}:soldier`);
       const captain = recruitProfile(`garrison:${city.id}:captain`);
@@ -100,7 +102,8 @@ describe('all-person recruitment catalog', () => {
         expect(window.cityIds.length).toBeGreaterThan(0);
         for (const city of window.cityIds) {
           expect(cities.has(city)).toBe(true);
-          expect(canMeetPerson(profile.id, city, { year: window.from.year, month: window.from.month ?? 1 })).toBe(!profile.readOnly);
+          const date = { year: window.from.year, month: window.from.month ?? 1 };
+          expect(canMeetPerson(profile.id, city, date)).toBe(!profile.readOnly && isAliveAt(undefined,profile.id,date,true));
         }
       }
     }
@@ -165,10 +168,15 @@ describe('all-person recruitment catalog', () => {
   });
 
   it('provides conservative dated official encounters without inventing full terms', () => {
+    const date = { year: 184, month: 3, day: 1 }, life = createLifeState(date, 23);
+    life.people['guo-xun'].deathYear = 185;
+    life.people['chu-gong'].deathYear = 185;
+    const living = { ...createInitialState(() => 0), date, life, worldConflict: undefined };
     expect(canMeetPerson('wang-yun', 'yingchuan', { year: 184, month: 3 })).toBe(true);
-    expect(canMeetPerson('guo-xun', 'zhuo', { year: 184, month: 3 })).toBe(true);
+    expect(canMeetPerson('guo-xun', 'zhuo', date, living)).toBe(true);
+    expect(canMeetPerson('guo-xun', 'zhuo', date)).toBe(false);
     expect(canMeetPerson('guo-xun', 'zhuo', { year: 184, month: 4 })).toBe(false);
-    expect(canMeetPerson('chu-gong', 'nanyang', { year: 184, month: 3 })).toBe(true);
+    expect(canMeetPerson('chu-gong', 'nanyang', date, living)).toBe(true);
     expect(canMeetPerson('chu-gong', 'nanyang', { year: 184, month: 4 })).toBe(false);
     expect(canMeetPerson('jia-cong', 'nanhai', { year: 184, month: 3 })).toBe(false);
     expect(canMeetPerson('jia-cong', 'nanhai', { year: 184, month: 6 })).toBe(true);

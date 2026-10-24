@@ -4,6 +4,8 @@ import { recruitProfile } from './recruitmentCatalog';
 import { showCharacterDetails } from './characterDetails';
 import { getCharacterAppearance } from './characters';
 import { renderGarrisonSummary } from './garrisonView';
+import { personName } from './heroName';
+import { lifeReferenceText } from './lifeView';
 
 function node<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K]{const element=document.createElement(tag);element.textContent=text;element.className=className;return element;}
 /** The roster and recruitment share one career projection; this view never appoints people. */
@@ -19,8 +21,8 @@ export function renderCityOffice(state:GameState,onTalk:(personId:string)=>void)
     for(const service of people){
       const profile=recruitProfile(service.personId);if(!profile)continue;
       const card=node('article','','trade-card office-person-card');card.dataset.staff=profile.id;card.dataset.serviceKind=service.kind;
-      const heading=node('div','','office-person-heading'),image=node('img','','office-person-image');image.src=getCharacterAppearance(profile.id,state.date).portrait;image.alt=`${profile.name}立绘`;image.loading='lazy';image.addEventListener('error',()=>image.hidden=true);
-      const info=node('div');info.append(node('h3',profile.name),node('p',service.title),node('p',profile.readOnly?'城市守军整体 · 不能邀请':`亲密 ${state.relationships[profile.id]?.affinity??0}/100 · 邀请门槛 ${getRecruitmentThreshold(state,profile.id)}`));heading.append(image,info);
+      const heading=node('div','','office-person-heading'),image=node('img','','office-person-image');image.src=getCharacterAppearance(profile.id,state.date).portrait;image.alt=`${personName(profile.id,state)}立绘`;image.loading='lazy';image.addEventListener('error',()=>image.hidden=true);
+      const info=node('div');info.append(node('h3',personName(profile.id,state)),node('p',service.title),node('p',lifeReferenceText(state,profile.id),'trade-muted'),node('p',profile.readOnly?'城市守军整体 · 不能邀请':`亲密 ${state.relationships[profile.id]?.affinity??0}/100 · 邀请门槛 ${getRecruitmentThreshold(state,profile.id)}`));heading.append(image,info);
       card.append(heading,node('p',serviceLabel(service),'office-service-label'));
       const actions=node('div','','trade-actions');
       for(const [action,text,run] of [['details','人物详情',()=>showCharacterDetails(profile.id)],['talk','交谈与邀请',()=>onTalk(profile.id)]] as const){

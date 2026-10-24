@@ -87,5 +87,15 @@
   .world-map-footer { padding: 10px 12px; }
   .world-map-legend { gap: 8px 12px; }
 }
+.world-map-finder { padding: 10px 14px; display: grid; grid-template-columns: auto minmax(0,1fr) auto minmax(100px,.7fr); gap: 6px 9px; align-items: center; border-bottom: 1px solid #7d977949; font: 12px system-ui,sans-serif; }
+.world-map-finder input, .world-map-finder select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; color: #355c48; background: #fcfbed; border: 1px solid #a2b398; border-radius: 3px; font: inherit; }
+.world-map-finder input:focus-visible, .world-map-finder select:focus-visible, .world-map-results button:focus-visible { outline: 3px solid #94713c; outline-offset: 1px; }
+.world-map-result-count { grid-column: 1/-1; margin: 0; color: #627565; font-size: 11px; }
+.world-map-results { grid-column: 1/-1; display: grid; grid-template-columns: repeat(auto-fit,minmax(145px,1fr)); gap: 5px; max-height: 106px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.world-map-results button { width: 100%; min-height: 44px; padding: 7px; background: #f4f2e4; border: 1px solid #a7b19a; border-radius: 3px; color: #355c48; font: inherit; cursor: pointer; text-align: left; }
+.world-map-results button[aria-pressed='true'] { border-color: #934030; background: #eee1c6; }
+.world-map-city.is-filtered { display: none; }
+.world-map:not(.is-zoomed) .world-map-city:not(.is-current):not(.is-selected):not(.is-path):not(:hover):not(:focus) .world-map-city-name { opacity: 0; }
+@media (max-width:600px) { .world-map-finder { grid-template-columns: 1fr 1fr; padding: 10px; } .world-map-finder label { grid-row: 1; } .world-map-finder input, .world-map-finder select { grid-row: 2; } .world-map-results { grid-template-columns: 1fr 1fr; max-height: 100px; } }
 @media (prefers-reduced-motion: reduce) { .world-map * { animation: none !important; transition: none !important; } }
 .world-map-faction-flag{pointer-events:none}.world-map-faction-abbr{fill:#fffdf0;font:700 6px sans-serif;pointer-events:none}.world-map-city-troops{fill:#405444;font:10px system-ui,sans-serif;paint-order:stroke;stroke:#f2f0da;stroke-width:3px;pointer-events:none}.world-map-army-route{fill:none;stroke:#885635;stroke-width:1.8;stroke-dasharray:4 4;opacity:.7;pointer-events:none}.world-map-army{cursor:pointer;outline:none}.world-map-army:focus circle,.world-map-army:hover circle{stroke:#815b24;stroke-width:3;fill:#ead9af}.world-map-city:hover .world-map-city-troops,.world-map-city:focus .world-map-city-troops{font-weight:800}.world-map-army:focus circle{stroke-dasharray:3 2}

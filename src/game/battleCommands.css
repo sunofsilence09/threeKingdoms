@@ -1,3 +1,5 @@
+/* Command descriptions change height while selecting and acting; keep the pointer target still. */
+#app:has(.has-battle-commands) { align-items: start; }
 #battle-commands { padding: 14px 20px; color: var(--game-ink); background: var(--game-paper); border-top: 1px solid var(--game-border); font-size: 14px; line-height: 1.6; }
 #battle-commands p { margin: 0 0 8px; overflow-wrap: anywhere; white-space: pre-line; }
 .battle-environment { font-weight: 700; color: var(--game-accent); }

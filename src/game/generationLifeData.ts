@@ -1,0 +1,31 @@
+import type { LifeBaseline } from './lifeTypes';
+
+/** Fixed adopted years; only the persisted game death year varies. See the sourced research notes. */
+export const GENERATION_LIFE_BASELINES: readonly LifeBaseline[] = [
+  { id: 'cao-pi', birthYear: 187, historicalBirthYear: 187, deathBaseYear: 226, historicalDeathYear: 226, birthEstimated: false, deathEstimated: false, source: '《三国志》卷2·文帝纪', basis: '中平四年生、黄初七年卒；出生年直接记载。' },
+  { id: 'liu-shan', birthYear: 207, historicalBirthYear: 207, deathBaseYear: 271, historicalDeathYear: 271, birthEstimated: false, deathEstimated: false, source: '《三国志》卷33·后主传及裴注', basis: '建安十二年生，223年即位十七岁互证；泰始七年卒洛阳。' },
+  { id: 'sima-yi', birthYear: 179, historicalBirthYear: 179, deathBaseYear: 251, historicalDeathYear: 251, birthEstimated: false, deathEstimated: false, source: '《晋书》卷1·宣帝纪', basis: '嘉平三年卒、年七十三；生年按古书虚岁反推，不是确知生日。' },
+  { id: 'sima-zhao', birthYear: 211, historicalBirthYear: 211, deathBaseYear: 265, historicalDeathYear: 265, birthEstimated: false, deathEstimated: false, source: '《晋书》卷2·文帝纪', basis: '咸熙二年卒、年五十五；生年据古书享年反推。' },
+  { id: 'sima-yan', birthYear: 236, historicalBirthYear: 236, deathBaseYear: 290, historicalDeathYear: 290, birthEstimated: false, deathEstimated: false, source: '《晋书》卷3·武帝纪', basis: '太熙元年卒、年五十五；生年据古书享年反推。' },
+  { id: 'deng-ai', birthYear: 197, historicalBirthYear: 197, deathBaseYear: 264, historicalDeathYear: 264, birthEstimated: true, deathEstimated: false, source: '《三国志》卷28·邓艾传', basis: '生年约197为采用值；十二岁迁颍川并无确切同年纪年，七十老公亦为约称。264年卒有明确叙事。' },
+  { id: 'jiang-wei', birthYear: 202, historicalBirthYear: 202, deathBaseYear: 264, historicalDeathYear: 264, birthEstimated: false, deathEstimated: false, source: '《三国志》卷44·姜维传、卷28', basis: '228年归蜀时二十七岁，按虚岁反推202；264年死于钟会之乱。' },
+  { id: 'zhong-yao', birthYear: 151, historicalBirthYear: 151, deathBaseYear: 230, historicalDeathYear: 230, birthEstimated: true, deathEstimated: false, source: '《三国志》卷13·钟繇传、卷10裴注', basis: '约151为通行采用值；年造八十只能支持约数，非正史直接纪生。太和四年卒。' },
+  { id: 'zhong-hui', birthYear: 225, historicalBirthYear: 225, deathBaseYear: 264, historicalDeathYear: 264, birthEstimated: false, deathEstimated: false, source: '《三国志》卷28·钟会传及裴注', basis: '注引母传直接记黄初六年生会；264年卒，时年四十，互证。' },
+  { id: 'xun-yu', birthYear: 163, historicalBirthYear: 163, deathBaseYear: 212, historicalDeathYear: 212, birthEstimated: false, deathEstimated: false, source: '《三国志》卷10·荀彧传', basis: '191年从曹时二十九岁、卒五十岁，据古书年龄反推163；卒年212。' },
+  { id: 'xun-you', birthYear: 157, historicalBirthYear: 157, deathBaseYear: 214, historicalDeathYear: 214, birthEstimated: false, deathEstimated: false, source: '《三国志》卷10·荀攸传裴注《魏书》', basis: '建安十九年卒，五十八岁，且大荀彧六岁；生年据虚岁反推。' },
+  { id: 'sun-xiu', birthYear: 235, historicalBirthYear: 235, deathBaseYear: 264, historicalDeathYear: 264, birthEstimated: false, deathEstimated: false, source: '《三国志》卷48·三嗣主传', basis: '永安七年卒，三十岁；生年据古书享年反推。' },
+  { id: 'sun-liang', birthYear: 243, historicalBirthYear: 243, deathBaseYear: 260, historicalDeathYear: 260, birthEstimated: false, deathEstimated: false, source: '《三国志》卷48·三嗣主传', basis: '258年被废时十六岁，反推243；260年赴侯官途中卒，死因有异说。' },
+  { id: 'liu-chen', birthYear: 234, historicalBirthYear: null, deathBaseYear: 263, historicalDeathYear: 263, birthEstimated: true, deathEstimated: false, source: '《三国志》卷33·后主传', basis: '生年未载；固定游戏估年234取259年封北地王节点减25，不是史载出生年；263年卒。' },
+  { id: 'cao-rui', birthYear: 205, historicalBirthYear: 205, deathBaseYear: 239, historicalDeathYear: 239, birthEstimated: true, deathEstimated: false, source: '《三国志》卷3·明帝纪及裴注', basis: '采用205，据裴注以204年纳甄后推定；本纪239卒三十六岁支持204，保留异说。' },
+  { id: 'cao-fang', birthYear: 232, historicalBirthYear: 232, deathBaseYear: 274, historicalDeathYear: 274, birthEstimated: false, deathEstimated: false, source: '《三国志》卷4及裴注《魏世谱》', basis: '239即位八岁与274卒四十三岁互证232，按古书虚岁反推。' },
+  { id: 'cao-mao', birthYear: 241, historicalBirthYear: 241, deathBaseYear: 260, historicalDeathYear: 260, birthEstimated: true, deathEstimated: false, source: '《三国志》卷4·高贵乡公纪及裴注', basis: '采用241，正文260卒二十岁支持；本人《集》载正始三年即242出生，保留异说。' },
+  { id: 'cao-huan', birthYear: 246, historicalBirthYear: 246, deathBaseYear: 302, historicalDeathYear: 302, birthEstimated: true, deathEstimated: false, source: '《三国志》卷4·陈留王纪及裴注', basis: '采用246，260即位十五岁、265退位二十岁支持；《魏世谱》卒五十八岁支持245，保留异说。' },
+  { id: 'sima-shi', birthYear: 208, historicalBirthYear: 208, deathBaseYear: 255, historicalDeathYear: 255, birthEstimated: false, deathEstimated: false, source: '《晋书》卷2·景帝纪', basis: '255年卒许昌、四十八岁；生年据古书享年反推。' },
+  { id: 'sun-hao', birthYear: 242, historicalBirthYear: 242, deathBaseYear: 284, historicalDeathYear: 284, birthEstimated: true, deathEstimated: false, source: '《三国志》卷48·三嗣主传及裴注', basis: '264即位二十三岁支持242；卒年采用公历284，保留太康四年十二月及五年异文、古历跨年说明。' },
+  { id: 'lu-xun', birthYear: 183, historicalBirthYear: 183, deathBaseYear: 245, historicalDeathYear: 245, birthEstimated: false, deathEstimated: false, source: '《三国志》卷58·陆逊传', basis: '245年卒、六十三岁；生年据古书享年反推。' },
+  { id: 'lu-kang', birthYear: 226, historicalBirthYear: 226, deathBaseYear: 274, historicalDeathYear: 274, birthEstimated: false, deathEstimated: false, source: '《三国志》卷58·陆抗传', basis: '245年父卒时二十岁领兵，反推226；274年卒。' },
+  { id: 'zhuge-ke', birthYear: 203, historicalBirthYear: 203, deathBaseYear: 253, historicalDeathYear: 253, birthEstimated: false, deathEstimated: false, source: '《三国志》卷64·诸葛恪传裴注《吴录》', basis: '253年被杀、五十一岁；生年据古书享年反推。' },
+  { id: 'du-yu', birthYear: 222, historicalBirthYear: 222, deathBaseYear: 285, historicalDeathYear: 285, birthEstimated: false, deathEstimated: false, source: '《晋书》卷34·杜预传、卷3·武帝纪', basis: '享年六十三；太康五年闰十二月卒，采用现代公历285年初，传统纪年常写284。' },
+  { id: 'yang-hu', birthYear: 221, historicalBirthYear: 221, deathBaseYear: 278, historicalDeathYear: 278, birthEstimated: false, deathEstimated: false, source: '《晋书》卷34·羊祜传、卷3·武帝纪', basis: '咸宁四年卒、五十八岁；生年据古书享年反推。' },
+  { id: 'wang-jun', birthYear: 206, historicalBirthYear: 206, deathBaseYear: 286, historicalDeathYear: 286, birthEstimated: false, deathEstimated: false, source: '《晋书》卷42·王濬传、卷3·武帝纪', basis: '享年八十，生年206；太康六年十二月卒采用现代公历286年初，传统纪年常写285。' },
+];

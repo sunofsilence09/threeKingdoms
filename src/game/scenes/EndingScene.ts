@@ -4,7 +4,7 @@ import { ROUTES } from '../content';
 import { getState, resetState, setState } from '../runtime';
 import { availableRoutes, continueJourney } from '../state';
 import { dateLabel } from '../history';
-import { cityAt } from '../world';
+import { cityNameAt } from '../world';
 import { themeFor } from '../theme';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 import { experienceToNextLevel } from '../growth';
@@ -54,7 +54,7 @@ export class EndingScene extends Phaser.Scene {
   private showJourneyEnding(): void {
     const state = getState();
     this.drawBackdrop(themeFor(state.date).accent);
-    showPanel({ eyebrow: `${dateLabel(state.date)} · ${cityAt(state.currentCityId).name}`,
+    showPanel({ eyebrow: `${dateLabel(state.date)} · ${cityNameAt(state.currentCityId,state.date)}`,
       title: '这一程，护住了同行的人。',
       body: `乡民与粮车平安抵达。你仍然没有归属哪一方，但这段路已留下你们的足迹。\n\n${this.rewardSummary || '队伍的等级、经验与技能点已保存在旅程中。'}\n\n接下来由你选择目的地。旅行和停留会推进日期；没有自动跳过数年的剧情。`,
       actions: [

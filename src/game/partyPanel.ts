@@ -4,7 +4,7 @@ import './partyPanel.css';
 import { openInspection } from './inspectionOverlay';
 import { getState, setState } from './runtime';
 import { dateLabel } from './history';
-import { WORLD_CITIES } from './world';
+import { cityNameAt } from './world';
 import { RECRUIT_PROFILES, recruitProfile, canMeetPerson, type RecruitProfile } from './recruitmentCatalog';
 import { AFFINITY_REQUIRED, canInteractPerson, canManageParty, gameDayNumber, interactPerson, invitePerson, setDeployment } from './recruitment';
 import { makePartyUnit, WEAPONS, type CombatState } from './combat';
@@ -13,11 +13,12 @@ import { showCharacterPanel } from './characterPanel';
 import type { GameState } from './state';
 import { getRecruitmentThreshold, serviceForPerson, serviceLabel } from './cityService';
 import { getCharacterAppearance } from './characters';
-import { filterRecruitProfiles, type PersonFilter } from './recruitmentView';
+import { filterRecruitProfiles, type LifeFilter, type PersonFilter } from './recruitmentView';
+import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { showMartialPanel } from './martialPanel';
 
 const nameOf = (id: string) => personName(id, getState());
-const cityName = (id: string) => WORLD_CITIES.find(city => city.id === id)?.name ?? id;
+const cityName = (id: string) => cityNameAt(id,getState().date);
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = ''): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag); node.textContent = text; node.className = className; return node;
 }
@@ -31,7 +32,7 @@ function portrait(profile: RecruitProfile | undefined, name: string): HTMLImageE
 function retainFocus(body: HTMLElement): () => void {
   const focused = document.activeElement as HTMLElement | null;
   if (!focused || !body.contains(focused)) return () => {};
-  if (focused.id === 'person-search' || focused.id === 'person-category') {
+  if (focused.id === 'person-search' || focused.id === 'person-category' || focused.id === 'person-life') {
     const position = focused instanceof HTMLInputElement ? focused.selectionStart : null;
     return () => { const next = body.querySelector<HTMLInputElement | HTMLSelectElement>(`#${focused.id}`); next?.focus({ preventScroll: true }); if (next instanceof HTMLInputElement && position !== null) next.setSelectionRange(position, position); };
   }
@@ -92,8 +93,9 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
         const card = element('article', '', 'company-card'); card.dataset.member = id;
         const info = element('div', '', 'company-card-info');
         info.append(element('h3', `${nameOf(id)} · Lv.${progress.level}`), element('p', `${profile?.role ?? '同行伙伴'} · ${WEAPONS[unit.weapon].name}`), element('p', `亲密 ${state.relationships[id]?.affinity ?? 0}/100 · 技能点 ${progress.points}`));
+        info.append(element('p',lifeReferenceText(state,id),'company-life'));
         const actions = element('div', '', 'party-actions');
-        actions.append(button('详情', () => showCharacterDetails(id, combat?.units.some(u => u.team === 'party' && u.id === id) ? combat : undefined)), button('成长', () => showCharacterPanel(render, combat, id)));
+        actions.append(button('详情', () => showCharacterDetails(id, combat?.units.some(u => u.team === 'party' && u.id === id) ? combat : undefined,render)), button('成长', () => showCharacterPanel(render, combat, id)));
         if (id === 'traveler') actions.append(element('span', '主角 · 固定上阵', 'party-fixed'));
         else if (deployed) actions.append(button('下阵', () => update(getState().deployed.filter(key => key !== id)), locked));
         else actions.append(button(state.deployed.length < 5 ? '上阵' : '替换上阵', () => {
@@ -107,6 +109,18 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
       if (deployed && ids.length < 5) grid.append(element('p', `空位 ${5 - ids.length} · 从候补选择上阵`, 'party-empty'));
       section.append(grid); body.append(section);
     }
+    const memorials=Object.values(state.life?.memorials??{}).sort((a,b)=>b.deathYear-a.deathYear);
+    const memorial=element('section','','company-section company-memorials');memorial.setAttribute('aria-label','同行纪念');
+    memorial.append(element('h2',`同行纪念 · ${memorials.length} 人`),element('p','保存曾经同行者的成长与亲密记录；主角已学武学继续保留。','company-note'));
+    const archive=element('div','','company-grid');
+    for(const record of memorials) {
+      const card=element('article','','company-card memorial-card');card.dataset.memorial=record.id;
+      const info=element('div','','company-card-info');
+      info.append(element('h3',`${nameOf(record.id)} · Lv.${record.progress.level}`),element('p',`本局于${record.deathYear}年离世 · 享年约${record.age}岁（按年计）`),element('p',`经验 ${record.progress.xp} · 技能点 ${record.progress.points} · 亲密 ${record.relationship?.affinity??0}/100`,'company-note'),button('查看纪念详情',()=>showCharacterDetails(record.id,undefined,render)));
+      card.append(portrait(recruitProfile(record.id),nameOf(record.id)),info);archive.append(card);
+    }
+    if(!memorials.length)archive.append(element('p','尚无已故同行者。','company-note'));
+    memorial.append(archive);body.append(memorial);
     restoreFocus();
   }
   render();
@@ -121,6 +135,7 @@ function windowLabel(profile: RecruitProfile): string {
   }).join('；');
 }
 function unavailableReason(profile: RecruitProfile, state: GameState): string {
+  const life=lifeAccessNote(state,profile.id);if(life)return life;
   if (profile.readOnly) return windowLabel(profile);
   if (state.journey) return '途中不可交流，请先抵达城池。';
   if (!canManageParty(state)) return lockedNote(state);
@@ -136,7 +151,7 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
   const view = shell('recruitment-panel', '寻访人物', onChange); if (!view) return;
   const { panel } = view;
   const body = element('div', '', 'company-body'); panel.append(body);
-  let all = false; let feedback = ''; let query = ''; let category: PersonFilter = 'all';
+  let all = false; let feedback = ''; let query = ''; let category: PersonFilter = 'all';let life:LifeFilter='all';
   function mutate(action: (state: GameState) => GameState) {
     const before = getState(); const after = action(before); setState(after);
     feedback = after === before ? '当前条件不符，请查看人物状态。' : after.travelNotice ?? '已更新。'; render();
@@ -148,6 +163,7 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
     body.append(element('p', `普通人物亲密度达到 ${AFFINITY_REQUIRED} 可免费邀请至候补，士兵长及其他受雇人物需达到80。普通士兵属于城市守军，不能邀请。邀请长期同行为架空支线；主君同行不自动选择阵营。`, 'company-note'));
     body.append(element('p', '每人每日一次；交谈、分享粮食、帮忙均耗时1日。同人再次交流须先休整、帮工或赶路至次日。', 'company-note'));
     body.append(element('p', '当前行踪随天下局势变化；历史参考窗口单独保留，依据历史活动区域编排，不代表当前任职。', 'company-note'));
+    body.append(element('p','生年固定；年龄按年计。尚未出生、未满16岁与已故人物仅供资料查看。史料卒年是参考，本局寿命另有浮动；未到离世时不公开本局卒年。','company-note'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
     const tabs = element('nav', '', 'company-tabs'); tabs.setAttribute('aria-label', '寻访视图');
     for (const [value, label] of [[false, '本地人物'], [true, '所有人物行踪']] as const) {
@@ -160,8 +176,11 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
     const categoryLabel = element('label', '人物类别 '), categories = element('select'); categories.id = 'person-category';
     for (const [value, text] of [['all', '全部类别'], ['historical', '历史人物'], ['official', '地方官员'], ['garrison', '地方军士'], ['other', '其他人物']] as const) { const option = element('option', text); option.value = value; option.selected = value === category; categories.append(option); }
     categories.addEventListener('change', () => { category = categories.value as PersonFilter; render(); }); categoryLabel.append(categories); filters.append(searchLabel, categoryLabel); body.append(filters);
+    const lifeLabel=element('label','生命状态 '),lives=element('select');lives.id='person-life';
+    for(const [value,text] of [['all','全部状态'],['alive','已成年 / 职业代表'],['unborn','尚未出生'],['child','未满16岁'],['dead','已经离世']] as const){const option=element('option',text);option.value=value;option.selected=life===value;lives.append(option);}
+    lives.addEventListener('change',()=>{life=lives.value as LifeFilter;all=true;render();});lifeLabel.append(lives);filters.append(lifeLabel);
     const notice = element('p', feedback, 'company-feedback'); notice.setAttribute('aria-live', 'polite'); body.append(notice);
-    const profiles = filterRecruitProfiles(RECRUIT_PROFILES, state, { all, query, category });
+    const profiles = filterRecruitProfiles(RECRUIT_PROFILES, state, { all, query, category,life });
     body.append(element('p', `共 ${profiles.length} 位人物`, 'company-note'));
     const grid = element('div', '', 'company-grid recruitment-grid');
     for (const profile of profiles) {
@@ -171,8 +190,9 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
       const available = canInteractPerson(state, profile.id);
       const card = element('article', '', 'company-card recruitment-card'); card.dataset.person = profile.id;
       const info = element('div', '', 'company-card-info');
-      info.append(element('h3', personName(profile.id, state)), element('p', profile.role), element('p', displayText(profile.bio, state), 'company-note'), element('p', profile.readOnly ? windowLabel(profile) : joined ? `已同行 · ${state.deployed.includes(profile.id) ? '出战' : '候补'}` : `邀请门槛 ${threshold} · 尚未同行`, 'party-member-status'));
+      info.append(element('h3', personName(profile.id, state)), element('p', profile.role), element('p', displayText(profile.bio, state,profile.id), 'company-note'), element('p', profile.readOnly ? windowLabel(profile) : joined ? `已同行 · ${state.deployed.includes(profile.id) ? '出战' : '候补'}` : `邀请门槛 ${threshold} · 尚未同行`, 'party-member-status'));
       info.append(element('p', postingLabel(state, profile.id), 'company-current-posting'));
+      info.append(element('p',lifeReferenceText(state,profile.id),'company-life'));
       if(service)info.append(element('p',serviceLabel(service),'company-office'));
       const meter = element('progress'); meter.max = 100; meter.value = affinity; meter.setAttribute('aria-label', `${personName(profile.id, state)}亲密度 ${affinity}/100`);
       if(!profile.readOnly) info.append(element('p', `亲密 ${affinity}/100${today ? ' · 当天已互动' : ''}`), meter);
@@ -185,7 +205,7 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
         actions.append(button('帮忙 +10 · 免费 · 1日', () => mutate(state => interactPerson(state, profile.id, 'help')), !available || today || affinity >= 100));
       }
       if (!profile.readOnly && !joined) actions.append(button('邀请同行', () => mutate(state => invitePerson(state, profile.id)), !available || affinity < threshold));
-      actions.append(button('查看详情', () => showCharacterDetails(profile.id, combat?.units.some(unit => unit.team === 'party' && unit.id === profile.id) ? combat : undefined)));
+      actions.append(button('查看详情', () => showCharacterDetails(profile.id, combat?.units.some(unit => unit.team === 'party' && unit.id === profile.id) ? combat : undefined,render)));
       info.append(actions); card.append(portrait(profile, personName(profile.id, state)), info); grid.append(card);
     }
     if (!profiles.length) grid.append(element('p', '此时此地暂无可寻访人物，可查看所有人物行踪。', 'company-note'));

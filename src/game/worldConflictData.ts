@@ -1,6 +1,8 @@
 import type { GameDate } from './history';
 import { CITY_CAREERS } from './careerData';
 import type { ConflictFaction } from './worldConflictTypes';
+import type { LifeState } from './lifeTypes';
+import { isAliveAt } from './personLife';
 
 /** Authored campaign parameters, not reconstructed historical borders or census counts. */
 export const CONFLICT_FACTIONS: readonly ConflictFaction[] = [
@@ -39,14 +41,20 @@ export const CONFLICT_FOUNDATIONS: readonly ConflictFoundation[] = [
   {id:'black-mountain-185',year:185,month:1,factionId:'zhang-yan',cities:['taiyuan'],raised:4000,note:'黑山区域有限野战部众；不因巨鹿联络处赠城'},
 ];
 const monthAt=(date:GameDate)=>date.year*12+date.month;
-export function leaderForFaction(factionId:string,date:GameDate):string|undefined {
+export function leaderForFaction(factionId:string,date:GameDate,life?:LifeState):string|undefined {
   const y=date.year;
-  if(factionId==='sun') return y<=190?'sun-jian':y>=195&&y<=199?'sun-ce':y>=200&&y<=251?'sun-quan':undefined;
+  const available=(id:string|undefined)=>id&&(!life||isAliveAt(life,id,date))?id:undefined;
+  const stages:Record<string,[string,number,number][]>= {
+    cao:[['cao-cao',184,219],['cao-pi',220,225],['cao-rui',226,238],['cao-fang',239,253],['cao-mao',254,259],['cao-huan',260,264],['sima-yan',265,290]],
+    liu:[['liu-bei',184,222],['liu-shan',223,263]],
+    sun:[['sun-jian',184,190],['sun-ce',195,199],['sun-quan',200,251],['sun-liang',252,257],['sun-xiu',258,263],['sun-hao',264,279]],
+  };
+  if(stages[factionId]) return available(stages[factionId].find(([,from,to])=>y>=from&&y<=to)?.[0]);
   const leaders:Record<string,[string,number,number]>={cao:['cao-cao',184,219],liu:['liu-bei',184,222],
     'yuan-shao':['yuan-shao',191,201],'yuan-shu':['yuan-shu',190,198],'liu-biao':['liu-biao',190,207],yi:['liu-zhang',194,213],
     'zhang-lu':['zhang-lu',194,214],'ma-teng':['ma-teng',188,207],'gongsun-zan':['gongsun-zan',188,194],
     'liu-yu':['liu-yu',188,192],'zhang-yan':['zhang-yan',185,204],'dong-zhuo':['dong-zhuo',184,191],'lu-bu':['lu-bu',189,198]};
-  const l=leaders[factionId]; return l&&y>=l[1]&&y<=l[2]?l[0]:undefined;
+  const l=leaders[factionId]; return available(l&&y>=l[1]&&y<=l[2]?l[0]:undefined);
 }
 const personalFaction:Record<string,string>={
   'cao-cao':'cao','liu-bei':'liu','sun-jian':'sun','sun-ce':'sun','sun-quan':'sun','sun-shangxiang':'sun',
@@ -60,10 +68,19 @@ export function factionForPerson(id:string,date:GameDate):string|undefined {
   if(id==='zhuge-liang') return date.year>=207?'liu':undefined;
   if(id==='zhang-liao') return date.year<187?undefined:date.year<=192?'dong-zhuo':date.year<=198?'lu-bu':'cao';
   const m=monthAt(date),career=CITY_CAREERS[id]?.find(c=>m>=c.from.year*12+(c.from.month??1)&&m<=c.to.year*12+(c.to.month??12));
-  if(career?.employerId) return personalFaction[career.employerId];
+  if(id==='jiang-wei' && career && date.year<228) return 'cao';
+  if(career?.employerId) return factionForPerson(career.employerId,date);
   if(career?.kind==='free') return undefined;
+  if(generationFaction[id]) return career ? generationFaction[id] : undefined;
   if(id==='gongsun-zan'&&date.year<188) return 'han';
   return personalFaction[id]??(career?.office.includes('曹魏')?'cao':undefined);
 }
+/** Stable military institutions survive individual succession; this is not a scripted conquest. */
+const generationFaction:Record<string,string>={
+  'cao-pi':'cao','cao-rui':'cao','cao-fang':'cao','cao-mao':'cao','cao-huan':'cao',
+  'sima-yi':'cao','sima-shi':'cao','sima-zhao':'cao','sima-yan':'cao','deng-ai':'cao','zhong-yao':'cao','zhong-hui':'cao','xun-yu':'cao','xun-you':'cao','du-yu':'cao','yang-hu':'cao','wang-jun':'cao',
+  'liu-shan':'liu','liu-chen':'liu','jiang-wei':'liu',
+  'sun-xiu':'sun','sun-liang':'sun','sun-hao':'sun','lu-xun':'sun','lu-kang':'sun','zhuge-ke':'sun',
+};
 /** Ordinary troop model: 10 HP, 3 attack, 1 defense, six attributes of 10; bounded command +0…6%. */
 export const CONFLICT_RULES={reserve:2000,contribution:.6,cityCap:20000,monthlyRecruits:50,defendingBonus:1.15,randomMin:.9,randomMax:1.1,commandBonus:.06} as const;

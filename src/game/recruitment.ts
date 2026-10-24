@@ -4,6 +4,7 @@ import { canMeetPerson, recruitProfile } from './recruitmentCatalog';
 import { getRecruitmentThreshold } from './cityService';
 import type { GameState, RouteId } from './state';
 import { withWorldDate } from './worldTime';
+import { isAliveAt } from './personLife';
 
 export const AFFINITY_REQUIRED = 60;
 export const MAX_DEPLOYED = 5;
@@ -19,7 +20,7 @@ export function canManageParty(state: GameState): boolean {
 }
 export function canInteractPerson(state: GameState, id: string): boolean {
   const profile = recruitProfile(id);
-  return canManageParty(state) && !state.journey && id !== 'traveler' && !!profile && !profile.readOnly &&
+  return isAliveAt(state.life, id, state.date, true) && canManageParty(state) && !state.journey && id !== 'traveler' && !!profile && !profile.readOnly &&
     (Object.hasOwn(state.party, id) || canMeetPerson(id, state.currentCityId, state.date, state));
 }
 export function interactPerson(state: GameState, id: string, kind: 'talk' | 'meal' | 'help'): GameState {
@@ -50,7 +51,7 @@ export function isDeployment(value: unknown, party: GameState['party']): value i
     new Set(value).size === value.length && value.every(id => typeof id === 'string' && Object.hasOwn(party, id) && !!recruitProfile(id) && !recruitProfile(id)!.readOnly);
 }
 export function setDeployment(state: GameState, ids: string[]): GameState {
-  if (!canManageParty(state) || !isDeployment(ids, state.party) || ids.join('|') === state.deployed.join('|')) return state;
+  if (!canManageParty(state) || !isDeployment(ids, state.party) || !ids.every(id => isAliveAt(state.life,id,state.date,true)) || ids.join('|') === state.deployed.join('|')) return state;
   return { ...state, deployed: [...ids], travelNotice: `出战阵容已调整为 ${ids.length}/5 人。候补保留原有成长与装备。` };
 }
 export function isRelationships(value: unknown, date: GameState['date']): value is Record<string, Relationship> {

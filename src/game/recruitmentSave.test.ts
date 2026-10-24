@@ -8,6 +8,8 @@ import { cityServices, getRecruitmentThreshold, serviceForPerson } from './cityS
 import { personPosting } from './personPosting';
 import { createWorldConflict, isWorldConflict } from './worldConflict';
 import { acknowledgeTravelCg, finishTravelBattle, resolveTravelEvent, startTravel } from './travel';
+import { createLifeState, lifeBaseline } from './personLife';
+import { PERSON_LIFE_BASELINES } from './personLifeData';
 
 beforeEach(() => {
   const data = new Map<string, string>();
@@ -18,10 +20,14 @@ beforeEach(() => {
 });
 const stateInZhuo = (): GameState => ({ ...createInitialState(), phase: 'overworld' as const, currentCityId: 'zhuo' });
 const datedWorld = (state: GameState): GameState => {
-  const worldConflict = createWorldConflict(state.date, Object.keys(state.party));
+  const life = createLifeState(state.date,23);
+  // Exercise every invitation while all otherwise eligible people get the latest legal lifespan.
+  for (const person of PERSON_LIFE_BASELINES) life.people[person.id].deathYear = person.deathBaseYear + 5;
+  life.handledIds = PERSON_LIFE_BASELINES.filter(person => state.date.year >= life.people[person.id].deathYear).map(person => person.id);
+  const worldConflict = createWorldConflict(state.date, Object.keys(state.party),undefined,life);
   // This roster fixture uses institution-led armies, leaving named people available in town.
   worldConflict.armies = worldConflict.armies.map(army => { const { commanderId: _commander, ...institution } = army; return institution; });
-  return { ...state, worldConflict };
+  return { ...state, life, worldConflict };
 };
 const atXiapi = (patch: Partial<GameState> = {}): GameState => {
   const state = datedWorld({ ...stateInZhuo(), currentCityId: 'xiapi', date: { year: 196, month: 6, day: 1 }, ...patch });
@@ -48,10 +54,13 @@ describe('persistent recruited roster and combat rewards', () => {
   });
   it('supports recruitment of every catalog identity beyond initial companions', () => {
     for (const profile of RECRUIT_PROFILES.filter(p => p.category !== 'initial' && !p.readOnly)) {
-      const first = profile.windows[0];
-      const base = datedWorld({ ...stateInZhuo(), currentCityId: first.cityIds[0], date: { year: first.from.year, month: first.from.month ?? 1, day: 1 } });
+      const baseline = lifeBaseline(profile.id);
+      const first = profile.windows.find(window => Math.max(window.from.year,(baseline?.birthYear ?? 0)+16) <= (window.to?.year ?? 310) && Math.max(window.from.year,(baseline?.birthYear ?? 0)+16) < (baseline ? baseline.deathBaseYear+5 : Infinity))!;
+      expect(first,profile.id).toBeDefined();
+      const year = Math.max(first.from.year,(baseline?.birthYear ?? 0)+16);
+      const base = datedWorld({ ...stateInZhuo(), currentCityId: first.cityIds[0], date: { year, month: year===first.from.year ? first.from.month ?? 1 : 1, day: 1 } });
       base.currentCityId = personPosting(base, profile.id)?.cityId ?? base.currentCityId;
-      expect(isWorldConflict(base.worldConflict, base.date, Object.keys(base.party)), profile.id).toBe(true);
+      expect(isWorldConflict(base.worldConflict, base.date, Object.keys(base.party),base.life), profile.id).toBe(true);
       const state = { ...base, relationships: { [profile.id]: { affinity: getRecruitmentThreshold(base, profile.id) } } };
       const recruited = invitePerson(state, profile.id);
       expect(recruited.party[profile.id], profile.id).toBeDefined();

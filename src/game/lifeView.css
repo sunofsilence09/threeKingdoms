@@ -1,0 +1,6 @@
+.company-life,.character-life,.official-life{font-size:12px;line-height:1.8;color:#53685f;overflow-wrap:anywhere;padding:9px 11px;background:#e9ecdf;border-left:3px solid #819574}
+.company-memorials{border-top:1px solid #bec9b7;padding-top:15px}.memorial-card{background:#f0ede3;border-color:#b0ad9c}.memorial-card .party-portrait{filter:saturate(.55)}
+.life-notices h2{margin:0 0 8px;font-size:16px}.life-notices ul{padding-left:20px;margin:8px 0;max-height:210px;overflow:auto}.life-notices li{margin:5px 0}.life-notices p{line-height:1.8}.life-notices button{margin-top:10px}
+.person-filters input,.person-filters select,.party-action{min-height:44px}
+.character-life-filter{display:flex;align-items:center;gap:9px;margin:10px 22px;font-size:13px}.character-life-filter select{font:inherit;min-height:44px;padding:7px 10px;color:#293d36;background:#fffdf5;border:1px solid #94aa98;border-radius:5px;max-width:100%}.character-life-filter-result{font-size:12px;color:#b3c0a9;line-height:1.7;margin:5px 22px 10px}.character-life-filter select:focus-visible{outline:3px solid #aa742d;outline-offset:2px}
+.character-categories{gap:14px;overflow-x:auto;padding-bottom:4px}.character-categories button{flex:0 0 auto;white-space:nowrap;min-height:44px}

@@ -1,4 +1,4 @@
-import { WORLD_CITIES, WORLD_ROADS, cityAt } from './world';
+import { WORLD_CITIES, WORLD_ROADS, cityAt, cityNameAt, cityMatches } from './world';
 import { PROVINCES, type ProvinceId, type GameDate } from './history';
 import type { WorldConflict } from './worldConflictTypes';
 import { factionAt } from './worldConflictData';
@@ -43,9 +43,11 @@ const mountains: { name: string; coords: Point[]; label: Point }[] = [
   { name: '南岭', coords: [[110,25.1],[111.4,25.2],[112.8,24.9],[114.2,25.2],[115.2,25.4]], label: [111.8,24.7] },
   { name: '武夷山', coords: [[117.9,28.8],[117.4,27.8],[117.1,27],[116.7,26]], label: [118.1,27.7] },
 ];
-const coast: Point[] = [[99,43],[121,43],[121.1,41.1],[121.8,40.9],[122.2,40.2],[121.7,39.6],[121.1,38.8],[121.5,39.1],[121.2,40],[120.5,40.3],[119.8,40],[119.1,39.3],[118.2,39.2],[117.7,38.6],[118.1,38.2],[119,37.9],[119.3,37.4],[120.1,37.7],[120.9,37.6],[121.7,37.4],[122.5,37.4],[122.4,36.9],[121.6,36.7],[120.4,36.1],[119.7,35.7],[119.2,34.8],[120.2,33.4],[120.8,32.5],[121.8,31.7],[121.9,30.9],[121.2,30.6],[120.9,30.2],[121.9,29.9],[121.5,29.2],[121.6,28.4],[120.7,27.5],[120.1,26.9],[119.6,26],[119.1,25.4],[118.5,24.8],[117.4,23.9],[116.3,23.3],[115.2,22.8],[114.2,22.5],[113.6,22.7],[113.2,22],[112.1,21.8],[111.2,21.5],[110.4,20.9],[110.3,20.3],[109.9,20.2],[109.7,21.4],[108.5,21.7],[107,21.1],[105.7,19],[99,19]];
+const coast: Point[] = [[99,43],[125,43],[125,41.4],[124,40.1],[122.5,39.1],[121.1,38.8],[121.5,39.1],[121.2,40],[120.5,40.3],[119.8,40],[119.1,39.3],[118.2,39.2],[117.7,38.6],[118.1,38.2],[119,37.9],[119.3,37.4],[120.1,37.7],[120.9,37.6],[121.7,37.4],[122.5,37.4],[122.4,36.9],[121.6,36.7],[120.4,36.1],[119.7,35.7],[119.2,34.8],[120.2,33.4],[120.8,32.5],[121.8,31.7],[121.9,30.9],[121.2,30.6],[120.9,30.2],[121.9,29.9],[121.5,29.2],[121.6,28.4],[120.7,27.5],[120.1,26.9],[119.6,26],[119.1,25.4],[118.5,24.8],[117.4,23.9],[116.3,23.3],[115.2,22.8],[114.2,22.5],[113.6,22.7],[113.2,22],[112.1,21.8],[111.2,21.5],[110.4,20.9],[110.3,20.3],[109.9,20.2],[109.7,21.4],[108.5,21.7],[107,21.1],[105.7,19],[99,19]];
 let sequence = 0;
 let rememberedView: { x: number; y: number; width: number; height: number } | undefined;
+let rememberedSearch = '';
+let rememberedProvince = '';
 
 /** Original schematic geography. Coordinates locate cities; terrain and routes are illustrative. */
 export function createWorldMap(options: WorldMapOptions): { element: HTMLElement; destroy: () => void } {
@@ -58,6 +60,19 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
   head.className = 'world-map-heading';
   head.innerHTML = '<span>山川舆图</span><small>十三州部 · 城邑行旅</small>';
   host.append(head);
+  const date = options.date ?? {year:options.year,month:1,day:1};
+  const cityName = (id:string) => cityNameAt(id,date);
+  const finder=document.createElement('section');finder.className='world-map-finder';finder.setAttribute('aria-label','检索城邑');
+  const searchLabel=document.createElement('label');searchLabel.htmlFor=`${uid}-search`;searchLabel.textContent='城名或别名';
+  const search=document.createElement('input');search.type='search';search.id=`${uid}-search`;search.placeholder='南京、天水、永安…';search.value=rememberedSearch;search.autocomplete='off';
+  const regionLabel=document.createElement('label');regionLabel.htmlFor=`${uid}-province`;regionLabel.textContent='州部';
+  const region=document.createElement('select');region.id=`${uid}-province`;
+  const all=document.createElement('option');all.value='';all.textContent='全部十三州部';region.append(all);
+  for(const province of PROVINCES){const option=document.createElement('option');option.value=province.id;option.textContent=province.id==='jiao'&&options.year>=203?'交州':province.name;region.append(option);}
+  region.value=rememberedProvince;
+  const count=document.createElement('p');count.className='world-map-result-count';count.setAttribute('role','status');
+  const results=document.createElement('div');results.className='world-map-results';results.setAttribute('role','list');results.setAttribute('aria-label','城邑检索结果');
+  finder.append(searchLabel,search,regionLabel,region,count,results);host.append(finder);
   const viewport = document.createElement('div');
   viewport.className = 'world-map-viewport';
   const svg = document.createElementNS(NS, 'svg');
@@ -131,8 +146,8 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
     const [x,y] = project([city.lon, city.lat]);
     const stock = options.worldConflict?.cities[city.id], faction = stock ? factionAt(stock.factionId) : undefined;
     const ownership = stock && faction ? `，${faction.name}，城内守军${stock.troops}人` : '';
-    const g = make('g', { class: `world-map-city ${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''} ${isPath ? 'is-path' : ''} ${city.originId ? 'is-origin' : ''}`, transform: `translate(${x} ${y})`, role: 'button', tabindex: 0, 'aria-label': `${city.name}，${city.prefecture}${ownership}${isCurrent ? options.progress ? '，出发地' : '，当前位置' : ''}`, 'aria-pressed': String(isSelected), 'data-city-id': city.id, ...(faction ? {'data-faction-id': faction.id} : {}) });
-    const title = make('title', {}, g); title.textContent = `${city.name} · ${city.prefecture}${ownership}`;
+    const g = make('g', { class: `world-map-city ${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''} ${isPath ? 'is-path' : ''} ${city.originId ? 'is-origin' : ''}`, transform: `translate(${x} ${y})`, role: 'button', tabindex: 0, 'aria-label': `${cityName(city.id)}，${city.prefecture}${ownership}${isCurrent ? options.progress ? '，出发地' : '，当前位置' : ''}`, 'aria-pressed': String(isSelected), 'data-city-id': city.id, ...(faction ? {'data-faction-id': faction.id} : {}) });
+    const title = make('title', {}, g); title.textContent = `${cityName(city.id)} · ${city.prefecture}${ownership}`;
     make('circle', { r: 17, class: 'world-map-city-hit' }, g);
     if (isCurrent) make('circle', { r: 11, class: 'world-map-current-ring' }, g);
     make('circle', { r: isCurrent ? 5 : 4, class: 'world-map-city-dot' }, g);
@@ -141,7 +156,7 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
       const mark = make('text', { x: -7, y: -18, class: 'world-map-faction-abbr' }, g); mark.textContent = faction.name.replace(/军府|部众|地方官军/g,'').slice(0,3);
       const troops = make('text', { x: 9, y: 10, class: 'world-map-city-troops' }, g); troops.textContent = `${stock.troops}`;
     }
-    const name = make('text', { x: city.id === 'xiapi' ? -8 : 9, y: city.id === 'xiapi' ? 16 : -8, ...(city.id === 'xiapi' ? {'text-anchor':'end'} : {}), class: 'world-map-city-name' }, g); name.textContent = city.name;
+    const name = make('text', { x: city.id === 'xiapi' ? -8 : 9, y: city.id === 'xiapi' ? 16 : -8, ...(city.id === 'xiapi' ? {'text-anchor':'end'} : {}), class: 'world-map-city-name' }, g); name.textContent = cityName(city.id);
     g.addEventListener('click', () => { if (!suppressClick) options.onSelect(city.id); });
     g.addEventListener('keydown', e => {
       const event = e as KeyboardEvent;
@@ -150,7 +165,7 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
         event.preventDefault();
         const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
         const sign = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
-        const candidate = WORLD_CITIES.filter(c => c.id !== city.id).map(c => ({ c, p: project([c.lon,c.lat]) }))
+        const candidate = WORLD_CITIES.filter(c => c.id !== city.id && !svg.querySelector<SVGElement>(`[data-city-id="${c.id}"]`)?.classList.contains('is-filtered')).map(c => ({ c, p: project([c.lon,c.lat]) }))
           .filter(({ p }) => (p[horizontal ? 0 : 1] - (horizontal ? x : y)) * sign > 0)
           .sort((a,b) => Math.hypot(a.p[0]-x,a.p[1]-y) - Math.hypot(b.p[0]-x,b.p[1]-y))[0];
         if (candidate) {
@@ -180,8 +195,8 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
     }
     // Separate co-located troops so both the city and each army remain clickable.
     const sameLocation = options.worldConflict!.armies.slice(0,index).filter(other => (other.path[other.legIndex] ?? other.sourceCityId) === from).length;
-    const g = make('g', { transform:`translate(${x-18-sameLocation*23} ${y+23})`,class:'world-map-army',role:'button',tabindex:0,'data-army-id':army.id,'data-army-phase':army.phase,'data-army-eta':armyRemainingDays(army),'aria-label':`${cityAt(army.sourceCityId).name}至${cityAt(army.targetCityId).name}，${armySummary(army)}` });
-    const title=make('title',{},g);title.textContent=`${cityAt(army.sourceCityId).name} → ${cityAt(army.targetCityId).name} · ${armySummary(army)}`;
+    const g = make('g', { transform:`translate(${x-18-sameLocation*23} ${y+23})`,class:'world-map-army',role:'button',tabindex:0,'data-army-id':army.id,'data-army-phase':army.phase,'data-army-eta':armyRemainingDays(army),'aria-label':`${cityName(army.sourceCityId)}至${cityName(army.targetCityId)}，${armySummary(army)}` });
+    const title=make('title',{},g);title.textContent=`${cityName(army.sourceCityId)} → ${cityName(army.targetCityId)} · ${armySummary(army)}`;
     make('circle',{r:13,fill:'#fff9e7',stroke:faction.color,'stroke-width':2},g);
     make('path',{d:'M-5,5 V-7 H6 L2,-2 H-5',fill:faction.color,stroke:faction.color,'stroke-width':1.5},g);
     g.addEventListener('click',()=>{if(!suppressClick)showConflictArmy(army.id);});
@@ -269,6 +284,33 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
   };
   svg.addEventListener('pointerup',endDrag); svg.addEventListener('pointercancel',endDrag);
   svg.addEventListener('pointerleave', () => { if (drag && !drag.moved) drag = undefined; });
+  const updateSearch = () => {
+    rememberedSearch=search.value;rememberedProvince=region.value;
+    const matches=WORLD_CITIES.filter(city => (!region.value||city.provinceId===region.value)&&cityMatches(city.id,search.value,date));
+    const ids=new Set(matches.map(city=>city.id));
+    for(const node of svg.querySelectorAll<SVGElement>('[data-city-id]')) {
+      const id=node.dataset.cityId!;
+      const keep=id===options.currentId||id===options.selectedId||options.path?.includes(id);
+      const hidden=!ids.has(id)&&!keep;
+      node.classList.toggle('is-filtered',hidden);node.setAttribute('tabindex',hidden?'-1':'0');
+      if(hidden)node.setAttribute('aria-hidden','true');else node.removeAttribute('aria-hidden');
+    }
+    count.textContent=`找到 ${matches.length} / ${WORLD_CITIES.length} 座城邑；当前城与行程始终保留在图上。`;
+    results.replaceChildren();
+    for(const city of matches) {
+      const item=document.createElement('div');item.setAttribute('role','listitem');
+      const choice=document.createElement('button');choice.type='button';choice.dataset.cityResult=city.id;
+      choice.textContent=`${cityName(city.id)} · ${city.prefecture}${city.id===options.currentId?'（所在）':''}`;
+      choice.setAttribute('aria-pressed',String(city.id===options.selectedId));
+      choice.addEventListener('click',()=>{
+        const [x,y]=project([city.lon,city.lat]);
+        const width=Math.min(view.width,WIDTH*.65);view={x:x-width/2,y:y-width*HEIGHT/WIDTH/2,width,height:width*HEIGHT/WIDTH};applyView();
+        options.onSelect(city.id);
+      });item.append(choice);results.append(item);
+    }
+  };
+  search.addEventListener('input',updateSearch);region.addEventListener('change',updateSearch);
+  updateSearch();
   applyView();
   return {element:host,destroy:()=>{ svg.removeEventListener('wheel',wheel); host.remove(); }};
 }

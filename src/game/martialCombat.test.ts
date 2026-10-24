@@ -6,6 +6,12 @@ import { martialForPerson } from './martialCatalog';
 import { initializeMartialCombat, availableMartials, performMartial, martialTargets, createDuelCombat, resolveMartialAI } from './martialCombat';
 import { startDuel } from './martial';
 import { makeGarrisonUnit } from './garrisonCombat';
+import { createLifeState } from './personLife';
+
+const duelInitial = () => {
+  const date = { year: 195, month: 3, day: 1 };
+  return { ...createInitialState(() => 0), date, life: createLifeState(date,23), worldConflict: undefined };
+};
 
 function fixture(personId: string) {
   const state = createInitialState(() => 0);
@@ -151,7 +157,7 @@ describe('martial combat actions', () => {
     expect(martialTargets(turn, id, skill.id)).not.toEqual([]);
   });
   it('preserves the route hero equipment when assembling a duel', () => {
-    const initial = createInitialState(() => 0);
+    const initial = duelInitial();
     const state = startDuel({ ...initial, phase: 'overworld', route: 'sun', party: { ...initial.party, 'zhou-yu': createProgress() } }, 'zhou-yu');
     const duel = createDuelCombat(createCombatState('sun', state.party, 'ambush', ['traveler']), state);
     expect(duel.units.find(u => u.id === 'traveler')?.weapon).toBe('knife');
@@ -303,7 +309,7 @@ describe('martial combat actions', () => {
   });
 
   it('assembles only the real hero and teacher, preserves equipped arts and leaves party growth unchanged', () => {
-    const initial = createInitialState(() => 0);
+    const initial = duelInitial();
     const hero = createProgress(6);
     hero.attributes.strength = 14; hero.attributes.courage = 12; hero.points -= 6;
     const skills = ['cao-cao', 'zhou-yu', 'lu-bu'].map(person => martialForPerson(person)!.id);

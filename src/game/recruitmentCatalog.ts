@@ -7,6 +7,7 @@ import { LOCAL_OFFICIALS } from './localOfficials';
 import { WORLD_CITIES } from './world';
 import { CITY_CAREERS } from './careerData';
 import { GARRISON_PROFILES } from './garrisonData';
+import { isAliveAt } from './personLife';
 
 export interface RecruitWindow {
   from: { year: number; month?: number };
@@ -172,12 +173,16 @@ export function canMeetPerson(id: string, cityId: string, date: GameDate, state?
   if (!Number.isInteger(date.year) || !Number.isInteger(date.month) || date.month < 1 || date.month > 12) return false;
   const month = date.year * 12 + date.month;
   const profile = recruitProfile(id);
-  if (!profile || profile.readOnly) return false;
-  if (state?.worldConflict && !state.conflictRecovery) {
+  if (!profile || profile.readOnly || !isAliveAt(state?.life, id, date, true)) return false;
+  if (state?.life || state?.worldConflict && !state.conflictRecovery) {
     if (Object.hasOwn(state.party, id)) return cityId === state.currentCityId && !state.journey;
     const posting = personPosting({ ...state, date }, id);
     if (!posting || posting.kind === 'campaign' || posting.kind === 'dispersed') return false;
-    if (posting.factionId || posting.kind !== 'free') return posting.cityId === cityId;
+    if (posting.factionId || posting.kind !== 'free' || state.life && !profile.windows.some(encounter => {
+      const from = encounter.from.year * 12 + (encounter.from.month ?? 1);
+      const to = encounter.to ? encounter.to.year * 12 + (encounter.to.month ?? 12) : Infinity;
+      return month >= from && month <= to;
+    })) return posting.cityId === cityId;
   }
   return profile.windows.some(encounter => {
     const from = encounter.from.year * 12 + (encounter.from.month ?? 1);
