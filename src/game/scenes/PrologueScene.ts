@@ -5,6 +5,7 @@ import { addText } from '../text';
 import { getState, setState } from '../runtime';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 import { cityAt } from '../world';
+import { requireHeroName } from '../nameEntry';
 
 export class PrologueScene extends Phaser.Scene {
   constructor() {
@@ -12,6 +13,7 @@ export class PrologueScene extends Phaser.Scene {
   }
 
   create(): void {
+    if (requireHeroName(() => this.create())) return;
     clearOverlay();
     setStatus('乱世行旅 · H5 Demo');
     this.drawBackdrop();

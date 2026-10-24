@@ -8,7 +8,7 @@ import { cityAt } from '../world';
 import { themeFor } from '../theme';
 import { clearOverlay, setStatus, showPanel } from '../ui';
 import { experienceToNextLevel } from '../growth';
-import { recruitProfile } from '../recruitmentCatalog';
+import { personName } from '../heroName';
 
 export class EndingScene extends Phaser.Scene {
   private rewardSummary = '';
@@ -31,7 +31,7 @@ export class EndingScene extends Phaser.Scene {
 
     const growth = state.deployed.map(id => {
       const progress = getState().party[id];
-      return `${recruitProfile(id)!.name} Lv.${progress.level} · 剩余技能点 ${progress.points} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'}`;
+      return `${personName(id, state)} Lv.${progress.level} · 剩余技能点 ${progress.points} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'}`;
     }).join('\n');
     showPanel({
       eyebrow: `${dateLabel(state.date)} · ${definition.title}`,

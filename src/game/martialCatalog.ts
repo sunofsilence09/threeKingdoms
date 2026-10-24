@@ -1,0 +1,75 @@
+/** These are authored game abilities, never claims that historical manuals existed. */
+export type MartialTemplate = 'break' | 'pierce' | 'shoot' | 'intimidate' | 'dash' | 'fortify' | 'protect' | 'inspire' | 'soothe' | 'rally' | 'firegod';
+export interface MartialSkill {
+  id: string; name: string; personId: string; template: MartialTemplate; description: string;
+  source: string; basis: string; story: boolean; readOnly: boolean; cooldown: 3;
+}
+export const MARTIAL_EFFECTS: Record<MartialTemplate, string> = {
+  break: '按武器合法距离和视线攻击一次，攻击力×1.5；仍受防御、掩护、格挡和闪避影响。',
+  pierce: '沿直线攻击距离1—2的敌人，攻击力×1.3；不能穿越遮挡。',
+  shoot: '射击距离2—4的敌人，攻击力×1.3；需要视线，树林掩护仍生效。',
+  intimidate: '普通攻击距离1—2的敌人；其下次行动移动力−1、攻击力−20%。',
+  dash: '沿合法路径移动至移动力+2以内的空格；不能穿人穿墙，照常受火伤，结束行动。',
+  fortify: '自身及距离1内友军获得30%减伤，至施放者下次行动开始。',
+  protect: '距离2内一名存活友军回复20%最大体力，获得20%减伤至施放者下次行动开始。',
+  inspire: '距离2内友军下一次攻击力+25%；下次攻击或两轮后清除，与拼命取较高值。',
+  soothe: '距离2内所有存活友军回复10%最大体力；不能复活或突破最大兵额。',
+  rally: '距离2内一名存活友军清除攻击/移动减益，获得20%减伤至施放者下次行动开始。',
+  firegod: '点燃距离1—3的可见燃料格，成功率+20个百分点、初始2级火；顺风邻格另作普通点火判定。',
+};
+type Entry = [personId: string, name: string, template: MartialTemplate, source: string, basis: string, story?: boolean];
+const entries: Entry[] = [
+  ['cao-cao','兵略','inspire','《三国志》卷1·武帝纪','取材统军与兵书传统，转化为鼓舞同伴的游戏效果。'],
+  ['liu-bei','仁望','soothe','《三国志》卷32·先主传','取材得众、携民经历；回复体力是游戏抽象。'],
+  ['sun-quan','御众','rally','《三国志》卷47·吴主传','取材用人与统众，设计为重整部伍。'],
+  ['sun-shangxiang','劲捷','dash','《三国志》卷32、卷37·孙夫人相关记载','孙尚香为故事姓名。取材孙夫人刚猛与侍婢执刀，不编为史载神射。',true],
+  ['diao-chan','离间','intimidate','《三国演义》第8—9回·故事取材','貂蝉按三国故事人物设计，非确证历史人物。',true],
+  ['cai-yan','清商','protect','《后汉书》卷84·列女传','取材蔡琰博学与音律，鼓舞恢复为玩法转化，非史实治疗术。'],
+  ['dong-zhuo','飞射','shoot','《三国志》卷6·董卓传','取材膂力与骑射背景，不由外形推导能力。'],
+  ['lu-bu','飞将','shoot','《三国志》卷7·吕布传','取材弓马与射戟典故，不宣称存在史载方天戟法。'],
+  ['hua-xiong','关西锋','break','《三国志》卷46·孙破虏传','依据董卓部将身份抽象战斗能力，不以温酒斩华雄故事充作正史。'],
+  ['zhen-ji','惠怀','soothe','《三国志》卷5·后妃传及裴注《魏书》','存恤形象取材含裴注引书层次；回复为游戏效果，不视逸闻为定论。'],
+  ['zhang-liao','先登','pierce','《三国志》卷17·张辽传','设计灵感来自合肥突阵经历；早期出现不表示该事已经发生。'],
+  ['guan-yu','斩将','break','《三国志》卷36·关羽传','设计灵感来自白马刺颜良；不称青龙刀为确证汉末制式兵器。'],
+  ['zhang-fei','据桥','intimidate','《三国志》卷36·张飞传','设计灵感来自当阳据水断桥拒追兵，转化为震慑。'],
+  ['zhao-yun','扶危','protect','《三国志》卷36·赵云传','设计灵感来自长坂护幼主与甘夫人，体力恢复为玩法抽象。'],
+  ['mi-fu-ren','同舟','fortify','《三国志》卷38·糜竺传','依据糜氏依附遇难时期的家庭护持抽象，不把投井剧情当正史。'],
+  ['zhang-xingcai','星盾','fortify','现代三国题材故事与本作既有人设','张星彩为故事人物，不等同于有确定武功的史载张皇后。',true],
+  ['zhuge-liang','八阵','fortify','《三国志》卷35·诸葛亮传','取材推演兵法、八阵；不采用呼风唤雨说法。'],
+  ['zhou-yu','火神','firegod','《三国志》卷54·周瑜传','设计灵感来自赤壁统军与火攻；黄盖献策并实施。火神是游戏命名，非真实秘籍。'],
+  ['yuan-shu','督粮','inspire','《三国志》卷6·袁术传','以军政、粮秣调度作玩法抽象，不将善治定为史评。'],
+  ['chen-gong','筹策','intimidate','《三国志》卷7·吕布传','取材陈宫谋议与察势，削弱敌人为游戏效果。'],
+  ['zhang-miao','交援','rally','《三国志》卷7·张邈传','取材交游、济急经历，转化为援助同伴。'],
+  ['gao-shun','陷阵','pierce','《三国志》卷7·吕布传裴注《英雄记》','取材治军精练与陷阵营记载；技能不是史载招式。'],
+  ['zhou-tai','护主','protect','《三国志》卷55·周泰传','取材奋身护卫孙权，回复与减伤为游戏抽象。'],
+  ['han-dang','弓马','shoot','《三国志》卷55·韩当传','取材弓马与膂力，不另造武功秘籍史实。'],
+  ['xiahou-dun','镇军','rally','《三国志》卷9·夏侯惇传','取材统军与稳定军众，不采用拔矢啖睛故事。'],
+  ['xiahou-yuan','神速','dash','《三国志》卷9·夏侯渊传','取材急行驰援，合法路径仍受地形与火势限制。'],
+  ['cao-ren','金城','fortify','《三国志》卷9·曹仁传','取材守城与救援部众，转化为阵地减伤。'],
+  ['cao-xiu','千里驹','dash','《三国志》卷9·曹休传','取材骑战与曹氏良驹评价，设计为机动能力。'],
+  ['liu-biao','抚境','soothe','《三国志》卷6·刘表传','依据荆州统治与招纳流寓抽象，非本人治疗术。'],
+  ['liu-zhang','守成','fortify','《三国志》卷31·刘二牧传','依据益州守成身份抽象，不捏造本人武勇战绩。'],
+  ['zhang-lu','义舍','soothe','《三国志》卷8·张鲁传','取材义舍供给行旅者，不以符水医术实效作前提。'],
+  ['ma-teng','西凉锋','pierce','《三国志》卷36·马超传及裴注','依据马腾西北军事经历抽象，不移植马超个人战绩。'],
+  ['himiko','魏使之仪','rally','《三国志》卷30·倭人传','取材通使与统众，仅资料介绍，不开放本人来华或传授。'],
+  ['gongsun-zan','白马','dash','《三国志》卷8·公孙瓒传','取材白马骑兵与边地作战，非凭空跃越地形。'],
+  ['yuan-shao','合众','inspire','《三国志》卷6·袁绍传','取材联军与统众经历，作为同伴振奋效果。'],
+  ['liu-yu','怀柔','soothe','《三国志》卷8·公孙瓒传；《后汉书》卷73·刘虞传','取材安民与怀柔边地，回复为游戏抽象。'],
+  ['zhang-yan','飞燕','dash','《三国志》卷8·张燕传','取材剽悍捷速与山地经历，仍需走合法路径。'],
+  ['sun-jian','破虏','break','《三国志》卷46·孙破虏传','取材讨董与勇武经历，招式名称与数值由本作设计。'],
+  ['sun-ce','渡江','pierce','《三国志》卷46·孙讨逆传','设计灵感来自渡江拓展江东，不能瞬移过河。'],
+  ['wang-yun','除奸','intimidate','《后汉书》卷66·王允传','设计灵感来自谋诛董卓；早期出现不预知未来史事。'],
+  ['xu-qiu','清肃','rally','《后汉书》卷48·徐璆传、卷71·朱儁传','取材察贪与参与围宛，重整效果为玩法抽象。'],
+  ['guo-xun','州卫','fortify','《后汉书》卷8·孝灵帝纪','依据幽州刺史身份抽象；仅见任内遇害，不虚构守城胜绩。'],
+  ['jia-cong','安交','soothe','《后汉书》卷31·贾琮传','取材招抚流散、减役整吏，体力恢复为玩法转化。'],
+  ['guo-dian','合围','inspire','《后汉书》卷71·皇甫嵩传','取材合兵进攻下曲阳，转化为部伍鼓舞。'],
+  ['zhao-qian','整旆','rally','《后汉书》卷8·孝灵帝纪','依据汝南太守任职抽象；史载邵陵战败，不虚构大捷。'],
+  ['chu-gong','守节','fortify','《后汉书》卷8·孝灵帝纪','依南阳太守遇害经历抽象，不编造临阵招式或胜绩。'],
+  ['qin-jie','讨逆','break','《后汉书》卷71·朱儁传','取材击张曼成与围宛，名称与数值属本作设计。'],
+];
+export const MARTIAL_CATALOG: readonly MartialSkill[] = entries.map(([personId,name,template,source,basis,story = false]) => ({
+  id: `martial-${personId}`, personId, name, template, source, basis, story, readOnly: personId === 'himiko', cooldown: 3,
+  description: MARTIAL_EFFECTS[template],
+}));
+export function martialAt(id: string): MartialSkill | undefined { return MARTIAL_CATALOG.find(skill => skill.id === id); }
+export function martialForPerson(id: string): MartialSkill | undefined { return MARTIAL_CATALOG.find(skill => skill.personId === id); }

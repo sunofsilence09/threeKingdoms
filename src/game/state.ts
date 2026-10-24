@@ -4,18 +4,28 @@ import { ORIGINS, advanceDays, isGameDate, randomOrigin, type GameDate, type Ori
 import type { BattleMode } from './battlefield';
 import { WORLD_CITIES, originCity } from './world';
 import { isJourney, type Journey } from './travel';
-import { initialRelationships, isDeployment, isRelationships, type Relationship } from './recruitment';
+import { gameDayNumber, initialRelationships, isDeployment, isRelationships, type Relationship } from './recruitment';
 import { recruitProfile } from './recruitmentCatalog';
 import { createEconomy, migrateEconomy, type Economy } from './economy';
 import type { WorldConflict } from './worldConflictTypes';
 import { createWorldConflict, isWorldConflict } from './worldConflict';
 import { withWorldDate } from './worldTime';
+import { validHeroName } from './heroName';
+import { createMartialProgress, isDuelEncounter, isMartialProgress, type DuelEncounter, type MartialProgress } from './martial';
+import { isBattleSnapshot } from './battleSave';
+import type { CombatState } from './combat';
 
 export type RouteId = 'cao' | 'sun' | 'liu';
 
 export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | 'ending';
 
 export interface GameState {
+  heroName?: string;
+  martial: MartialProgress;
+  duel?: DuelEncounter;
+  activeBattle?: CombatState;
+  battleRecovery?: boolean;
+  martialRecovery?: boolean;
   date: GameDate;
   originId: OriginId;
   currentCityId: string;
@@ -50,6 +60,7 @@ const routeAdvantages: Record<RouteId, Pick<GameState, 'supplies' | 'morale'>> =
 export function createInitialState(random: () => number = Math.random): GameState {
   const origin = randomOrigin(random);
   return {
+    martial: createMartialProgress(),
     date: { year: 184, month: 3, day: 1 },
     originId: origin.id,
     currentCityId: originCity(origin.id).id,
@@ -100,6 +111,7 @@ export function loadState(): GameState | null {
     }
 
     const restored: GameState = { ...parsed,
+      martial: parsed.martial === undefined ? createMartialProgress() : parsed.martial,
       date: { ...(parsed.date ?? { year: parsed.route ? 200 : 184, month: parsed.route ? 9 : 3 }), day: parsed.date?.day ?? 1 },
       originId: parsed.originId ?? 'yingchuan',
       currentCityId: parsed.currentCityId ?? originCity(parsed.originId ?? 'yingchuan').id,
@@ -110,6 +122,31 @@ export function loadState(): GameState | null {
       economy: parsed.economy === undefined ? createEconomy() : migrateEconomy(parsed.economy)!,
       travelDays: parsed.travelDays ?? 3,
       party: parsed.party === undefined ? createPartyProgress() : migratePartyProgress(parsed.party)! };
+    const backup = (module: string, data: unknown): void => {
+      try { const key = `${STORAGE_KEY}:${module}-backup`; if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(data)); } catch { /* Recovery still works with unavailable storage. */ }
+    };
+    if (parsed.heroName !== undefined) {
+      const name = validHeroName(parsed.heroName);
+      if (name) restored.heroName = name;
+      else { backup('name', parsed.heroName); delete restored.heroName; }
+    }
+    if (!isMartialProgress(restored.martial, restored.date)) {
+      backup('martial', parsed.martial); restored.martial = createMartialProgress(); restored.martialRecovery = true;
+    }
+    // A resumable duel must still have its paid, unsettled challenge after martial recovery.
+    if (parsed.duel !== undefined && (!isDuelEncounter(parsed.duel, restored.date) || parsed.duel.status !== 'active' ||
+      restored.phase !== 'battle' || !!restored.journey || !Array.isArray(restored.battleParty) ||
+      restored.battleParty.length !== 1 || restored.battleParty[0] !== 'traveler' ||
+      !restored.martial.challengeDates[parsed.duel.teacherId] ||
+      gameDayNumber(restored.martial.challengeDates[parsed.duel.teacherId]) !== gameDayNumber(parsed.duel.started) ||
+      restored.martial.settled.includes(parsed.duel.id))) {
+      backup('duel', parsed.duel); delete restored.duel; delete restored.activeBattle;
+      if (!restored.journey) { restored.phase = 'overworld'; restored.encounter = undefined; }
+      restored.battleParty = undefined; restored.martialRecovery = true;
+    }
+    if (parsed.activeBattle !== undefined && !isBattleSnapshot(parsed.activeBattle, restored)) {
+      backup('active-battle', parsed.activeBattle); delete restored.activeBattle; restored.battleRecovery = true;
+    }
     if (parsed.conflictRecovery) return { ...restored, worldConflict: undefined, conflictRecovery: true };
     if (parsed.worldConflict !== undefined && !isWorldConflict(parsed.worldConflict, restored.date, Object.keys(restored.party))) {
       // Keep both the untouched original and all valid RPG progress until an explicit rebuild.
@@ -160,7 +197,10 @@ function isGameState(value: unknown): value is GameState {
     (candidate.travelDays === undefined || Number.isSafeInteger(candidate.travelDays) && candidate.travelDays >= 1 && candidate.travelDays <= 30) &&
     (candidate.conflictRecovery === undefined || typeof candidate.conflictRecovery === 'boolean') &&
     (candidate.conflictMigration === undefined || typeof candidate.conflictMigration === 'boolean') &&
-    (candidate.battleParty === undefined || candidate.phase === 'battle' && isDeployment(candidate.battleParty, party) && candidate.battleParty.join('|') === (candidate.deployed ?? PARTY_IDS).join('|'))
+    (candidate.battleRecovery === undefined || typeof candidate.battleRecovery === 'boolean') &&
+    (candidate.martialRecovery === undefined || typeof candidate.martialRecovery === 'boolean') &&
+    (candidate.duel !== undefined || candidate.battleParty === undefined || candidate.phase === 'battle' && isDeployment(candidate.battleParty, party) &&
+      candidate.battleParty.join('|') === (candidate.deployed ?? PARTY_IDS).join('|'))
   );
 }
 

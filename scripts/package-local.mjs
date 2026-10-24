@@ -1,4 +1,5 @@
-import { cpSync, copyFileSync, mkdirSync, writeFileSync, existsSync, openSync, closeSync } from 'node:fs';
+import { cpSync, copyFileSync, mkdirSync, writeFileSync, existsSync, openSync, closeSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,19 +8,27 @@ const output = path.join(root, 'release', '三国行旅-本地版');
 if (process.platform !== 'win32') throw new Error('请在 Windows 上打包，以包含 Windows 运行程序。');
 if (!existsSync(path.join(root, 'dist', 'index.html'))) throw new Error('请先运行 npm run build');
 const runtime = path.join(output, 'runtime', 'node.exe');
-if (existsSync(runtime)) {
+const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex');
+const replaceRuntime = !existsSync(runtime) || digest(runtime) !== digest(process.execPath);
+if (existsSync(runtime) && replaceRuntime) {
   try { closeSync(openSync(runtime, 'r+')); }
   catch { throw new Error('请先关闭本地版启动窗口，再重新打包。'); }
 }
 mkdirSync(path.join(output, 'runtime'), { recursive: true });
 cpSync(path.join(root, 'dist'), path.join(output, 'www'), { recursive: true });
-copyFileSync(process.execPath, path.join(output, 'runtime', 'node.exe'));
+if (replaceRuntime) copyFileSync(process.execPath, runtime);
 copyFileSync(path.join(root, 'scripts', 'local-server.cjs'), path.join(output, 'server.cjs'));
 copyFileSync(path.join(root, 'node_modules', 'phaser', 'LICENSE.md'), path.join(output, 'PHASER-LICENSE.txt'));
 copyFileSync(path.join(root, 'scripts', 'licenses', 'NODE-LICENSE.txt'), path.join(output, 'NODE-LICENSE.txt'));
 writeFileSync(path.join(output, '启动游戏.cmd'), '@echo off\r\nchcp 65001 >nul\r\ncd /d "%~dp0"\r\ntitle 三国行旅 - 本地版\r\n"%~dp0runtime\\node.exe" "%~dp0server.cjs"\r\nif errorlevel 1 pause\r\n', 'utf8');
 writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
-  '乱世行旅 · 0.7.0 群雄逐城 · Windows 本地版', '',
+  '乱世行旅 · 0.8.0 风火传艺 · Windows 本地版', '',
+  '新版：首次进入手动输入主角姓名；旧档补录一次，原有进度保留。',
+  '所有人类战斗角色都可放火；森林较易点燃，火势随风蔓延，雨雪更易熄灭，也会伤到己方。',
+  '战斗下方指令栏可放火、选择武学、查看目标成功率、当前火格与战斗记录；手机可用目标格选择框施展。',
+  '47位具名人物各有专属秘籍，依史事或故事人设设计，并标注取材；卑弥呼保持只读资料。',
+  '亲密80可请教，成功率30%至50%；人物切磋为1对1，胜后40%概率传授，切磋不发普通战斗经验。',
+  '学到的武学永久保留，在队伍的“主角武学”中最多装配3种，每种主动武学冷却3轮。',
   '新版：NPC按年代登场后自主出征，真实扣兵，沿道路行军、围城；胜者占领、败者沿路撤退。',
   '地图显示城池旗号、兵力和在外军队；“天下局势”可筛选城池、查看军队与最近50条天下战报。',
   '战争随旅行、停留和互动消耗的游戏日推进；查看面板或买卖商品不会推进。',
@@ -47,7 +56,7 @@ writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
   '人物相遇受年代、地点限制；长期同行为架空支线，邀请主君不自动选择阵营。',
   '新增寿春与下邳，现有36城邑、47通路；原42道路、旧市场库存与进行中的行程保留。',
   '在地图或目的地列表选择城邑，预览行期后启程。途中事件处理后可继续赶路。',
-  '战斗中刷新重开同一场战斗；旅行路线与事件上下文保留。', '',
+  '战斗中刷新继续已保存的行动、天气、火势与武学冷却；旅行路线与事件上下文保留。', '',
   '1. 双击“启动游戏.cmd”，浏览器会自动打开游戏。',
   '2. 游玩时保留启动窗口；退出游戏后关闭此窗口即可停止服务。',
   '3. 复制或移动时请复制整个“三国行旅-本地版”文件夹。',

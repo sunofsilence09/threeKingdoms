@@ -1,0 +1,9 @@
+.character-martial { margin-top: 16px; padding: 14px; border: 1px solid #a6a08055; border-radius: 10px; background: #222c2512; min-width: 0; overflow-wrap: anywhere; }
+.character-martial h2,.character-martial h3 { margin: 0 0 8px; font-size: 1.05rem; }
+.character-martial p { margin: 8px 0; line-height: 1.6; }
+.character-martial details { line-height: 1.6; }
+.character-martial summary { cursor: pointer; }
+.character-martial .party-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.character-martial button { max-width: 100%; white-space: normal; }
+.martial-panel { width: min(780px, 100%); }
+.martial-feedback { color: #92703b; font-weight: 600; }

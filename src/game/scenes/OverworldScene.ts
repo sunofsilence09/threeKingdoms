@@ -19,6 +19,7 @@ import { createConflictRecovery, showConflictPanel } from '../conflictPanel';
 import { factionAt } from '../worldConflictData';
 import { conflictDateLabel } from '../conflictView';
 import { withWorldDate } from '../worldTime';
+import { isInspecting } from '../inspectionOverlay';
 
 type NodeId = 'ambush' | 'recovery' | 'hub';
 type EventChoice = Parameters<typeof resolveTravelEvent>[1];
@@ -28,6 +29,7 @@ export class OverworldScene extends Phaser.Scene {
   private map?: ReturnType<typeof createWorldMap>;
   private hud?: ReturnType<typeof createHeroHud>;
   private selectedId?: string;
+  private refreshAfterInspection = false;
   constructor() { super('Overworld'); }
   create(): void {
     clearOverlay();
@@ -36,8 +38,11 @@ export class OverworldScene extends Phaser.Scene {
     shell.classList.add('is-world');
     this.root = document.createElement('section'); this.root.id = 'world-root';
     this.root.setAttribute('aria-label', '州郡与行旅'); shell.append(this.root);
+    const changed = () => { this.refreshAfterInspection = true; };
+    window.addEventListener('world-state-changed', changed);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.map?.destroy(); this.hud?.destroy(); this.root?.remove();
+      window.removeEventListener('world-state-changed', changed);
       this.map = undefined; this.hud = undefined; this.root = undefined;
       shell.classList.remove('is-world'); clearOverlay();
       // The DOM map changes the shell height and can scroll the document. Refresh
@@ -45,6 +50,12 @@ export class OverworldScene extends Phaser.Scene {
       this.scale.refresh();
     });
     this.render();
+  }
+  update(): void {
+    if (this.refreshAfterInspection && !isInspecting()) {
+      this.refreshAfterInspection = false;
+      this.render();
+    }
   }
   private render(focusId?: string): void {
     if (!this.root) return;

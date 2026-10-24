@@ -1,3 +1,4 @@
+import { displayText, heroName, personName } from './heroName';
 import { postingLabel } from './personPosting';
 import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
@@ -13,6 +14,7 @@ import type { WeaponId } from './combat';
 import { createUnitPreview } from './unitPreview';
 import { getRecruitmentThreshold, serviceForPerson, serviceLabel } from './cityService';
 import { renderGarrisonSummary } from './garrisonView';
+import { createMartialCard } from './martialPanel';
 
 function detailPerson(id: string) {
   const profile = recruitProfile(id);
@@ -47,7 +49,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     <nav class="character-categories" aria-label="人物分类"></nav><nav class="character-tabs" aria-label="选择查看人物"></nav>
     <div class="character-layout"><figure class="character-art"><img alt=""><figcaption>流民行旅 · 全身立绘</figcaption><div class="character-model-slot"></div></figure>
     <div class="character-info"><p class="character-identity"></p><div class="character-name"><h1></h1><span class="character-level"></span></div>
-    <p class="character-bio"></p><section class="hero-gallery" aria-label="姜垣外观图鉴" hidden></section><p class="character-battle-status"></p>
+    <p class="character-bio"></p><section class="hero-gallery" aria-label="主角外观图鉴" hidden></section><p class="character-battle-status"></p>
     <dl class="character-stats"></dl><section class="character-army" hidden></section><div class="character-attributes" aria-label="六维属性"></div>
     <section class="character-ultimate"><h2></h2><p></p></section><p class="character-equipment-note"></p></div></div>`;
   const close = openInspection(panel);
@@ -85,7 +87,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     const entries = category === 'party' || category === 'enemy' ? units.filter(u => u.team === category) : RECRUIT_PROFILES.filter(person => !state.party[person.id] && personGroup(person) === category && (category !== 'garrison' || person.id.split(':')[1] === garrisonCity));
     for (const entry of entries) {
       const tab = document.createElement('button');
-      tab.type = 'button'; tab.textContent = entry.name; tab.dataset.character = entry.id;
+      tab.type = 'button'; tab.textContent = entry.id === 'traveler' ? heroName(state) : entry.name; tab.dataset.character = entry.id;
       tab.classList.toggle('is-enemy', category === 'enemy');
       tab.addEventListener('click', () => {
         visualPreview = undefined;
@@ -102,7 +104,9 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   });
   function render(): void {
     const characterId = historical?.id ?? selected.id;
-    const name = historical?.name ?? selected.name;
+    panel.querySelector('.character-martial')?.remove();
+    panel.querySelector('.character-info')!.append(createMartialCard(characterId,Boolean(combat)));
+    const name = characterId === 'traveler' ? personName(characterId, state) : historical?.name ?? selected.name;
     const display = historical ? { id: characterId, weapon: historical.weapon, level: 1 } : { ...selected, ...(characterId === 'traveler' ? visualPreview : undefined) };
     const appearance = getUnitAppearance(display, state.date);
     const identity = selected.id === characterId && selected.team === 'party' && characterId !== 'traveler' ? `同行 · ${recruitProfile(characterId)?.role ?? appearance.identity}` : appearance.identity;
@@ -110,7 +114,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     panel.classList.toggle('is-npc', Boolean(historical));
     panel.querySelector('.character-identity')!.textContent = identity;
     panel.querySelector('h1')!.textContent = name;
-    panel.querySelector('.character-bio')!.textContent = appearance.bio;
+    panel.querySelector('.character-bio')!.textContent = displayText(appearance.bio, state);
     const service=serviceForPerson(state,characterId);
     let serviceNode=panel.querySelector<HTMLParagraphElement>('.character-service');
     if(!serviceNode){serviceNode=document.createElement('p');serviceNode.className='character-service';panel.querySelector('.character-bio')!.after(serviceNode);}

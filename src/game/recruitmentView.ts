@@ -1,3 +1,4 @@
+import { personName } from './heroName';
 import { personPosting } from './personPosting';
 import { canMeetPerson, type RecruitProfile } from './recruitmentCatalog';
 import { WORLD_CITIES } from './world';
@@ -20,6 +21,6 @@ export function filterRecruitProfiles(profiles: readonly RecruitProfile[], state
           : posting.cityId ? [posting.cityId] : []
       : [...profile.windows.flatMap(window => window.cityIds), ...(profile.category === 'garrison' ? [profile.id.split(':')[1]] : [])];
     const locations = WORLD_CITIES.filter(city => cityIds.includes(city.id)).map(city => `${city.name} ${city.prefecture}`).join(' ');
-    return `${profile.name} ${profile.role} ${locations}`.toLocaleLowerCase().includes(query);
+    return `${personName(profile.id, state)} ${profile.role} ${locations}`.toLocaleLowerCase().includes(query);
   });
 }

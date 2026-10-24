@@ -1,0 +1,18 @@
+#battle-commands { padding: 14px 20px; color: var(--game-ink); background: var(--game-paper); border-top: 1px solid var(--game-border); font-size: 14px; line-height: 1.6; }
+#battle-commands p { margin: 0 0 8px; overflow-wrap: anywhere; white-space: pre-line; }
+.battle-environment { font-weight: 700; color: var(--game-accent); }
+.battle-command-status { min-height: 24px; }
+.battle-command-buttons, .battle-command-skills, .battle-target-picker { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+#battle-commands button, #battle-commands select { min-height: 44px; padding: 8px 12px; border: 1px solid var(--game-border); border-radius: 5px; background: var(--game-background); color: var(--game-ink); font: inherit; cursor: pointer; max-width: 100%; }
+#battle-commands button:disabled { opacity: .5; cursor: default; }
+#battle-commands button[aria-pressed="true"] { border: 2px solid #aa652b; background: #eee0bf; }
+#battle-commands select { flex: 1; min-width: 150px; }
+.battle-command-hint, #battle-commands small { color: var(--game-muted); }
+#battle-commands details { margin-top: 6px; }
+#battle-commands summary { cursor: pointer; }
+.game-shell.has-battle-commands #hud-root { bottom: auto; height: 56.25cqw; }
+@media (max-width: 700px) and (orientation: portrait) {
+  .game-shell.has-battle-commands #hud-root { height: auto; }
+  #battle-commands { padding: 12px; font-size: 14px; }
+  .battle-command-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+}

@@ -1,15 +1,16 @@
+import { personName } from './heroName';
 import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_EFFECTS, ATTRIBUTE_IDS, ATTRIBUTE_LABELS, type AttributeId } from './attributes';
 import { makePartyUnit, ULTIMATES } from './combat';
 import { experienceToNextLevel, type PartyId } from './growth';
-import { recruitProfile } from './recruitmentCatalog';
 import { canManageParty } from './recruitment';
 import { getState, setState } from './runtime';
 import { spendSkillPoints } from './state';
 import { showCharacterDetails } from './characterDetails';
 import type { CombatState } from './combat';
+import { createMartialCard } from './martialPanel';
 
-const nameOf = (id: string) => recruitProfile(id)?.name ?? id;
+const nameOf = (id: string) => personName(id, getState());
 
 /** Preserve the previous screen's actual DOM, including route selection and callbacks. */
 export function showCharacterPanel(onClose?: () => void, combat?: CombatState, initialId = 'traveler'): void {
@@ -64,6 +65,8 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState, i
   }
   function render(): void {
     const progress = original.party[selected];
+    panel.querySelector('.character-martial')?.remove();
+    panel.querySelector('.training-ultimate')!.after(createMartialCard(selected,readOnly));
     panel.querySelector('.training-detail-open')!.textContent = `查看${nameOf(selected)}详情`;
     const attrs = { ...progress.attributes };
     for (const id of ATTRIBUTE_IDS) attrs[id] += drafts[selected][id] ?? 0;

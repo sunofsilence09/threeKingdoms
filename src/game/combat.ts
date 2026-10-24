@@ -4,6 +4,8 @@ import { createPartyProgress, PARTY_IDS, type Progress, type PartyProgress } fro
 import { recruitProfile } from './recruitmentCatalog';
 import { createTerrain, TERRAIN, type BattleMode, type TerrainKind, type TerrainTile } from './battlefield';
 import { formationStrength, type FormationStrength } from './garrisonStrength';
+import { createEnvironment, DEFAULT_ENVIRONMENT, EXTINGUISH_CHANCE, nextRandom, OPPOSITE_WIND, randomWind, seasonalWeather, WEATHER_MULTIPLIER, WEATHER_NAMES, WIND_NAMES, WIND_VECTORS, type BattleEnvironment, type FireTile } from './battleEnvironment';
+export type { BattleEnvironment, FireTile } from './battleEnvironment';
 
 export type CombatTeam = 'party' | 'enemy';
 export type UltimateId = 'survival' | 'desperation';
@@ -11,7 +13,8 @@ export const ULTIMATES: Record<UltimateId, { name: string; description: string }
   survival: { name: '绝处逢生', description: '半血及以下可用，回复最大体力30%，下次攻击+50%。每场一次。' },
   desperation: { name: '拼命', description: '消耗最大体力20%（不致倒地），下次攻击+50%。每场一次。' },
 };
-export interface CombatEvent { kind: 'attack' | 'dodge' | 'ultimate'; actorId: string; targetId?: string; damage: number }
+export interface CombatEvent { kind: 'attack' | 'dodge' | 'ultimate' | 'fire' | 'burn' | 'martial' | 'extinguish' | 'spread' | 'burnout'; actorId: string; targetId?: string; damage: number; x?: number; y?: number; success?: boolean; skillId?: string }
+export interface CombatEffect { kind: 'attack-up' | 'attack-down' | 'move-down' | 'reduction'; value: number; sourceId: string; expiresRound: number; untilActor?: string }
 
 export type WeaponId = 'fists' | 'cleaver' | 'knife' | 'spear' | 'bow' | 'sword' | 'fan' | 'scroll' | 'halberd' | 'glaive' | 'jade' | 'serpentspear' | 'handkerchief' | 'swordshield' | 'claws';
 export const WEAPONS: Record<WeaponId, { name: string; mark: string; hp: number; attack: number; move: number; min: number; max: number }> = {
@@ -37,11 +40,14 @@ export interface CombatUnit {
   weapon: WeaponId; level: number; xp: number; defense: number; dodgeRate: number;
   ultimate: UltimateId; ultimateUsed: boolean; empowered: boolean;
   formation?: FormationStrength;
+  martialIds?: string[]; martialReady?: Record<string, number>; effects?: CombatEffect[];
 }
 export interface CombatState {
   width: number; height: number; terrain: TerrainTile[]; units: CombatUnit[];
   selectedId: string | null; turn: CombatTeam; route: RouteId | null;
   round: number; movedIds: string[]; actedIds: string[]; randomSeed: number; lastEvent?: CombatEvent; turnEvents?: CombatEvent[];
+  environment?: BattleEnvironment; fires?: FireTile[]; scorched?: Tile[];
+  battleLog?: string[];
 }
 export type BattleResult = 'ongoing' | 'win' | 'loss';
 interface Tile { x: number; y: number }
@@ -63,7 +69,7 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
     ultimate: id === 'traveler' ? 'survival' : 'desperation', ultimateUsed: false, empowered: false };
 }
 
-export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS, options: { enemyKind?: 'bandits' | 'wolves' } = {}): CombatState {
+export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS, options: { enemyKind?: 'bandits' | 'wolves'; month?: number; seed?: number } = {}): CombatState {
   if (deployed.length < 1 || deployed.length > 5 || new Set(deployed).size !== deployed.length ||
       deployed.some(id => !recruitProfile(id) || recruitProfile(id)!.readOnly || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
   const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit =>
@@ -74,8 +80,10 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
   const wolves = enemyPositions.slice(0, Math.max(3, deployed.length)).map(([x, y], index) => ({
     ...makeEnemy(`wolf:${index}`, index === 0 ? '头狼' : '山狼', x, y, 'claws', index === 0 ? 6 : 4, 2), speed: index === 0 ? 13 : 11,
   }));
+  const seed = (options.seed ?? (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0))) >>> 0;
   return advanceTurn({
-    width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0)) >>> 0,
+    width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: seed,
+    environment: createEnvironment(options.month ?? 3, seed), fires: [], scorched: [],
     units: [
       ...deployed.map((id, index) => makePartyUnit(id, party[id], route, mode, allyPositions[index][0], allyPositions[index][1])),
       ...(options.enemyKind === 'wolves' ? wolves : [makeEnemy('bandit-leader', '山贼头目', 7, 4, advanced ? 'spear' : 'cleaver', advanced ? 9 : 7, 3),
@@ -88,10 +96,11 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
 }
 
 export function terrainAt(state: CombatState, x: number, y: number): TerrainKind {
-  return state.terrain.find(tile => tile.x === x && tile.y === y)?.kind ?? 'road';
+  const kind = state.terrain.find(tile => tile.x === x && tile.y === y)?.kind ?? 'road';
+  return kind === 'woods' && state.scorched?.some(t => t.x === x && t.y === y) ? 'road' : kind;
 }
 export function movementRange(state: CombatState, unit: CombatUnit): number {
-  return (unit.formation?.move ?? (unit.team === 'enemy' ? unit.weapon === 'claws' ? 3 : 2 : WEAPONS[unit.weapon].move)) + (unit.team === 'party' && state.route === 'sun' ? 1 : 0);
+  return Math.max(0, (unit.formation?.move ?? (unit.team === 'enemy' ? unit.weapon === 'claws' ? 3 : 2 : WEAPONS[unit.weapon].move)) + (unit.team === 'party' && state.route === 'sun' ? 1 : 0) - effectValue(unit, 'move-down', 1));
 }
 export function distance(a: Tile, b: Tile): number { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
 export function isBattleOver(state: CombatState): BattleResult {
@@ -109,9 +118,14 @@ export function currentActor(state: CombatState): CombatUnit | undefined {
 }
 export function advanceTurn(state: CombatState): CombatState {
   if (isBattleOver(state) !== 'ongoing') return { ...state, selectedId: null };
-  const next = currentActor(state) ? state : { ...state, round: state.round + 1, actedIds: [], movedIds: [] };
+  let next = state;
+  if (!currentActor(state)) {
+    next = resolveRoundEnd(state);
+    if (isBattleOver(next) !== 'ongoing') return { ...next, selectedId: null };
+    next = { ...next, round: state.round + 1, actedIds: [], movedIds: [] };
+  }
   const actor = currentActor(next)!;
-  return { ...next, turn: actor.team, selectedId: actor.team === 'party' ? actor.id : null };
+  return { ...next, units: next.units.map(u => u.effects ? { ...u, effects: u.effects.filter(e => e.expiresRound > next.round && e.untilActor !== actor.id) } : u), turn: actor.team, selectedId: actor.team === 'party' ? actor.id : null };
 }
 function canAct(state: CombatState, unit: CombatUnit): boolean {
   return currentActor(state)?.id === unit.id;
@@ -120,18 +134,18 @@ function updateUnit(state: CombatState, id: string, updater: (u: CombatUnit) => 
   return { ...state, units: state.units.map(u => u.id === id ? updater(u) : u) };
 }
 /** Formation HP is the sole source of its surviving soldiers and effective combat strength. */
-function unitWithHp(unit: CombatUnit, hp: number): CombatUnit {
+export function updateUnitHp(unit: CombatUnit, hp: number): CombatUnit {
   if (!unit.formation) return { ...unit, hp };
   const formation = formationStrength(unit.formation.initialTroops, hp);
   return { ...unit, hp: formation.hp, attack: formation.attack, defense: formation.defense, formation };
 }
-function markActed(state: CombatState, id: string): CombatState {
-  return { ...updateUnit(state, id, u => ({ ...u, empowered: false })), selectedId: null, actedIds: [...state.actedIds, id] };
+export function endAction(state: CombatState, id: string): CombatState {
+  return { ...updateUnit(state, id, u => ({ ...u, empowered: false, ...(u.effects ? { effects: u.effects.filter(e => e.kind !== 'attack-down' && e.kind !== 'move-down') } : {}) })), selectedId: null, actedIds: [...new Set([...state.actedIds, id])] };
 }
 export function applyGuard(state: CombatState, unitId: string): CombatState {
   const unit = state.units.find(u => u.id === unitId);
   if (!unit || !canAct(state, unit)) return state;
-  return markActed(updateUnit(state, unitId, u => ({ ...u, guarded: true })), unitId);
+  return endAction(updateUnit(state, unitId, u => ({ ...u, guarded: true })), unitId);
 }
 function neighbors(tile: Tile): Tile[] {
   return [{ x: tile.x + 1, y: tile.y }, { x: tile.x - 1, y: tile.y }, { x: tile.x, y: tile.y + 1 }, { x: tile.x, y: tile.y - 1 }];
@@ -141,7 +155,7 @@ function isOpenTile(state: CombatState, x: number, y: number): boolean {
     Number.isFinite(TERRAIN[terrainAt(state, x, y)].cost) && !state.units.some(u => u.hp > 0 && u.x === x && u.y === y);
 }
 // Dijkstra preserves the cheapest route when woods cost more than roads.
-function pathsFrom(state: CombatState, unit: CombatUnit, limit = Infinity): PathTile[] {
+function pathsFrom(state: CombatState, unit: CombatUnit, limit = Infinity, avoidFire = false): PathTile[] {
   const queue: PathTile[] = [{ x: unit.x, y: unit.y, cost: 0, path: [] }];
   const costs = new Map([[`${unit.x},${unit.y}`, 0]]);
   const result: PathTile[] = [];
@@ -152,6 +166,7 @@ function pathsFrom(state: CombatState, unit: CombatUnit, limit = Infinity): Path
     result.push(current);
     for (const tile of neighbors(current)) {
       if (!isOpenTile(state, tile.x, tile.y)) continue;
+      if (avoidFire && fireAt(state, tile)) continue;
       const cost = current.cost + TERRAIN[terrainAt(state, tile.x, tile.y)].cost;
       const key = `${tile.x},${tile.y}`;
       if (cost > limit || cost >= (costs.get(key) ?? Infinity)) continue;
@@ -161,18 +176,32 @@ function pathsFrom(state: CombatState, unit: CombatUnit, limit = Infinity): Path
   }
   return result;
 }
-export function reachableTiles(state: CombatState, unitId: string): Tile[] {
+export function reachableTiles(state: CombatState, unitId: string, extraRange = 0, allowMoved = false): Tile[] {
   const unit = state.units.find(u => u.id === unitId);
-  if (!unit || !canAct(state, unit) || state.movedIds.includes(unitId)) return [];
-  return pathsFrom(state, unit, movementRange(state, unit)).filter(t => t.cost > 0).map(({ x, y }) => ({ x, y }));
+  if (!unit || !canAct(state, unit) || (!allowMoved && state.movedIds.includes(unitId))) return [];
+  return pathsFrom(state, unit, movementRange(state, unit) + Math.min(2, Math.max(0, extraRange))).filter(t => t.cost > 0).map(({ x, y }) => ({ x, y }));
 }
-export function moveUnit(state: CombatState, unitId: string, x: number, y: number): CombatState {
-  if (!reachableTiles(state, unitId).some(t => t.x === x && t.y === y)) return state;
-  const next = updateUnit(state, unitId, u => ({ ...u, x, y, guarded: false }));
-  return { ...next, movedIds: [...next.movedIds, unitId] };
+export function moveUnit(state: CombatState, unitId: string, x: number, y: number, extraRange = 0, allowMoved = false): CombatState {
+  const unit = state.units.find(u => u.id === unitId);
+  if (!unit || !canAct(state, unit) || (!allowMoved && state.movedIds.includes(unitId))) return state;
+  const range = movementRange(state, unit) + Math.min(2, Math.max(0, extraRange));
+  const route = pathsFrom(state, unit, range, true).find(t => t.x === x && t.y === y && t.cost > 0)
+    ?? pathsFrom(state, unit, range).find(t => t.x === x && t.y === y && t.cost > 0);
+  if (!route) return state;
+  let highest: FireTile | undefined, destination: Tile = { x, y };
+  for (const tile of route.path) {
+    const fire = fireAt(state, tile);
+    if (!fire) continue;
+    if (!highest || fire.level > highest.level) highest = fire;
+    if (burnDamage(unit, highest.level) >= unit.hp) { destination = tile; break; }
+  }
+  const damage = highest ? burnDamage(unit, highest.level) : 0;
+  let next = updateUnit(state, unitId, u => ({ ...updateUnitHp(u, Math.max(0, u.hp - damage)), ...destination, guarded: false }));
+  next = { ...next, movedIds: [...new Set([...next.movedIds, unitId])], ...(highest ? { lastEvent: { kind: 'burn' as const, actorId: highest.sourceId, targetId: unitId, damage } } : {}) };
+  return damage >= unit.hp ? endAction(next, unitId) : next;
 }
 // Supercover ray: at an exact grid corner, both adjoining cells must be clear.
-function clearSight(state: CombatState, from: Tile, to: Tile): boolean {
+export function clearSight(state: CombatState, from: Tile, to: Tile): boolean {
   let { x, y } = from;
   const dx = Math.abs(to.x - x), dy = Math.abs(to.y - y);
   const sx = Math.sign(to.x - x), sy = Math.sign(to.y - y);
@@ -195,7 +224,8 @@ export function canAttack(state: CombatState, attacker: CombatUnit, target: Comb
   const gap = distance(attacker, target);
   return attacker.hp > 0 && target.hp > 0 && attacker.team !== target.team && gap >= range.min && gap <= range.max && clearSight(state, attacker, target);
 }
-export function attackPower(unit: CombatUnit): number { return unit.attack * (unit.empowered ? 1.5 : 1); }
+function effectValue(unit: CombatUnit, kind: CombatEffect['kind'], cap: number): number { return Math.min(cap, Math.max(0, ...((unit.effects ?? []).filter(e => e.kind === kind).map(e => e.value)))); }
+export function attackPower(unit: CombatUnit): number { return unit.attack * Math.max(unit.empowered ? 1.5 : 1, 1 + effectValue(unit, 'attack-up', .5)) * (1 - effectValue(unit, 'attack-down', .2)); }
 export function ultimateAvailability(state: CombatState, unit: CombatUnit): { available: boolean; reason: string } {
   if (unit.ultimateUsed) return { available: false, reason: '本场已用' };
   if (!canAct(state, unit)) return { available: false, reason: unit.hp <= 0 ? '无法行动' : '本回合已行动' };
@@ -207,15 +237,7 @@ export function activateUltimate(state: CombatState, id: string): CombatState {
   const unit = state.units.find(u => u.id === id);
   if (!unit || !ultimateAvailability(state, unit).available) return state;
   const hp = unit.ultimate === 'survival' ? Math.min(unit.maxHp, unit.hp + Math.ceil(unit.maxHp * 0.3)) : unit.hp - Math.max(1, Math.ceil(unit.maxHp * 0.2));
-  return { ...updateUnit(state, id, u => ({ ...unitWithHp(u, hp), empowered: true, ultimateUsed: true })), lastEvent: { kind: 'ultimate', actorId: id, damage: 0 } };
-}
-function nextRandom(seed: number): { seed: number; roll: number } {
-  let next = seed || 1;
-  next ^= next << 13;
-  next ^= next >>> 17;
-  next ^= next << 5;
-  next >>>= 0;
-  return { seed: next, roll: next / 0x100000000 };
+  return { ...updateUnit(state, id, u => ({ ...updateUnitHp(u, hp), empowered: true, ultimateUsed: true })), lastEvent: { kind: 'ultimate', actorId: id, damage: 0 } };
 }
 export function performAttack(state: CombatState, attackerId: string, targetId: string): CombatState {
   const attacker = state.units.find(u => u.id === attackerId);
@@ -223,15 +245,115 @@ export function performAttack(state: CombatState, attackerId: string, targetId: 
   if (!attacker || !target || !canAct(state, attacker) || !canAttack(state, attacker, target)) return state;
   const random = nextRandom(state.randomSeed);
   const dodged = random.roll < Math.max(0, Math.min(0.4, target.dodgeRate));
+  const damage = dodged ? 0 : attackDamage(state, attacker, target);
+  const next = dodged ? state : updateUnit(state, targetId, u => ({ ...updateUnitHp(u, Math.max(0, u.hp - damage)), guarded: false }));
+  const acted = endAction(updateUnit(next, attackerId, u => ({ ...u, guarded: false, empowered: false, ...(u.effects ? { effects: u.effects.filter(e => e.kind !== 'attack-up') } : {}) })), attackerId);
+  return { ...acted, randomSeed: random.seed, lastEvent: { kind: dodged ? 'dodge' : 'attack', actorId: attackerId, targetId, damage } };
+}
+function attackDamage(state: CombatState, attacker: CombatUnit, target: CombatUnit): number {
   const power = Math.max(1, attackPower(attacker) - target.defense);
   const guarded = state.route === 'liu' && target.team === 'party' ? Math.floor(power / 2) : Math.ceil(power / 2);
   const cover = attacker.weapon === 'bow' && terrainAt(state, target.x, target.y) === 'woods' ? 1 : 0;
-  const damage = dodged ? 0 : Math.max(1, Math.ceil((target.guarded ? guarded : power) - cover));
-  const next = dodged ? state : updateUnit(state, targetId, u => ({ ...unitWithHp(u, Math.max(0, u.hp - damage)), guarded: false }));
-  const acted = markActed(updateUnit(next, attackerId, u => ({ ...u, guarded: false, empowered: false })), attackerId);
-  return { ...acted, randomSeed: random.seed, lastEvent: { kind: dodged ? 'dodge' : 'attack', actorId: attackerId, targetId, damage } };
+  const reduced = Math.min(target.guarded ? guarded : power, power * (1 - effectValue(target, 'reduction', .5)));
+  return Math.max(1, Math.ceil(reduced - cover));
 }
-export function resolveEnemyTurn(state: CombatState): CombatState {
+const FUEL: Record<TerrainKind, { chance: number; rounds: number }> = {
+  road: { chance: 35, rounds: 2 }, woods: { chance: 75, rounds: 4 }, bridge: { chance: 60, rounds: 3 }, cart: { chance: 65, rounds: 3 },
+  water: { chance: 0, rounds: 0 }, wall: { chance: 0, rounds: 0 }, rock: { chance: 0, rounds: 0 },
+};
+function inBounds(state: CombatState, tile: Tile): boolean { return Number.isInteger(tile.x) && Number.isInteger(tile.y) && tile.x >= 0 && tile.y >= 0 && tile.x < state.width && tile.y < state.height; }
+function sameTile(a: Tile, b: Tile): boolean { return a.x === b.x && a.y === b.y; }
+function fireAt(state: CombatState, tile: Tile): FireTile | undefined { return state.fires?.find(f => sameTile(f, tile)); }
+function hasFuel(state: CombatState, tile: Tile): boolean { return inBounds(state, tile) && FUEL[terrainAt(state, tile.x, tile.y)].chance > 0 && !state.scorched?.some(t => sameTile(t, tile)) && !fireAt(state, tile); }
+function surrounding(tile: Tile): Tile[] {
+  return [-1, 0, 1].flatMap(dy => [-1, 0, 1].filter(dx => dx || dy).map(dx => ({ x: tile.x + dx, y: tile.y + dy })));
+}
+export function fireChance(state: CombatState, x: number, y: number, bonus = 0): number {
+  if (!hasFuel(state, { x, y })) return 0;
+  const env = state.environment ?? DEFAULT_ENVIRONMENT;
+  return Math.max(0, Math.min(95, Math.round(FUEL[terrainAt(state, x, y)].chance * WEATHER_MULTIPLIER[env.weather] + (env.windStrength === 2 ? 10 : 0) + bonus)));
+}
+export function fireTargets(state: CombatState, id: string): Tile[] {
+  const unit = state.units.find(u => u.id === id);
+  if (!unit || !canAct(state, unit) || unit.weapon === 'claws') return [];
+  return [{ x: unit.x, y: unit.y }, ...surrounding(unit)].filter(t => hasFuel(state, t));
+}
+/** Caller owns ability range/action checks. This helper only rolls a legal fuel tile. */
+export function igniteAt(state: CombatState, sourceId: string, x: number, y: number, bonus = 0, level: 1 | 2 | 3 = 1): CombatState {
+  if (!hasFuel(state, { x, y })) return state;
+  const random = nextRandom(state.randomSeed), success = random.roll * 100 < fireChance(state, x, y, bonus);
+  return { ...state, randomSeed: random.seed, fires: success ? [...(state.fires ?? []), { x, y, level, remainingRounds: FUEL[terrainAt(state, x, y)].rounds, sourceId }] : (state.fires ?? []),
+    lastEvent: { kind: 'fire', actorId: sourceId, x, y, damage: 0, success } };
+}
+export function setFire(state: CombatState, id: string, x: number, y: number, bonus = 0, level: 1 | 2 | 3 = 1): CombatState {
+  if (!fireTargets(state, id).some(t => t.x === x && t.y === y)) return state;
+  return endAction(igniteAt(state, id, x, y, bonus, level), id);
+}
+export function spreadChance(state: CombatState, from: Tile, to: Tile): number {
+  if (!hasFuel(state, to) || Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y)) !== 1) return 0;
+  const env = state.environment ?? DEFAULT_ENVIRONMENT, wind = WIND_VECTORS[env.windDirection];
+  const alignment = (to.x - from.x) * wind.x + (to.y - from.y) * wind.y;
+  const base = !env.windStrength || env.windDirection === 'calm' ? 15 : alignment > 0 ? 45 + (env.windStrength === 2 ? 20 : 0) : alignment < 0 ? 5 : 15;
+  return Math.max(0, Math.min(95, base * FUEL[terrainAt(state, to.x, to.y)].chance / 75 * WEATHER_MULTIPLIER[env.weather]));
+}
+function burnDamage(unit: CombatUnit, level: number): number { return Math.max(2, Math.ceil(unit.maxHp * (.06 + .02 * level))); }
+export function environmentLabel(state: CombatState): string {
+  const env = state.environment ?? DEFAULT_ENVIRONMENT;
+  const wind = !env.windStrength || env.windDirection === 'calm' ? '静风（无风）' : `${WIND_NAMES[OPPOSITE_WIND[env.windDirection]]}风，吹向${WIND_NAMES[env.windDirection]}（${env.windStrength === 2 ? '强风' : '微风'}）`;
+  return `${WEATHER_NAMES[env.weather]} · ${wind} · 本轮末风象可能变化（下轮生效）；第${Math.ceil(state.round / 3) * 3}轮末天气可能变化`;
+}
+/** Resolve only original fire tiles: rain → damage → spread → burnout → next weather. */
+export function resolveRoundEnd(state: CombatState): CombatState {
+  if (isBattleOver(state) !== 'ongoing') return state;
+  const env = state.environment ?? DEFAULT_ENVIRONMENT;
+  let seed = state.randomSeed;
+  const roll = () => { const random = nextRandom(seed); seed = random.seed; return random.roll; };
+  const events: CombatEvent[] = [];
+  const original = (state.fires ?? []).filter((f, index, all) => all.findIndex(t => sameTile(t, f)) === index);
+  const surviving = original.filter(f => {
+    if (roll() >= EXTINGUISH_CHANCE[env.weather]) return true;
+    events.push({ kind: 'extinguish', actorId: f.sourceId, damage: 0, x: f.x, y: f.y }); return false;
+  }).map(f => ({ ...f }));
+  // Fire strength grows once per round; newly spread fire never participates here.
+  for (const fire of surviving) if (terrainAt(state, fire.x, fire.y) === 'woods' && env.windStrength === 2 && fire.level < 3 && roll() < .35) fire.level = (fire.level + 1) as 2 | 3;
+  const units = state.units.map(unit => {
+    const fire = surviving.find(f => sameTile(f, unit));
+    if (!fire || unit.hp <= 0) return unit;
+    const damage = burnDamage(unit, fire.level);
+    events.push({ kind: 'burn', actorId: fire.sourceId, targetId: unit.id, damage });
+    return updateUnitHp(unit, Math.max(0, unit.hp - damage));
+  });
+  const newFires: FireTile[] = [];
+  let next: CombatState = { ...state, units, fires: surviving, scorched: [...(state.scorched ?? [])] };
+  for (const fire of surviving) {
+    let spread = 0;
+    const candidates = surrounding(fire).sort((a, b) => spreadChance(state, fire, b) - spreadChance(state, fire, a));
+    for (const tile of candidates) {
+      if (spread === 2) break;
+      const chance = spreadChance(next, fire, tile);
+      if (!chance || roll() * 100 >= chance) continue;
+      newFires.push({ ...tile, level: 1, remainingRounds: FUEL[terrainAt(state, tile.x, tile.y)].rounds, sourceId: fire.sourceId });
+      events.push({ kind: 'spread', actorId: fire.sourceId, damage: 0, x: tile.x, y: tile.y });
+      next = { ...next, fires: [...surviving, ...newFires] };
+      spread++;
+    }
+  }
+  const remaining = surviving.filter(fire => {
+    fire.remainingRounds--;
+    if (fire.remainingRounds > 0) return true;
+    events.push({ kind: 'burnout', actorId: fire.sourceId, damage: 0, x: fire.x, y: fire.y });
+    if (!next.scorched!.some(t => sameTile(t, fire))) next.scorched!.push({ x: fire.x, y: fire.y });
+    return false;
+  });
+  next = { ...next, fires: [...remaining, ...newFires], randomSeed: seed, turnEvents: [...(state.turnEvents ?? []), ...events], ...(events.length ? { lastEvent: events[events.length - 1] } : {}) };
+  if (isBattleOver(next) !== 'ongoing') return next;
+  let environment = env;
+  if (roll() < .3) environment = { ...environment, ...randomWind(roll(), roll()) };
+  if (state.round % 3 === 0 && roll() < .25) environment = { ...environment, weather: seasonalWeather(env.month, roll()) };
+  return { ...next, environment, randomSeed: seed };
+}
+
+export function resolveEnemyTurn(state: CombatState, chooseAbility?: (state: CombatState, actor: CombatUnit) => CombatState): CombatState {
   const actor = currentActor(state);
   if (!actor || actor.team !== 'enemy') return state;
   const events: CombatEvent[] = [];
@@ -240,9 +362,49 @@ export function resolveEnemyTurn(state: CombatState): CombatState {
   let enemy = next.units.find(u => u.id === id)!;
   const targets = next.units.filter(u => u.team === 'party' && u.hp > 0);
   let target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
+  const lethal = targets.filter(u => canAttack(next, enemy, u)).find(u => u.hp <= attackDamage(next, enemy, u));
+  if (lethal) {
+    next = performAttack(next, id, lethal.id);
+    return advanceTurn({ ...next, turnEvents: [next.lastEvent!] });
+  }
+  if (fireAt(next, enemy) && !next.movedIds.includes(id)) {
+    const escape = pathsFrom(next, enemy, movementRange(next, enemy), true).filter(t => t.cost > 0)
+      .sort((a, b) => Number(!targets.some(t => canAttack(next, { ...enemy, ...a }, t))) - Number(!targets.some(t => canAttack(next, { ...enemy, ...b }, t))) || a.cost - b.cost)[0];
+    if (escape) {
+      next = moveUnit(next, id, escape.x, escape.y);
+      enemy = next.units.find(u => u.id === id)!;
+      target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
+    }
+  }
+  const tryAbility = () => {
+    if (!chooseAbility) return false;
+    const chosen = chooseAbility(next, enemy);
+    if (chosen === next) return false;
+    next = chosen;
+    events.push(...(next.turnEvents ?? (next.lastEvent ? [next.lastEvent] : [])));
+    return next.actedIds.includes(id) || isBattleOver(next) !== 'ongoing';
+  };
+  const tryFire = () => {
+    const choices = fireTargets(next, id).map(tile => {
+      const occupant = next.units.find(u => u.hp > 0 && sameTile(u, tile));
+      const friendlyRisk = next.units.filter(u => u.hp > 0 && u.team === 'enemy' && Math.max(Math.abs(u.x - tile.x), Math.abs(u.y - tile.y)) <= 1).length;
+      // Occupied enemy fuel offers immediate pressure; don't burn oneself or clustered allies.
+      const benefit = occupant?.team === 'party' ? burnDamage(occupant, 1) * fireChance(next, tile.x, tile.y) / 100 - (friendlyRisk > 1 ? friendlyRisk * 4 : 0) : 0;
+      return { tile, benefit };
+    }).filter(c => c.benefit > (target ? Math.max(1, attackPower(enemy) - target.defense) : 1)).sort((a, b) => b.benefit - a.benefit);
+    if (!choices.length) return false;
+    next = setFire(next, id, choices[0].tile.x, choices[0].tile.y);
+    if (next.lastEvent) events.push(next.lastEvent);
+    return true;
+  };
+  if (tryAbility() || tryFire()) return advanceTurn({ ...next, turnEvents: events });
   if (!target) {
-    const paths = pathsFrom(next, enemy);
-    const goals = paths.flatMap(tile => targets.filter(u => canAttack(next, { ...enemy, x: tile.x, y: tile.y }, u)).map(u => ({ tile, target: u })));
+    let paths = pathsFrom(next, enemy, Infinity, true);
+    let goals = paths.flatMap(tile => targets.filter(u => canAttack(next, { ...enemy, x: tile.x, y: tile.y }, u)).map(u => ({ tile, target: u })));
+    if (!goals.length) {
+      paths = pathsFrom(next, enemy);
+      goals = paths.flatMap(tile => targets.filter(u => canAttack(next, { ...enemy, x: tile.x, y: tile.y }, u)).map(u => ({ tile, target: u })));
+    }
     goals.sort((a, b) => a.tile.cost - b.tile.cost || a.target.hp - b.target.hp);
     const goal = goals[0];
     if (goal) {
@@ -253,11 +415,17 @@ export function resolveEnemyTurn(state: CombatState): CombatState {
         if (spent > movementRange(next, enemy)) break;
         destination = tile;
       }
-      if (destination) next = moveUnit(next, id, destination.x, destination.y);
+      if (destination) {
+        const moved = moveUnit(next, id, destination.x, destination.y);
+        if (moved.lastEvent !== next.lastEvent && moved.lastEvent?.kind === 'burn') events.push(moved.lastEvent);
+        next = moved;
+      }
       enemy = next.units.find(u => u.id === id)!;
+      if (enemy.hp <= 0) return advanceTurn({ ...next, turnEvents: events });
       target = targets.filter(u => canAttack(next, enemy, u)).sort((a, b) => a.hp - b.hp)[0];
     }
   }
+  if (tryAbility() || tryFire()) return advanceTurn({ ...next, turnEvents: events });
   if (target) {
     enemy = next.units.find(u => u.id === id)!;
     if (enemy.hp <= enemy.maxHp / 2) {

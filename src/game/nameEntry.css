@@ -1,0 +1,7 @@
+.name-entry { max-width: 32rem; }
+.name-entry form { display: grid; gap: 12px; min-width: 0; }
+.name-entry label { color: var(--game-ink); }
+.name-entry input { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--game-muted); border-radius: 8px; font: inherit; font-size: 18px; }
+.name-entry form p { min-height: 1.4em; margin: 0; color: var(--game-muted); overflow-wrap: anywhere; }
+.name-entry button { white-space: normal; }
+@media (max-height: 440px) { .name-entry { max-height: calc(100dvh - 24px); overflow-y: auto; } .name-entry h1 { margin: 8px 0; } .name-entry .panel-body { margin: 8px 0; } }

@@ -1,3 +1,4 @@
+import { displayText, heroName, personName } from './heroName';
 import { personPosting, postingLabel } from './personPosting';
 import './partyPanel.css';
 import { openInspection } from './inspectionOverlay';
@@ -13,8 +14,9 @@ import type { GameState } from './state';
 import { getRecruitmentThreshold, serviceForPerson, serviceLabel } from './cityService';
 import { getCharacterAppearance } from './characters';
 import { filterRecruitProfiles, type PersonFilter } from './recruitmentView';
+import { showMartialPanel } from './martialPanel';
 
-const nameOf = (id: string) => recruitProfile(id)?.name ?? id;
+const nameOf = (id: string) => personName(id, getState());
 const cityName = (id: string) => WORLD_CITIES.find(city => city.id === id)?.name ?? id;
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = ''): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag); node.textContent = text; node.className = className; return node;
@@ -67,11 +69,11 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
   function render(): void {
     const restoreFocus = retainFocus(body);
     const state = getState(); const locked = !canManageParty(state); body.replaceChildren();
-    body.append(element('p', `出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length} 人 · 姜垣固定上阵`, 'company-summary'));
+    body.append(element('p', `出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length} 人 · ${heroName(state)}固定上阵`, 'company-summary'));
     body.append(element('p', '候补保留成长与装备，仅本场出战成员获得战斗经验。', 'company-note'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
     const tools = element('div', '', 'party-actions');
-    tools.append(button('角色成长', () => showCharacterPanel(render, combat)), button('寻访人物', () => showRecruitmentPanel(render, combat)));
+    tools.append(button('角色成长', () => showCharacterPanel(render, combat)), button('寻访人物', () => showRecruitmentPanel(render, combat)), button('主角武学',() => showMartialPanel(render,Boolean(combat))));
     body.append(tools);
     if (replacement) {
       const chooser = element('section', '', 'replacement-picker');
@@ -122,7 +124,7 @@ function unavailableReason(profile: RecruitProfile, state: GameState): string {
   if (profile.readOnly) return windowLabel(profile);
   if (state.journey) return '途中不可交流，请先抵达城池。';
   if (!canManageParty(state)) return lockedNote(state);
-  if (state.party[profile.id]) return profile.id === 'traveler' ? '姜垣是你自己。' : '已同行，可在城内继续交流。';
+  if (state.party[profile.id]) return profile.id === 'traveler' ? `${heroName(state)}是你自己。` : '已同行，可在城内继续交流。';
   if (canMeetPerson(profile.id, state.currentCityId, state.date, state)) return '当前可相遇。';
   const posting = personPosting(state, profile.id);
   if (posting?.kind === 'campaign' || posting?.kind === 'dispersed') return posting.reason ?? posting.office;
@@ -169,10 +171,10 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
       const available = canInteractPerson(state, profile.id);
       const card = element('article', '', 'company-card recruitment-card'); card.dataset.person = profile.id;
       const info = element('div', '', 'company-card-info');
-      info.append(element('h3', profile.name), element('p', profile.role), element('p', profile.bio, 'company-note'), element('p', profile.readOnly ? windowLabel(profile) : joined ? `已同行 · ${state.deployed.includes(profile.id) ? '出战' : '候补'}` : `邀请门槛 ${threshold} · 尚未同行`, 'party-member-status'));
+      info.append(element('h3', personName(profile.id, state)), element('p', profile.role), element('p', displayText(profile.bio, state), 'company-note'), element('p', profile.readOnly ? windowLabel(profile) : joined ? `已同行 · ${state.deployed.includes(profile.id) ? '出战' : '候补'}` : `邀请门槛 ${threshold} · 尚未同行`, 'party-member-status'));
       info.append(element('p', postingLabel(state, profile.id), 'company-current-posting'));
       if(service)info.append(element('p',serviceLabel(service),'company-office'));
-      const meter = element('progress'); meter.max = 100; meter.value = affinity; meter.setAttribute('aria-label', `${profile.name}亲密度 ${affinity}/100`);
+      const meter = element('progress'); meter.max = 100; meter.value = affinity; meter.setAttribute('aria-label', `${personName(profile.id, state)}亲密度 ${affinity}/100`);
       if(!profile.readOnly) info.append(element('p', `亲密 ${affinity}/100${today ? ' · 当天已互动' : ''}`), meter);
       info.append(element('p', unavailableReason(profile, state), 'company-note'));
       const windows = element('details', '', 'person-windows'); windows.append(element('summary', '历史参考：年份与地点窗口'), element('p', windowLabel(profile))); info.append(windows);
@@ -184,7 +186,7 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
       }
       if (!profile.readOnly && !joined) actions.append(button('邀请同行', () => mutate(state => invitePerson(state, profile.id)), !available || affinity < threshold));
       actions.append(button('查看详情', () => showCharacterDetails(profile.id, combat?.units.some(unit => unit.team === 'party' && unit.id === profile.id) ? combat : undefined)));
-      info.append(actions); card.append(portrait(profile, profile.name), info); grid.append(card);
+      info.append(actions); card.append(portrait(profile, personName(profile.id, state)), info); grid.append(card);
     }
     if (!profiles.length) grid.append(element('p', '此时此地暂无可寻访人物，可查看所有人物行踪。', 'company-note'));
     body.append(grid);

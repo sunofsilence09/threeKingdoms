@@ -1,3 +1,4 @@
+import { heroName, personName } from './heroName';
 import { showCharacterPanel } from './characterPanel';
 import { getState } from './runtime';
 import { currentActor, attackPower, movementRange, WEAPONS, type CombatState } from './combat';
@@ -5,7 +6,6 @@ import { createPartyProgress, experienceToNextLevel, type PartyProgress } from '
 import type { RouteId } from './state';
 import { showCharacterDetails } from './characterDetails';
 import { getUnitAppearance } from './characters';
-import { recruitProfile } from './recruitmentCatalog';
 
 const allegiances = { cao: '曹方同行', sun: '孙方同行', liu: '刘方同行' };
 
@@ -16,9 +16,9 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
   panel.className = `hero-hud${onSelect ? ' is-battle' : ''}`;
   panel.setAttribute('aria-label', '主角状态');
   panel.innerHTML = `
-    <div class="hero-portrait"><img src="${getUnitAppearance({ id: 'traveler', weapon: route ? 'knife' : 'cleaver', level: party.traveler.level }).portrait}" alt="姜垣的头像" width="64" height="80"></div>
+    <div class="hero-portrait"><img src="${getUnitAppearance({ id: 'traveler', weapon: route ? 'knife' : 'cleaver', level: party.traveler.level }).portrait}" alt="主角的头像" width="64" height="80"></div>
     <div class="hero-details">
-      <div class="hero-heading"><button type="button" class="growth-open" aria-label="角色成长"><strong>姜垣</strong><span class="growth-hint">成长</span></button><span class="hero-level"></span><button type="button" class="character-detail-open" aria-label="姜垣详情">详情</button><span class="hero-allegiance"></span></div>
+      <div class="hero-heading"><button type="button" class="growth-open" aria-label="角色成长"><strong></strong><span class="growth-hint">成长</span></button><span class="hero-level"></span><button type="button" class="character-detail-open" aria-label="主角详情">详情</button><span class="hero-allegiance"></span></div>
       <div class="hero-health"><span>体力</span><span class="hero-health-value"></span></div>
       <meter class="hero-health-meter" aria-label="主角体力" min="0"></meter>
       <div class="hero-footer"><span class="hero-stats"></span><span class="hero-action"></span></div>
@@ -31,8 +31,8 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
     const button = document.createElement('button');
     button.className = portrait.className;
     button.type = 'button';
-    button.title = '选中主角姜垣';
-    button.setAttribute('aria-label', '选中主角姜垣');
+    button.title = `选中主角${heroName(getState())}`;
+    button.setAttribute('aria-label', `选中主角${heroName(getState())}`);
     button.append(...portrait.childNodes);
     button.addEventListener('click', onSelect);
     portrait.replaceWith(button);
@@ -48,6 +48,10 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
 
   function update(combat?: CombatState): void {
     lastCombat = combat;
+    const name = heroName(getState());
+    panel.querySelector('.growth-open strong')!.textContent = name;
+    panel.querySelector<HTMLImageElement>('.hero-portrait img')!.alt = `${name}的头像`;
+    panel.querySelector('.character-detail-open')!.setAttribute('aria-label', `${name}详情`);
     const hero = combat?.units.find(unit => unit.id === 'traveler');
     const progress = hero ?? party.traveler;
     const threshold = experienceToNextLevel(progress.level);
@@ -70,7 +74,7 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
       const button = panel.querySelector<HTMLButtonElement>('button.hero-portrait');
       if (button) button.disabled = currentActor(combat)?.id !== hero.id;
     } else {
-      stats.textContent = `出战 · ${getState().deployed.filter(id => id !== 'traveler').map(id => recruitProfile(id)?.name ?? id).join(' / ') || '主角独行'}`;
+      stats.textContent = `出战 · ${getState().deployed.filter(id => id !== 'traveler').map(id => personName(id, getState())).join(' / ') || '主角独行'}`;
       action.textContent = '行旅中';
     }
   }

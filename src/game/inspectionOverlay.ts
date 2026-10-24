@@ -17,7 +17,7 @@ export function openInspection(panel: HTMLElement, onClose?: () => void): () => 
   const focusKey = focusCard?.dataset.member ? ['data-member', focusCard.dataset.member] : focusCard?.dataset.person ? ['data-person', focusCard.dataset.person] : undefined;
   const focusLabel = focus?.textContent?.trim(), focusAria = focus?.getAttribute('aria-label');
   const scroll = root.scrollTop;
-  const targets = [...document.querySelectorAll<HTMLElement>('#hud-root, #game-container, #world-root')];
+  const targets = [...document.querySelectorAll<HTMLElement>('#hud-root, #game-container, #world-root, #battle-commands')];
   const inert = targets.map(target => target.inert);
   targets.forEach(target => { target.inert = true; });
   const inspection: Inspection = { panel, dispose: () => {

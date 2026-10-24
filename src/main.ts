@@ -6,6 +6,8 @@ import { EndingScene } from './game/scenes/EndingScene';
 import { OverworldScene } from './game/scenes/OverworldScene';
 import { PrologueScene } from './game/scenes/PrologueScene';
 import { RouteChoiceScene } from './game/scenes/RouteChoiceScene';
+import { getState } from './game/runtime';
+import { clearOverlay } from './game/ui';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -29,3 +31,12 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 export const game = new Phaser.Game(config);
+
+// Details and growth remain available in route/ending/result screens too.
+window.addEventListener('start-duel', () => {
+  if (getState().phase !== 'battle' || getState().duel?.status !== 'active') return;
+  const active = game.scene.getScenes(true)[0];
+  if (!active) return;
+  clearOverlay();
+  active.scene.start('Battle', { mode: 'ambush' });
+});

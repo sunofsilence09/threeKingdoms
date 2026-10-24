@@ -88,13 +88,14 @@ export class BattleBoard {
       this.applyTransform();
     }
   }
-  render(state: CombatState): void {
+  render(state: CombatState, targeting?: { tiles: { x: number; y: number }[]; mode: 'fire' | 'martial' }): void {
     const theme = themeFor(getState().date);
     this.state = state;
     for (const child of this.layer.list) this.scene.tweens.killTweensOf(child);
     this.layer.removeAll(true);
     const selected = state.units.find(u => u.id === state.selectedId);
-    const reachable = new Set((selected ? reachableTiles(state, selected.id) : []).map(t => `${t.x},${t.y}`));
+    const reachable = new Set((selected && !targeting ? reachableTiles(state, selected.id) : []).map(t => `${t.x},${t.y}`));
+    const targets = new Set(targeting?.tiles.map(t => `${t.x},${t.y}`));
     const g = this.scene.add.graphics();
     this.layer.add(g);
     for (let y = 0; y < state.height; y++) {
@@ -108,6 +109,24 @@ export class BattleBoard {
         if (lit) g.fillStyle(theme.move, 0.15).fillRect(px + 2, py + 2, 44, 44);
         g.lineStyle(1, lit ? theme.move : theme.grid, lit ? 0.85 : 0.28).strokeRect(px + 1, py + 1, 46, 46);
         if (lit) g.fillStyle(theme.move, 0.8).fillCircle(px + 24, py + 24, 3);
+        if (state.scorched?.some(t => t.x === x && t.y === y)) {
+          g.fillStyle(0x3c302a, .65).fillEllipse(px + 24, py + 30, 36, 16);
+        }
+        const fire = state.fires?.find(t => t.x === x && t.y === y);
+        if (fire) {
+          g.fillStyle(0xd96d32, .2).fillRect(px + 2, py + 2, 44, 44);
+          g.lineStyle(2, 0xd76a2c, .9).strokeRect(px + 2, py + 2, 44, 44);
+          for (let flame = 0; flame < fire.level; flame++) {
+            const fx = px + 8 + flame * 12;
+            g.fillStyle(0xe86c27).fillTriangle(fx - 5, py + 39, fx, py + 20, fx + 7, py + 39);
+            g.fillStyle(0xffdc7e).fillTriangle(fx - 2, py + 39, fx + 1, py + 29, fx + 4, py + 39);
+          }
+        }
+        if (targets.has(`${x},${y}`)) {
+          const color = targeting?.mode === 'fire' ? 0xe99740 : 0x9b87cf;
+          g.fillStyle(color, .18).fillRect(px + 2, py + 2, 44, 44);
+          g.lineStyle(3, color).strokeRect(px + 3, py + 3, 42, 42);
+        }
       }
     }
     for (const unit of state.units.filter(u => u.hp > 0)) {
@@ -137,8 +156,7 @@ export class BattleBoard {
           this.scene.tweens.add({ targets: model, scaleX: 1.16, scaleY: 1.16, duration: 160, yoyo: true });
         }
       }
-      const name = unit.id === 'traveler' ? '姜' : unit.id === 'aman' ? '满' : unit.id === 'chen-da' ? '达'
-        : unit.team === 'party' ? unit.name.slice(-2) : unit.id.startsWith('wolf:') ? '狼' : unit.id.endsWith('bandit-leader') ? '首' : '匪';
+      const name = unit.id.startsWith('wolf:') ? '狼' : unit.name.slice(-2);
       this.layer.add(addText(this.scene, x, y + 27, `${name} ${unit.hp}/${unit.maxHp}`, { color: hex(theme.ink), fontSize: '11px', backgroundColor: hex(theme.paper) }).setOrigin(0.5));
       this.layer.add(this.scene.add.rectangle(x, y + 20, 38, 3, 0x142423));
       this.layer.add(this.scene.add.rectangle(x - 19, y + 20, 38 * unit.hp / unit.maxHp, 3, 0x9dc5a2).setOrigin(0, 0.5));

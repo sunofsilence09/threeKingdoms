@@ -6,8 +6,10 @@ import { gameDayNumber, initialRelationships } from './recruitment';
 import type { GameState } from './state';
 import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, isJourney, journeyLeg, resolveTravelEvent, restInCity, startTravel, type TravelEventKind } from './travel';
 import { WORLD_CITIES } from './world';
+import { createMartialProgress } from './martial';
 
 const cityState = (): GameState => ({
+  martial: createMartialProgress(),
   date: { year: 184, month: 3, day: 1 }, phase: 'overworld', originId: 'yingchuan', currentCityId: 'yingchuan',
   travelCount: 0, travelDays: 3, route: null, supplies: 3, morale: 2, flags: {},
   party: createPartyProgress(), deployed: [...PARTY_IDS], relationships: initialRelationships(),

@@ -18,8 +18,8 @@ def seed(page,state):
     expect(page.locator('#world-root')).to_be_visible()
 def new_city(base,city='beihai',year=184,month=3):
     s=copy.deepcopy(base)
-    s.update(phase='overworld',currentCityId=city,originId='beihai',date={'year':year,'month':month,'day':1})
-    for key in ['journey','encounter','battleParty','travelNotice']:s.pop(key,None)
+    s.update(phase='overworld',currentCityId=city,originId='beihai',date={'year':year,'month':month,'day':1},heroName=base.get('heroName') or '姜垣')
+    for key in ['journey','encounter','battleParty','travelNotice','activeBattle','duel']:s.pop(key,None)
     return s
 def close_city(page):page.get_by_role('button',name='出城 · 返回地图',exact=True).click()
 def cg(page):
