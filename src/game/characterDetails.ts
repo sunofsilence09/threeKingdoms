@@ -1,11 +1,12 @@
 import { displayText, heroName, personName } from './heroName';
 import { postingLabel } from './personPosting';
 import { openInspection } from './inspectionOverlay';
-import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
+import { attributeDescription, combatAttributeVersion, LEGACY_ATTRIBUTE_NOTE } from './characterTalents';
+import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS, createAttributes } from './attributes';
 import { getUnitAppearance } from './characters';
 import { attackPower, createCombatState, makePartyUnit, movementRange, ULTIMATES, WEAPONS, type CombatState } from './combat';
-import { experienceToNextLevel } from './growth';
-import { RECRUIT_PROFILES, recruitProfile, type RecruitProfile } from './recruitmentCatalog';
+import { createProgress, experienceToNextLevel } from './growth';
+import { allRecruitProfiles, recruitProfile, type RecruitProfile } from './recruitmentCatalog';
 import { getState } from './runtime';
 import { getHistoricalCharacter } from './historicalCharacters';
 import { WORLD_CITIES, cityNameAt } from './world';
@@ -34,6 +35,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   const root = document.querySelector<HTMLElement>('#overlay-root');
   if (!root || root.querySelector('.character-details')) return;
   const state = getState();
+  const profiles = allRecruitProfiles(state);
   const encounter = combat ?? createCombatState(state.route, state.party, state.route ? 'route' : 'ambush', state.deployed);
   const units = combat ? encounter.units : Object.entries(state.party).map(([key, progress]) => makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'));
   const memorialUnits=Object.values(state.life?.memorials??{}).map(record=>makePartyUnit(record.id,record.progress,state.route,state.route?'route':'ambush'));
@@ -70,20 +72,20 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   lifeSelect.addEventListener('change',()=>{
     lifeFilter=lifeSelect.value;
     if(category==='party'||category==='memorial'||category==='enemy')category='people';
-    const profile=RECRUIT_PROFILES.find(person=>!state.party[person.id]&&personGroup(person)===category&&matchesLife(person.id)&&(category!=='garrison'||person.id.split(':')[1]===garrisonCity));
+    const profile=profiles.find(person=>!state.party[person.id]&&personGroup(person)===category&&matchesLife(person.id)&&(category!=='garrison'||person.id.split(':')[1]===garrisonCity));
     historical=profile?detailPerson(profile.id):undefined;renderTabs();render();
   });
   const groups: [DetailGroup, string][] = [['party', '同行'], ['memorial','同行纪念'], ['people', '乱世人物'], ['officials', '地方官员'], ['garrison', '地方军士'], ['other', '其他人物'], ...(combat ? [['enemy', '本场敌人'] as [DetailGroup,string]] : [])];
   for (const [key, label] of groups) {
     const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
     button.dataset.group = key;
-    button.disabled = key==='memorial'?!memorialUnits.length:key === 'party' || key === 'enemy' ? !units.some(unit => unit.team === key) : !RECRUIT_PROFILES.some(profile => personGroup(profile) === key && !state.party[profile.id]);
+    button.disabled = key==='memorial'?!memorialUnits.length:key === 'party' || key === 'enemy' ? !units.some(unit => unit.team === key) : !profiles.some(profile => personGroup(profile) === key && !state.party[profile.id]);
     button.addEventListener('click', () => {
       visualPreview = undefined;
       category = key as typeof category;
       if(category==='memorial'){historical=undefined;selected=memorialUnits[0];}
       else if (category !== 'party' && category !== 'enemy') {
-        const profile = RECRUIT_PROFILES.find(person => !state.party[person.id] && personGroup(person) === category && matchesLife(person.id) && (category !== 'garrison' || person.id.split(':')[1] === garrisonCity));
+        const profile = profiles.find(person => !state.party[person.id] && personGroup(person) === category && matchesLife(person.id) && (category !== 'garrison' || person.id.split(':')[1] === garrisonCity));
         historical = profile ? detailPerson(profile.id) : undefined;
       } else { historical = undefined; selected = units.find(u => u.team === category)!; }
       renderTabs(); render();
@@ -97,11 +99,11 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
       for (const city of WORLD_CITIES) { const option = document.createElement('option'); option.value = city.id; option.textContent = cityNameAt(city.id,state.date); option.selected = city.id === garrisonCity; citySelect.append(option); }
       citySelect.addEventListener('change', () => {
         garrisonCity = citySelect.value;
-        const profile = RECRUIT_PROFILES.find(person => person.category === 'garrison' && matchesLife(person.id) && person.id.split(':')[1] === garrisonCity && !state.party[person.id]);
+        const profile = profiles.find(person => person.category === 'garrison' && matchesLife(person.id) && person.id.split(':')[1] === garrisonCity && !state.party[person.id]);
         historical = profile ? detailPerson(profile.id) : undefined; renderTabs(); render(); tabs.querySelector('select')?.focus();
       }); tabs.append(citySelect);
     }
-    const entries = category==='memorial'?memorialUnits:category === 'party' || category === 'enemy' ? units.filter(u => u.team === category) : RECRUIT_PROFILES.filter(person => !state.party[person.id] && personGroup(person) === category && matchesLife(person.id) && (category !== 'garrison' || person.id.split(':')[1] === garrisonCity));
+    const entries = category==='memorial'?memorialUnits:category === 'party' || category === 'enemy' ? units.filter(u => u.team === category) : profiles.filter(person => !state.party[person.id] && personGroup(person) === category && matchesLife(person.id) && (category !== 'garrison' || person.id.split(':')[1] === garrisonCity));
     lifeHint.textContent=`当前分类 ${entries.length} 人；尚未出生、未满16岁与已故人物仅供资料查看。`;
     for (const entry of entries) {
       const tab = document.createElement('button');
@@ -160,14 +162,17 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     armyPanel.replaceChildren();if(!armyPanel.hidden)armyPanel.append(renderGarrisonSummary(state,characterId.split(':')[1],true));
     for (const tab of tabs.querySelectorAll<HTMLButtonElement>('button')) tab.setAttribute('aria-pressed', String(tab.dataset.character === characterId));
     const attributes = panel.querySelector<HTMLElement>('.character-attributes')!;
-    attributes.hidden = Boolean(historical);
+    attributes.hidden = false;
     panel.querySelector<HTMLElement>('.character-ultimate')!.hidden = Boolean(historical);
     if (historical) {
       const access=lifeAccessNote(state,characterId);
       panel.querySelector('.character-level')!.textContent = access?'资料查看':historical.readOnly ? '资料查看' : '尚未同行';
       panel.querySelector('.character-battle-status')!.textContent = access||'人物志 · 尚未加入同行队伍';
-      renderStats([['身份', historical.role], ['擅长', historical.specialty], ['随身', historical.equipment], ['速度', `${historical.speed}`]]);
       attributes.replaceChildren();
+      for (const attr of ATTRIBUTE_IDS) { const item = document.createElement('span'); item.textContent = attributeDescription(characterId, createAttributes(), attr); attributes.append(item); }
+      const previewUnit = makePartyUnit(characterId, createProgress(), state.route, state.route ? 'route' : 'ambush');
+      renderStats([['身份', historical.role], ['擅长', historical.specialty], ['随身', historical.equipment], ['速度', `${historical.speed}`], ['预览攻击', `${previewUnit.attack}`], ['预览体力', `${previewUnit.maxHp}`], ['预览防御', `${previewUnit.defense}`], ['预览闪避', `${Math.round(previewUnit.dodgeRate * 100)}%`]]);
+      panel.querySelector('.character-battle-status')!.textContent += ' · 天赋为游戏数值';
       panel.querySelector('.character-equipment-note')!.textContent = access|| (historical.readOnly ? historical.category === 'garrison' ? '普通士兵属于城市守军，不能邀请入队；可与士兵长交流。' : '本版仅供人物志查看，暂未开放相遇。' : `可在城内寻访培养亲密度，达到${getRecruitmentThreshold(state,characterId)}后邀请。须符合当前行踪与活动年代；历史窗口仅供参考，长期同行为架空支线。`);
       return;
     }
@@ -189,10 +194,13 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     if (selected.team === 'party' && progress) {
       for (const attr of ATTRIBUTE_IDS) {
         const item = document.createElement('span');
-        item.textContent = `${ATTRIBUTE_LABELS[attr]} ${progress.attributes[attr]}`;
+        item.textContent = attributeDescription(selected.id, progress.attributes, attr, combat && !memorial ? combatAttributeVersion(combat) : 2);
         attrs.append(item);
       }
-    } else attrs.textContent = '敌方能力以本场战斗数值为准';
+    } else {
+      for (const attr of ATTRIBUTE_IDS) { const item = document.createElement('span'); item.textContent = selected.formation ? `合计${ATTRIBUTE_LABELS[attr]} ${selected.formation.attributes[attr]}` : attributeDescription(selected.id, state.duel?.teacherId === selected.id.replace(/^enemy:/, '') ? state.party[state.duel.teacherId]?.attributes ?? createAttributes() : createAttributes(), attr, combat ? combatAttributeVersion(combat) : 2); attrs.append(item); }
+    }
+    if (combat && !memorial && combatAttributeVersion(combat) === 1) panel.querySelector('.character-battle-status')!.textContent += ` · ${LEGACY_ATTRIBUTE_NOTE}`;
     panel.querySelector('.character-ultimate h2')!.textContent = `绝招 · ${ULTIMATES[selected.ultimate].name}`;
     panel.querySelector('.character-ultimate p')!.textContent = `${ULTIMATES[selected.ultimate].description} 强化在下次攻击或本回合结束后消失。`;
     panel.querySelector('.character-equipment-note')!.textContent = memorial?`纪念装备：${weapon.name}。成长、六维与亲密记录保留于此；仅供查看。`:`当前装备：${weapon.name}。立绘与棋盘随等级和当前装备变化。外观图鉴仅供查看。`;

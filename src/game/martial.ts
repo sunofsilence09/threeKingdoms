@@ -17,7 +17,7 @@ export interface DuelEncounter { id: string; teacherId: string; started: GameDat
 export function createMartialProgress(): MartialProgress { return { learned: [], equipped: [], teachingDates: {}, challengeDates: {}, seed: 734851, settled: [], acquisitions: {} }; }
 const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 const token = (id: unknown): id is string => typeof id === 'string' && /^duel-[0-9]+-[0-9]+$/.test(id);
-const teachable = (id: string) => !!martialForPerson(id) && !martialForPerson(id)!.readOnly;
+const teachable = (id: string) => !!recruitProfile(id) && !recruitProfile(id)!.readOnly && !!martialForPerson(id) && !martialForPerson(id)!.readOnly;
 function validDate(value: unknown, now?: GameDate): value is GameDate { return isGameDate(value) && (!now || gameDayNumber(value) <= gameDayNumber(now)); }
 export function isDuelEncounter(value: unknown, date?: GameDate): value is DuelEncounter {
   return record(value) && token(value.id) && typeof value.teacherId === 'string' && teachable(value.teacherId) && validDate(value.started,date) &&

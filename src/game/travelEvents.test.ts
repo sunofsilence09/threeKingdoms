@@ -4,7 +4,7 @@ import { advanceDays } from './history';
 import { createPartyProgress, PARTY_IDS } from './growth';
 import { gameDayNumber, initialRelationships } from './recruitment';
 import type { GameState } from './state';
-import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, isJourney, journeyLeg, resolveTravelEvent, restInCity, startTravel, type TravelEventKind } from './travel';
+import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, isJourney, journeyLeg, resolveTravelEvent, restInCity, startTravel, workInCity, type TravelEventKind } from './travel';
 import { WORLD_CITIES } from './world';
 import { createMartialProgress } from './martial';
 import { createLifeState } from './personLife';
@@ -216,10 +216,10 @@ describe('wolves and city work income', () => {
     expect(lost.date).toEqual(advanceDays(recorded.date, 3));
     expect(lost.morale).toBe(recorded.morale - 1);
   });
-  it('adds twenty coins only to one-day city work, preserving longer rest rewards', () => {
+  it('pays five days of city work, preserving longer rest rewards', () => {
     const state = cityState();
-    expect(restInCity(state, 1).economy.coins).toBe(state.economy.coins + 20);
-    expect(restInCity(state, 1).supplies).toBe(state.supplies + 1);
+    expect(workInCity(state, 1).economy.coins).toBe(state.economy.coins + 100);
+    expect(workInCity(state, 1).supplies).toBe(state.supplies + 5);
     for (const days of [30, 360]) {
       expect(restInCity(state, days).economy).toEqual(state.economy);
       expect(restInCity(state, days).supplies).toBe(state.supplies + 3);
@@ -227,12 +227,12 @@ describe('wolves and city work income', () => {
   });
   it('cannot farm work rewards when the calendar cannot advance', () => {
     const state = { ...cityState(), date: { year: 310, month: 12, day: 30 } };
-    expect(restInCity(state, 1)).toBe(state);
+    expect(workInCity(state, 1)).toBe(state);
   });
   it('keeps coins within safe integers for work and wolf rewards', () => {
     const state = cityState();
     const rich = { ...state, economy: { ...state.economy, coins: Number.MAX_SAFE_INTEGER - 1 } };
-    expect(restInCity(rich, 1).economy.coins).toBe(Number.MAX_SAFE_INTEGER);
+    expect(workInCity(rich, 1).economy.coins).toBe(Number.MAX_SAFE_INTEGER);
     const wolves = acknowledgeTravelCg(eventState('wolves'));
     const battle = resolveTravelEvent({ ...wolves, economy: rich.economy }, 'fight');
     expect(finishTravelBattle(battle, true).economy.coins).toBe(Number.MAX_SAFE_INTEGER);

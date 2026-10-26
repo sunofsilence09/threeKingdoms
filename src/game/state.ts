@@ -1,3 +1,4 @@
+import { effectiveAttributes } from './characterTalents';
 import { ATTRIBUTE_IDS, attributeBonuses, victoryExperience, type AttributeId } from './attributes';
 import { createPartyProgress, grantExperience, migratePartyProgress, PARTY_IDS, type PartyId, type PartyProgress } from './growth';
 import { ORIGINS, advanceDays, isGameDate, randomOrigin, type GameDate, type OriginId } from './history';
@@ -15,7 +16,7 @@ import { createMartialProgress, isDuelEncounter, isMartialProgress, type DuelEnc
 import { isBattleSnapshot } from './battleSave';
 import type { CombatState } from './combat';
 import type { LifeState } from './lifeTypes';
-import { createLifeState, repairLifeState, isAliveAt } from './personLife';
+import { createLifeState, repairLifeState, isAliveAt,ensureLifePeople } from './personLife';
 
 export type RouteId = 'cao' | 'sun' | 'liu';
 
@@ -66,8 +67,9 @@ export function createInitialState(random: () => number = Math.random): GameStat
   const origin = randomOrigin(random);
   const date = { year: 184, month: 3, day: 1 };
   const life = createLifeState(date);
+  const worldConflict=createWorldConflict(date,PARTY_IDS,undefined,life);
   return {
-    life,
+    life:ensureLifePeople(life,Object.values(worldConflict.cities).flatMap(c=>c.governorId?[c.governorId]:[])),
     martial: createMartialProgress(),
     date: { year: 184, month: 3, day: 1 },
     originId: origin.id,
@@ -83,7 +85,7 @@ export function createInitialState(random: () => number = Math.random): GameStat
     relationships: initialRelationships(),
     economy: createEconomy(),
     travelDays: 3,
-    worldConflict: createWorldConflict(date, [...PARTY_IDS], undefined, life),
+    worldConflict,
   };
 }
 
@@ -136,6 +138,9 @@ export function loadState(): GameState | null {
     if(parsed.life===undefined || (parsed.worldConflict as unknown as {version?:number})?.version===1) {
       try { if(!localStorage.getItem(`${STORAGE_KEY}:pre-1.0-backup`))localStorage.setItem(`${STORAGE_KEY}:pre-1.0-backup`,raw); } catch { /* Preserve the playable campaign even if quota prevents a backup. */ }
     }
+    if((parsed.worldConflict as unknown as {version?:number})?.version===2){
+      try { const key=`${STORAGE_KEY}:pre-1.1-fullbackup`;if(!localStorage.getItem(key))localStorage.setItem(key,raw); }catch{/* Continue with the in-memory campaign if storage is full. */}
+    }
     if(parsed.life===undefined) { restored.life=createLifeState(restored.date); restored.lifeMigration=true; }
     else {
       const repaired=repairLifeState(parsed.life,restored.date);
@@ -164,14 +169,18 @@ export function loadState(): GameState | null {
     if (parsed.activeBattle !== undefined && !isBattleSnapshot(parsed.activeBattle, restored)) {
       backup('active-battle', parsed.activeBattle); delete restored.activeBattle; restored.battleRecovery = true;
     }
-    const migratedWorld=parsed.worldConflict===undefined ? undefined : migrateWorldConflict(parsed.worldConflict,restored.date,Object.keys(restored.party));
+    const migratedWorld=parsed.worldConflict===undefined ? undefined : migrateWorldConflict(parsed.worldConflict,restored.date,Object.keys(restored.party),restored.life);
     if (parsed.conflictRecovery) {restored.worldConflict=undefined;restored.conflictRecovery=true;}
     else if (parsed.worldConflict !== undefined && !migratedWorld) {
       // Keep both the untouched original and all valid RPG progress until an explicit rebuild.
       try { if (!localStorage.getItem(`${STORAGE_KEY}:conflict-backup`)) localStorage.setItem(`${STORAGE_KEY}:conflict-backup`, raw); } catch { /* Storage may be unavailable. */ }
       restored.worldConflict=undefined;restored.conflictRecovery=true;
     }
-    else if(migratedWorld) {restored.worldConflict=migratedWorld;if((parsed.worldConflict as unknown as {version:number}).version===1)restored.conflictMigration=true;}
+    else if(migratedWorld) {restored.worldConflict=migratedWorld;if((parsed.worldConflict as unknown as {version:number}).version!==3)restored.conflictMigration=true;}
+    // Older local victories left the encounter kind on an otherwise idle map save.
+    // Keep real battle/duel evidence locked until its own settlement or recovery.
+    if(restored.phase==='overworld' && parsed.activeBattle===undefined && parsed.duel===undefined &&
+      parsed.battleParty===undefined && !parsed.journey?.event?.inBattle) restored.encounter=undefined;
     let initialized=withWorldDate(restored, restored.date);
     if(initialized.duel&&!isAliveAt(initialized.life,initialized.duel.teacherId,initialized.date,true)) {
       backup('duel-life',parsed.duel);backup('active-battle-life',parsed.activeBattle);
@@ -256,9 +265,9 @@ export function rewardVictory(state: GameState, encounter: 'ambush' | 'route' | 
   const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
   for (const id of fighters) {
     const base = encounter === 'ambush' ? 30 : 45;
-    party[id] = grantExperience(party[id], victoryExperience(base, party[id].attributes));
+    party[id] = grantExperience(party[id], victoryExperience(base,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)));
   }
-  const supplies = state.supplies + fighters.reduce((sum, id) => sum + attributeBonuses(party[id].attributes).supplies, 0);
+  const supplies = state.supplies + fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)).supplies, 0);
   return { ...state, party, supplies, flags: { ...state.flags, [key]: true } };
 }
 

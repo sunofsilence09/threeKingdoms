@@ -6,7 +6,7 @@ import { HISTORICAL_CHARACTERS, getHistoricalCharacter, getRouteLeader } from '.
 
 describe('historical character collection', () => {
   it('adds thirteen distinct adult profiles with the approved weapons and speeds', () => {
-    expect(HISTORICAL_CHARACTERS).toHaveLength(63);
+    expect(HISTORICAL_CHARACTERS).toHaveLength(95);
     const ids = ['xiahou-dun', 'xiahou-yuan', 'cao-ren', 'cao-xiu', 'liu-biao', 'liu-zhang', 'zhang-lu', 'ma-teng', 'himiko', 'gongsun-zan', 'yuan-shao', 'liu-yu', 'zhang-yan'];
     const added = ids.map(getHistoricalCharacter);
     expect(added.map(p => p?.weapon)).toEqual(['glaive', 'bow', 'swordshield', 'spear', 'scroll', 'scroll', 'scroll', 'spear', 'jade', 'spear', 'sword', 'scroll', 'sword']);
@@ -15,10 +15,10 @@ describe('historical character collection', () => {
     for (const p of added) expect(p?.appearance.portrait).toBe(`/assets/characters/${p?.id}-v1.png`);
     expect(getHistoricalCharacter('himiko')?.appearance.bio).toContain('3世纪');
   });
-  it('contains sixty-three historical characters while preserving the original twenty-four identities', () => {
+  it('contains ninety-five historical characters while preserving the original twenty-four identities', () => {
     expect(HISTORICAL_CHARACTERS.slice(0, 24).map(c => c.name)).toEqual(['曹操', '刘备', '孙权', '孙尚香', '貂蝉', '蔡琰', '董卓', '吕布', '华雄', '甄姬', '张辽', '关羽', '张飞', '赵云', '糜夫人', '张星彩', '诸葛亮', '周瑜', '袁术', '陈宫', '张邈', '高顺', '周泰', '韩当']);
-    expect(new Set(HISTORICAL_CHARACTERS.map(c => c.id)).size).toBe(63);
-    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).portrait)).size).toBe(63);
+    expect(new Set(HISTORICAL_CHARACTERS.map(c => c.id)).size).toBe(95);
+    expect(new Set(HISTORICAL_CHARACTERS.map(c => getCharacterAppearance(c.id).portrait)).size).toBe(95);
     expect(new Set(HISTORICAL_CHARACTERS.slice(0, 16).map(c => getCharacterAppearance(c.id).pose)).size).toBe(16);
     for (const c of HISTORICAL_CHARACTERS) {
       expect(getCharacterAppearance(c.id)).toBe(c.appearance);

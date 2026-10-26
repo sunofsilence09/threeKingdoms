@@ -17,7 +17,7 @@ function button(text: string, action: () => void, disabled = false): HTMLButtonE
 }
 function skillDescription(skill: MartialSkill, state: GameState): HTMLElement {
   const body = element('div', '', 'martial-description');
-  body.append(element('h3', `《${skill.name}》 · ${personName(skill.personId,state)}`), element('p',skill.description),
+  body.append(element('h3', `《${skill.name}》 · ${skill.personId==='original-prefect'?'原创地方官通用武学':personName(skill.personId,state)}`), element('p',skill.description),
     element('p','主动招式 · 消耗本次行动 · 冷却3个完整轮次 · 每场重置','company-note'));
   const source = element('details'); source.append(element('summary', skill.story ? '故事取材 · 本作设计' : '经历取材 · 本作设计'),
     element('p',skill.basis),element('p',`依据：${skill.source}。本作名称与效果不代表真实武学秘籍。`)); body.append(source); return body;
@@ -101,7 +101,8 @@ export function showMartialPanel(onClose?: () => void, readOnly = false): void {
       const card = element('article','','character-martial'); card.dataset.skill = id;
       card.append(skillDescription(skill,state));
       const equipped = state.martial.equipped.includes(id);
-      card.append(element('p',`${equipped ? '已装配' : '未装配'} · 师承${personName(skill.personId,state)}`));
+      const teacher=state.martial.acquisitions[skill.id]?.teacherId??skill.personId;
+      card.append(element('p',`${equipped ? '已装配' : '未装配'} · 师承${teacher==='original-prefect'?'原创地方官':personName(teacher,state)}`));
       const acquisition = state.martial.acquisitions[id];
       if (acquisition) card.append(element('p',`取得：${dateLabel(acquisition.date)} · ${acquisition.kind === 'teaching' ? '关系请教' : '切磋战胜传授'}`,'company-note'));
       const toggle = button(equipped ? `卸下《${skill.name}》` : `装配《${skill.name}》`,() => {

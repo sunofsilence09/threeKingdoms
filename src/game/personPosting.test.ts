@@ -13,7 +13,7 @@ import { isWorldConflict, createWorldConflict } from './worldConflict';
 const fixture = (): GameState => {
   const date = { year: 196, month: 6, day: 1 };
   const snapshot=createWorldConflict(date);
-  const world: WorldConflict = { version: 2, lastDay: 4470, seed: 42, nextArmyId: 2, nextReportId: 1,
+  const world: WorldConflict = { version: 3, nextPrefectId: 1, prefectIds: [], lastDay: 4470, seed: 42, nextArmyId: 2, nextReportId: 1,
     cities: Object.fromEntries(WORLD_CITIES.map(city => [city.id, { factionId: 'han', troops: 5000, occupationDay: -1 }])),
     armies: [], founded: snapshot.founded, nextDecision: snapshot.nextDecision, reports: [], ledger: { initial: 180000, recruited: 0, raised: 0, losses: 0 } };
   world.cities.xiapi = { factionId: 'lu-bu', troops: 1234, occupationDay: -1, governorId: 'lu-bu' };
@@ -50,18 +50,19 @@ describe('current personnel projection', () => {
     expect(Object.values(state.worldConflict!.cities).every(city => city.factionId === 'han')).toBe(true);
   });
 
-  it('releases an invited governor from saved city offices without changing time or stocks', () => {
-    const state = fixture();
-    expect(isWorldConflict(state.worldConflict, state.date, Object.keys(state.party))).toBe(true);
-    const before = JSON.stringify(state.worldConflict);
-    const invited = invitePerson({ ...state, relationships: { 'lu-bu': { affinity: 80 } } }, 'lu-bu');
-    expect(invited.party['lu-bu']).toBeDefined();
-    expect(invited.worldConflict!.cities.xiapi.governorId).toBeUndefined();
-    expect(invited.worldConflict!.cities.xiapi.troops).toBe(1234);
-    expect(invited.date).toEqual(state.date);
-    expect(JSON.stringify(state.worldConflict)).toBe(before);
-    expect(isWorldConflict(invited.worldConflict, invited.date, Object.keys(invited.party))).toBe(true);
-    expect(cityGarrison(invited).prefectLabel).toContain('代管');
+  it('replaces an invited governor on the same day without changing stocks',()=>{
+    const state={...createInitialState(()=>0),phase:'overworld' as const,currentCityId:'moling'};
+    const id=state.worldConflict!.cities.moling.governorId!;
+    expect(isWorldConflict(state.worldConflict,state.date,Object.keys(state.party),state.life)).toBe(true);
+    const before=JSON.stringify(state.worldConflict);
+    const invited=invitePerson({...state,relationships:{[id]:{affinity:80}}},id);
+    expect(invited.party[id]).toBeDefined();
+    expect(invited.worldConflict!.cities.moling.governorId).not.toBe(id);
+    expect(invited.worldConflict!.cities.moling.troops).toBe(state.worldConflict!.cities.moling.troops);
+    expect(invited.worldConflict!.seed).toBe(state.worldConflict!.seed);
+    expect(invited.date).toEqual(state.date);expect(JSON.stringify(state.worldConflict)).toBe(before);
+    expect(isWorldConflict(invited.worldConflict,invited.date,Object.keys(invited.party),invited.life)).toBe(true);
+    expect(cityGarrison(invited).prefectLabel).toContain('游戏人物');
   });
   it('reads conquered stocks and institutions without keeping the former governor', () => {
     const state = fixture();
@@ -126,7 +127,7 @@ describe('current personnel projection', () => {
     expect(canMeetPerson('cai-yan', 'chenliu', state.date, state)).toBe(true);
     expect(canMeetPerson('cai-yan', 'xuxian', state.date, state)).toBe(true);
     expect(personPosting({ ...state, date: { year: 184, month: 6 } }, 'sun-ce')).toBeUndefined();
-    expect(RECRUIT_PROFILES).toHaveLength(198);
-    expect(new Set(RECRUIT_PROFILES.map(person => person.id)).size).toBe(198);
+    expect(RECRUIT_PROFILES).toHaveLength(230);
+    expect(new Set(RECRUIT_PROFILES.map(person => person.id)).size).toBe(230);
   });
 });

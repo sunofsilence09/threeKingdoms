@@ -11,6 +11,7 @@ import { showLocalOfficials } from './localOfficialPanel';
 import { renderCityOffice } from './cityOfficeView';
 import { factionAt } from './worldConflictData';
 import { showConflictPanel } from './conflictPanel';
+import { showPlayerMilitary } from './playerMilitaryPanel';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K] {
   const node=document.createElement(tag);node.textContent=text;node.className=className;return node;
@@ -34,7 +35,7 @@ export function showCityPanel(onClose?:()=>void):void {
     summary.textContent=`${dateLabel(state.date)} · 铜钱 ${economy.coins} · 货舱 ${cargoUsed(economy)}/${economy.capacity}`;
     body.replaceChildren();
     const banner=el('img','','city-banner');banner.src='/assets/events/event-merchant-v1.png';banner.alt='汉末城邑市集与货担';banner.loading='lazy';banner.addEventListener('error',()=>banner.hidden=true);body.append(banner);
-    const tools=el('div','','city-tools');tools.append(button('寻访人物',()=>showRecruitmentPanel(render),false,true),button('地方官员',showLocalOfficials,false,true),button('天下局势',()=>showConflictPanel(render),!!state.conflictRecovery,true));body.append(tools);
+    const tools=el('div','','city-tools');tools.append(button('寻访人物',()=>showRecruitmentPanel(render),false,true),button('地方官员',showLocalOfficials,false,true),button('军务 / 攻城',()=>showPlayerMilitary(render),!!state.conflictRecovery,true),button('天下局势',()=>showConflictPanel(render),!!state.conflictRecovery,true));body.append(tools);
     const nav=el('nav','','trade-tabs');nav.setAttribute('aria-label','城市事务');
     for(const [id,label] of [['market','市集买卖'],['cargo','行囊与账本'],['office','府署名册']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}body.append(nav);
     if(tab==='office'){

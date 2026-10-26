@@ -8,6 +8,11 @@ import { PrologueScene } from './game/scenes/PrologueScene';
 import { RouteChoiceScene } from './game/scenes/RouteChoiceScene';
 import { getState } from './game/runtime';
 import { clearOverlay } from './game/ui';
+import {bindMusicLifecycle} from './game/seasonalMusic';
+
+const unbindMusic=bindMusicLifecycle();
+const hot=(import.meta as ImportMeta&{hot?:{dispose:(callback:()=>void)=>void}}).hot;
+hot?.dispose(unbindMusic);
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,

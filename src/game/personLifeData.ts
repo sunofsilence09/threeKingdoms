@@ -1,5 +1,6 @@
 import type { LifeBaseline } from './lifeTypes';
 import { GENERATION_LIFE_BASELINES } from './generationLifeData';
+import { V11_LIFE_BASELINES } from './v11LifeData';
 
 /** Research: docs/research/2026-10-24-generation-existing-lifespans.md.
  * Activity anchors used for a game estimate are never presented as birth evidence.
@@ -72,4 +73,4 @@ export const EXISTING_LIFE_BASELINES: readonly LifeBaseline[] = [
   known('qin-jie', null, 186, 184, `${h('08')}、${h('71')}`, '中平三年被赵慈杀，184相遇窗口不是卒年。'),
 ];
 
-export const PERSON_LIFE_BASELINES: readonly LifeBaseline[] = [...EXISTING_LIFE_BASELINES, ...GENERATION_LIFE_BASELINES];
+export const PERSON_LIFE_BASELINES: readonly LifeBaseline[] = [...EXISTING_LIFE_BASELINES, ...GENERATION_LIFE_BASELINES, ...V11_LIFE_BASELINES];

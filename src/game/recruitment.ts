@@ -44,7 +44,8 @@ export function invitePerson(state: GameState, id: string): GameState {
       const { governorId: _formerGovernor, ...vacant } = city;
       return [cityId, vacant];
     })) } : world;
-  return { ...state, ...(worldConflict ? { worldConflict } : {}), party: { ...state.party, [id]: createProgress() }, travelNotice: `${name}接受邀请，加入同行候补。可在队伍中安排上阵。` };
+  const recruited={ ...state, ...(worldConflict ? { worldConflict } : {}), party: { ...state.party, [id]: createProgress() }, travelNotice: `${name}接受邀请，加入同行候补。可在队伍中安排上阵。` };
+  return worldConflict?withWorldDate(recruited,state.date):recruited;
 }
 export function isDeployment(value: unknown, party: GameState['party']): value is string[] {
   return Array.isArray(value) && value.length >= 1 && value.length <= MAX_DEPLOYED && value[0] === 'traveler' &&

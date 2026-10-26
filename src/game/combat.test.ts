@@ -5,6 +5,7 @@ import {
 } from './combat';
 import { createPartyProgress, createProgress } from './growth';
 import { getCharacterAppearance, getUnitAppearance, getUnitModel } from './characters';
+import { baseAttributes } from './characterTalents';
 import { RECRUIT_PROFILES } from './recruitmentCatalog';
 
 describe('deployed recruitment combat', () => {
@@ -64,7 +65,7 @@ describe('deployed recruitment combat', () => {
   });
 
   it('previews every catalog member with the same earned stats used in battle', () => {
-    expect(RECRUIT_PROFILES.length).toBe(198);
+    expect(RECRUIT_PROFILES.length).toBe(230);
     for (const profile of RECRUIT_PROFILES.filter(profile => !profile.readOnly)) {
       const progress = createProgress(3, 5);
       const preview = makePartyUnit(profile.id, progress, 'liu', 'route');
@@ -75,7 +76,7 @@ describe('deployed recruitment combat', () => {
       expect(getUnitModel(actual).weapon).toBe(actual.weapon);
       expect(getUnitAppearance(actual).portrait).toBeTruthy();
       expect(WEAPONS[actual.weapon]).toBeDefined();
-      expect(preview.attack).toBeLessThanOrEqual(5);
+      expect(preview.attack).toBe(WEAPONS[preview.weapon].attack + 1 + baseAttributes(profile.id).strength - 10);
       expect(preview.speed).toBe(profile.speed);
     }
     const state = createCombatState(null, roster(), 'ambush', deployed);
@@ -95,9 +96,9 @@ function arena(): CombatState {
   return {
     ...state, width: 8, height: 6, terrain: [],
     units: [
-      { ...state.units[0], x: 1, y: 2, speed: 20, attack: 3, hp: 10, maxHp: 10, weapon: 'cleaver' },
-      { ...state.units[1], x: 1, y: 3, speed: 15, attack: 2, hp: 9, maxHp: 9, weapon: 'fists' },
-      { ...state.units[3], x: 4, y: 2, speed: 10, attack: 3, hp: 7, maxHp: 7, weapon: 'knife' },
+      { ...state.units[0], x: 1, y: 2, speed: 20, attack: 3, hp: 10, maxHp: 10, weapon: 'cleaver', defense: 0, dodgeRate: 0 },
+      { ...state.units[1], x: 1, y: 3, speed: 15, attack: 2, hp: 9, maxHp: 9, weapon: 'fists', defense: 0, dodgeRate: 0 },
+      { ...state.units[3], x: 4, y: 2, speed: 10, attack: 3, hp: 7, maxHp: 7, weapon: 'knife', defense: 0, dodgeRate: 0 },
     ],
   };
 }

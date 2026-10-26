@@ -1,3 +1,5 @@
+import { V11_MARTIAL_ENTRIES } from './v11MartialData';
+import { prefectIdentity } from './prefectIdentity';
 /** These are authored game abilities, never claims that historical manuals existed. */
 export type MartialTemplate = 'break' | 'pierce' | 'shoot' | 'intimidate' | 'dash' | 'fortify' | 'protect' | 'inspire' | 'soothe' | 'rally' | 'firegod';
 export interface MartialSkill {
@@ -92,10 +94,12 @@ const entries: Entry[] = [
   ['du-yu','破竹','inspire','《晋书》卷34·杜预传','取材指授军势和破竹之喻；本传记不擅骑射，不虚构其为骑射猛将。'],
   ['yang-hu','怀远','soothe','《晋书》卷34·羊祜传','取材安民与边境声望，回复体力为游戏抽象，不能复活或突破兵额。'],
   ['wang-jun','楼船','dash','《晋书》卷42·王濬传','取材舟师顺流疾进；现有战棋中为合法路径机动，不召船、不跨不可通行水域。'],
+  ...V11_MARTIAL_ENTRIES,
+  ['original-prefect','安郡','rally','本局原创地方官 · 游戏创作','以地方官整备部伍为玩法设定；非史载人物或真实秘籍。'],
 ];
 export const MARTIAL_CATALOG: readonly MartialSkill[] = entries.map(([personId,name,template,source,basis,story = false]) => ({
   id: `martial-${personId}`, personId, name, template, source, basis, story, readOnly: personId === 'himiko', cooldown: 3,
   description: MARTIAL_EFFECTS[template],
 }));
 export function martialAt(id: string): MartialSkill | undefined { return MARTIAL_CATALOG.find(skill => skill.id === id); }
-export function martialForPerson(id: string): MartialSkill | undefined { return MARTIAL_CATALOG.find(skill => skill.personId === id); }
+export function martialForPerson(id: string): MartialSkill | undefined { return MARTIAL_CATALOG.find(skill => skill.personId === (prefectIdentity(id)?'original-prefect':id)); }

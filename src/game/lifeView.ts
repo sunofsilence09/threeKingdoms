@@ -1,5 +1,6 @@
 import type { GameState } from './state';
 import { lifeBaseline, lifeLabel, lifeStatus } from './personLife';
+import { prefectIdentity } from './prefectIdentity';
 import './lifeView.css';
 
 export function lifeAccessNote(state: GameState, id: string): string {
@@ -14,6 +15,7 @@ export function lifeReferenceText(state: GameState, id: string): string {
   id=id.replace(/^enemy:/,'');
   const baseline=lifeBaseline(id);
   if(!baseline)return lifeLabel(state,id);
+  if(prefectIdentity(id))return `游戏人物 · 固定设定生年${baseline.birthYear}；${lifeLabel(state,id)}`;
   const birth=baseline.historicalBirthYear===null ? `固定游戏估生年${baseline.birthYear}` : `史料生年采用${baseline.birthYear}${baseline.birthEstimated?'（约年或推算，详见依据）':''}`;
   const death=baseline.historicalDeathYear===null ? '史卒年未详；寿限采用游戏估年' : `史料卒年参考${baseline.historicalDeathYear}`;
   return `${birth}；${death}。${lifeLabel(state,id)}`;

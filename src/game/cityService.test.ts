@@ -14,7 +14,7 @@ const at = (year: number, cityId = 'dongjun', month = 6): GameState => ({
 
 describe('derived city appointments', () => {
   it('assigns each new person at most one appointment and the same city as the encounter for every month', () => {
-    expect(Object.keys(CITY_CAREERS)).toHaveLength(44);
+    expect(Object.keys(CITY_CAREERS)).toHaveLength(76);
     for (let year = 184; year <= 226; year++) for (let month = 1; month <= 12; month++) {
       const state = at(year, 'dongjun', month);
       const roster = cityServices(state);
@@ -98,8 +98,8 @@ describe('derived city appointments', () => {
     expect(serviceForPerson(at(193, 'dongjun', 12), 'chen-gong')).toMatchObject({ cityId: 'dongjun', kind: 'employed', employerId: 'cao-cao', employerName: '曹操' });
     expect(serviceForPerson(at(194, 'dongjun', 1), 'chen-gong')).toMatchObject({ cityId: 'dongjun', kind: 'employed', employerId: 'lu-bu', employerName: '吕布' });
     expect(serviceForPerson(at(196, 'xiapi', 1), 'chen-gong')).toMatchObject({ cityId: 'xiapi', employerId: 'lu-bu' });
-    expect(cityServices(at(196), 'xiapi').map(person => person.personId)).toEqual(['chen-gong', 'gao-shun', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
-    expect(cityServices(at(196), 'dongjun').map(person => person.personId)).toEqual(['garrison:dongjun:soldier', 'garrison:dongjun:captain']);
+    expect(cityServices(at(196), 'xiapi').map(person => person.personId)).toEqual(['chen-qun','chen-gong', 'gao-shun', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
+    expect(cityServices(at(196), 'dongjun').map(person => person.personId)).toEqual(['dian-wei','cheng-yu','garrison:dongjun:soldier', 'garrison:dongjun:captain']);
   });
 
   it('uses ordinary 60 for free people, governing people and all old identities without self-employment', () => {

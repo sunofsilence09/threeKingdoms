@@ -1,3 +1,5 @@
+import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
+import { combatAttributeVersion, effectiveAttributes, LEGACY_ATTRIBUTE_NOTE } from './characterTalents';
 import { displayText, heroName, personName } from './heroName';
 import { personPosting, postingLabel } from './personPosting';
 import './partyPanel.css';
@@ -5,7 +7,7 @@ import { openInspection } from './inspectionOverlay';
 import { getState, setState } from './runtime';
 import { dateLabel } from './history';
 import { cityNameAt } from './world';
-import { RECRUIT_PROFILES, recruitProfile, canMeetPerson, type RecruitProfile } from './recruitmentCatalog';
+import { allRecruitProfiles, recruitProfile, canMeetPerson, type RecruitProfile } from './recruitmentCatalog';
 import { AFFINITY_REQUIRED, canInteractPerson, canManageParty, gameDayNumber, interactPerson, invitePerson, setDeployment } from './recruitment';
 import { makePartyUnit, WEAPONS, type CombatState } from './combat';
 import { showCharacterDetails } from './characterDetails';
@@ -72,6 +74,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
     const state = getState(); const locked = !canManageParty(state); body.replaceChildren();
     body.append(element('p', `出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length} 人 · ${heroName(state)}固定上阵`, 'company-summary'));
     body.append(element('p', '候补保留成长与装备，仅本场出战成员获得战斗经验。', 'company-note'));
+    if (combat && combatAttributeVersion(combat) === 1) body.append(element('p', LEGACY_ATTRIBUTE_NOTE, 'company-notice'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
     const tools = element('div', '', 'party-actions');
     tools.append(button('角色成长', () => showCharacterPanel(render, combat)), button('寻访人物', () => showRecruitmentPanel(render, combat)), button('主角武学',() => showMartialPanel(render,Boolean(combat))));
@@ -93,6 +96,9 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
         const card = element('article', '', 'company-card'); card.dataset.member = id;
         const info = element('div', '', 'company-card-info');
         info.append(element('h3', `${nameOf(id)} · Lv.${progress.level}`), element('p', `${profile?.role ?? '同行伙伴'} · ${WEAPONS[unit.weapon].name}`), element('p', `亲密 ${state.relationships[id]?.affinity ?? 0}/100 · 技能点 ${progress.points}`));
+        info.append(element('p', `攻 ${unit.attack} · 防 ${unit.defense} · 体力 ${unit.hp}/${unit.maxHp}`, 'company-note'));
+        const version = combat && combat.units.some(u => u.id === id) ? combatAttributeVersion(combat) : 2;
+        info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(id, progress.attributes, version)[key]}`).join(' · '), 'company-note'));
         info.append(element('p',lifeReferenceText(state,id),'company-life'));
         const actions = element('div', '', 'party-actions');
         actions.append(button('详情', () => showCharacterDetails(id, combat?.units.some(u => u.team === 'party' && u.id === id) ? combat : undefined,render)), button('成长', () => showCharacterPanel(render, combat, id)));
@@ -117,6 +123,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
       const card=element('article','','company-card memorial-card');card.dataset.memorial=record.id;
       const info=element('div','','company-card-info');
       info.append(element('h3',`${nameOf(record.id)} · Lv.${record.progress.level}`),element('p',`本局于${record.deathYear}年离世 · 享年约${record.age}岁（按年计）`),element('p',`经验 ${record.progress.xp} · 技能点 ${record.progress.points} · 亲密 ${record.relationship?.affinity??0}/100`,'company-note'),button('查看纪念详情',()=>showCharacterDetails(record.id,undefined,render)));
+      info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(record.id, record.progress.attributes)[key]}`).join(' · '), 'company-note'));
       card.append(portrait(recruitProfile(record.id),nameOf(record.id)),info);archive.append(card);
     }
     if(!memorials.length)archive.append(element('p','尚无已故同行者。','company-note'));
@@ -180,7 +187,7 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
     for(const [value,text] of [['all','全部状态'],['alive','已成年 / 职业代表'],['unborn','尚未出生'],['child','未满16岁'],['dead','已经离世']] as const){const option=element('option',text);option.value=value;option.selected=life===value;lives.append(option);}
     lives.addEventListener('change',()=>{life=lives.value as LifeFilter;all=true;render();});lifeLabel.append(lives);filters.append(lifeLabel);
     const notice = element('p', feedback, 'company-feedback'); notice.setAttribute('aria-live', 'polite'); body.append(notice);
-    const profiles = filterRecruitProfiles(RECRUIT_PROFILES, state, { all, query, category,life });
+    const profiles = filterRecruitProfiles(allRecruitProfiles(state), state, { all, query, category,life });
     body.append(element('p', `共 ${profiles.length} 位人物`, 'company-note'));
     const grid = element('div', '', 'company-grid recruitment-grid');
     for (const profile of profiles) {

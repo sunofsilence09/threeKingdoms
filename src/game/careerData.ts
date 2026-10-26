@@ -1,4 +1,5 @@
 import { GENERATION_CAREERS } from './generationData';
+import { V11_CAREERS } from './v11Data';
 
 /** Authored game appointments, not exact historical terms. Inclusive year/month bounds. */
 export interface CareerStage {
@@ -9,6 +10,8 @@ export interface CareerStage {
   title: string;
   office: string;
   employerId?: string;
+  /** Explicit institutional affiliation; employer succession cannot rewrite this stage. */
+  factionId?: string;
 }
 
 const stage = (from: number, to: number, cityId: string, kind: CareerStage['kind'], title: string, office: string, employerId?: string): CareerStage =>
@@ -17,6 +20,7 @@ const stage = (from: number, to: number, cityId: string, kind: CareerStage['kind
 /** This plain data module deliberately has no runtime imports or mutable saved roster. */
 export const CITY_CAREERS: Readonly<Record<string, readonly CareerStage[]>> = {
   ...GENERATION_CAREERS,
+  ...V11_CAREERS,
   'yuan-shu': [
     stage(189, 189, 'henan', 'free', '在朝游历', '洛阳'),
     stage(190, 192, 'nanyang', 'governing', '势力主事', '袁术府署'),

@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createInitialState, loadState, rewardVictory, saveState, STORAGE_KEY, type GameState } from './state';
-import { createProgress } from './growth';
+import { attributeBonuses, victoryExperience } from './attributes';
+import { effectiveAttributes } from './characterTalents';
+import { withWorldDate } from './worldTime';
+import { createProgress, grantExperience } from './growth';
 import { advanceDays } from './history';
 import { initialRelationships, interactPerson, invitePerson, setDeployment } from './recruitment';
 import { RECRUIT_PROFILES } from './recruitmentCatalog';
@@ -9,6 +12,7 @@ import { personPosting } from './personPosting';
 import { createWorldConflict, isWorldConflict } from './worldConflict';
 import { acknowledgeTravelCg, finishTravelBattle, resolveTravelEvent, startTravel } from './travel';
 import { createLifeState, lifeBaseline } from './personLife';
+import { prefectIdentity } from './prefectIdentity';
 import { PERSON_LIFE_BASELINES } from './personLifeData';
 
 beforeEach(() => {
@@ -27,12 +31,17 @@ const datedWorld = (state: GameState): GameState => {
   const worldConflict = createWorldConflict(state.date, Object.keys(state.party),undefined,life);
   // This roster fixture uses institution-led armies, leaving named people available in town.
   worldConflict.armies = worldConflict.armies.map(army => { const { commanderId: _commander, ...institution } = army; return institution; });
-  return { ...state, life, worldConflict };
+  return withWorldDate({ ...state, life, worldConflict }, state.date);
 };
 const atXiapi = (patch: Partial<GameState> = {}): GameState => {
   const state = datedWorld({ ...stateInZhuo(), currentCityId: 'xiapi', date: { year: 196, month: 6, day: 1 }, ...patch });
   state.worldConflict!.cities.xiapi.factionId = 'lu-bu';
-  return state;
+  const synchronized = withWorldDate(state, state.date);
+  expect(isWorldConflict(synchronized.worldConflict, synchronized.date, Object.keys(synchronized.party), synchronized.life)).toBe(true);
+  expect(synchronized.worldConflict!.seed).toBe(state.worldConflict!.seed);
+  expect(synchronized.worldConflict!.ledger).toEqual(state.worldConflict!.ledger);
+  for (const [id, city] of Object.entries(state.worldConflict!.cities)) expect(synchronized.worldConflict!.cities[id].troops).toBe(city.troops);
+  return synchronized;
 };
 describe('persistent recruited roster and combat rewards', () => {
   it('roundtrips independent city captains and rejects read-only or invalid garrison party IDs', () => {
@@ -93,7 +102,15 @@ describe('persistent recruited roster and combat rewards', () => {
     expect(reloaded.party.traveler).toEqual(createProgress(3, 20));
     expect(reloaded.party['gao-shun']).toEqual(createProgress(2, 7));
     expect(serviceForPerson(reloaded, 'gao-shun')).toBeUndefined();
-    expect(cityServices({ ...reloaded, worldConflict: undefined, date: { year: 198, month: 12, day: 30 } }, 'xiapi').map(person => person.personId)).toEqual(['chen-gong', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
+    const services = cityServices({ ...reloaded, worldConflict: undefined, date: { year: 198, month: 12, day: 30 } }, 'xiapi');
+    expect(services.filter(person => !prefectIdentity(person.personId)).map(person => person.personId)).toEqual(['chen-gong', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
+    // Both the former Han officer and the replacement after the fixture's conquest retain their identities.
+    const retired = services.filter(person => prefectIdentity(person.personId));
+    expect(retired).toHaveLength(2);
+    for (const person of retired) {
+      expect(person.kind).toBe('free');
+      expect(reloaded.life!.people[person.personId]).toBeDefined();
+    }
     expect(Object.keys(reloaded)).not.toContain('cityServices');
   });
   it('preserves affinity and waiting status when a recruited employer is loaded from saved party', () => {
@@ -126,10 +143,12 @@ describe('persistent recruited roster and combat rewards', () => {
     const reserve = createProgress(2); reserve.attributes.politics = 13; reserve.points = 0;
     const state = setDeployment({ ...base, party: { ...base.party, aman: reserve, 'guan-yu': createProgress() } }, ['traveler', 'guan-yu']);
     const rewarded = rewardVictory(state, 'ambush');
-    expect(rewarded.party['guan-yu'].level).toBe(2);
+    for (const id of state.deployed) expect(rewarded.party[id]).toEqual(grantExperience(state.party[id], victoryExperience(30, effectiveAttributes(id, state.party[id].attributes))));
     expect(rewarded.party.aman).toBe(reserve);
     expect(rewarded.party['chen-da']).toBe(base.party['chen-da']);
-    expect(rewarded.supplies).toBe(state.supplies);
+    const deployedBonus = state.deployed.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id, state.party[id].attributes)).supplies, 0);
+    expect(deployedBonus).toBe(2);
+    expect(rewarded.supplies).toBe(state.supplies + deployedBonus);
     expect(rewardVictory(rewarded, 'ambush')).toBe(rewarded);
   });
   it('freezes a travel battle lineup, locks its pending event and releases the snapshot after settlement', () => {

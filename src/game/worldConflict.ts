@@ -9,7 +9,8 @@ import { CONFLICT_FACTIONS, CONFLICT_FOUNDATIONS, CONFLICT_RULES, factionAt, fac
 import type { ConflictArmy, ConflictReport, WorldConflict } from './worldConflictTypes';
 import type { LifeState } from './lifeTypes';
 import { isAliveAt } from './personLife';
-import { CITY_CAREERS } from './careerData';
+import { assignGovernors } from './governorAssignments';
+import { prefectIdentity } from './prefectIdentity';
 import { cityNameAt } from './cityNames';
 import { expansionFactionAt } from './generationWorldData';
 export type { ConflictArmy, ConflictCity, ConflictFaction, ConflictReport, WorldConflict } from './worldConflictTypes';
@@ -106,26 +107,10 @@ function foundations(world:WorldConflict,partyIds:readonly string[],snapshot=fal
     reportArmy(world,army,'foundation',`${factionAt(stage.factionId).name}起兵${stage.raised}人。${stage.note}`);
   }
 }
-function assignGovernors(world:WorldConflict,partyIds:readonly string[],life?:LifeState):void {
-  const date=dateAt(world.lastDay),month=date.year*12+date.month;
-  const unavailable=new Set([...partyIds,...world.armies.flatMap(a=>a.commanderId?[a.commanderId]:[])]);
-  // Date-specific appointments supply candidates, never ownership. Conquerors may use an institution.
-  for(const c of Object.values(world.cities))delete c.governorId;
-  for(const term of GARRISON_COMMANDERS) {
-    if(month<term.from.year*12+(term.from.month??1)||month>term.to.year*12+(term.to.month??12)||unavailable.has(term.employerId)||!activePerson(term.employerId,date,life)||factionForPerson(term.employerId,date)!==world.cities[term.cityId].factionId)continue;
-    world.cities[term.cityId].governorId=term.employerId;unavailable.add(term.employerId);
-  }
-  // Dated offices supply people only when their institution actually owns the city.
-  for(const [id,stages] of Object.entries(CITY_CAREERS).sort(([a],[b])=>Number(leaderForFaction(factionForPerson(b,date)??'',date,life)===b)-Number(leaderForFaction(factionForPerson(a,date)??'',date,life)===a))) {
-    const term=stages.find(s=>s.kind==='governing'&&month>=s.from.year*12+(s.from.month??1)&&month<=s.to.year*12+(s.to.month??12));
-    if(!term||unavailable.has(id)||!activePerson(id,date,life)||world.cities[term.cityId].governorId||factionForPerson(id,date)!==world.cities[term.cityId].factionId)continue;
-    world.cities[term.cityId].governorId=id;unavailable.add(id);
-  }
-}
 export function createWorldConflict(date:GameDate,partyIds:readonly string[]=[],seed=0x71c0ffee,life?:LifeState):WorldConflict {
   const day=conflictDay(date);
   const cities=Object.fromEntries(WORLD_CITIES.map(c=>[c.id,{factionId:LEGACY_CITY_IDS.includes(c.id)?'han':expansionFactionAt(c.id,date),troops:garrisonTroopsAt(c.id,date).troops,occupationDay:-1}]));
-  const world:WorldConflict={version:2,lastDay:day,seed:seed>>>0,nextArmyId:1,nextReportId:1,cities,armies:[],founded:[],nextDecision:{han:day+1},reports:[],ledger:{initial:Object.values(cities).reduce((n,c)=>n+c.troops,0),recruited:0,raised:0,losses:0}};
+  const world:WorldConflict={version:3,nextPrefectId:1,prefectIds:[],lastDay:day,seed:seed>>>0,nextArmyId:1,nextReportId:1,cities,armies:[],founded:[],nextDecision:{han:day+1},reports:[],ledger:{initial:Object.values(cities).reduce((n,c)=>n+c.troops,0),recruited:0,raised:0,losses:0}};
   foundations(world,partyIds,true,life);assignGovernors(world,partyIds,life);return world;
 }
 export function armyRemainingDays(army:ConflictArmy):number {
@@ -136,7 +121,7 @@ export function armyRemainingDays(army:ConflictArmy):number {
 const contribution=(troops:number)=>Math.max(0,Math.min(Math.floor(troops*.6),troops-2000));
 /** Pure explicit dispatch for deterministic scenario/QA fixtures. Normal play uses the same checks. */
 export function dispatchConflictArmy(world:WorldConflict,sourceCityId:string,targetCityId:string,partyIds:readonly string[]=[],life?:LifeState):WorldConflict {
-  const next=structuredClone(world); dispatch(next,sourceCityId,targetCityId,partyIds,life); return next;
+  const next=structuredClone(world);if(!dispatch(next,sourceCityId,targetCityId,partyIds,life))return world;assignGovernors(next,partyIds,life); return next;
 }
 function dispatch(world:WorldConflict,source:string,target:string,partyIds:readonly string[],life?:LifeState):boolean {
   if(!knownCity(source)||!knownCity(target)||!neighbors(source).includes(target)) return false;
@@ -156,10 +141,11 @@ function decisions(world:WorldConflict,partyIds:readonly string[],life?:LifeStat
   for(const faction of CONFLICT_FACTIONS) {
     if(!Object.hasOwn(world.nextDecision,faction.id)||world.nextDecision[faction.id]>world.lastDay) continue;
     world.nextDecision[faction.id]=world.lastDay+30;
+    if(faction.id==='player')continue; // Player garrisons only dispatch on explicit commands.
     if(!capacity(world,faction.id)) continue;
     const candidates=WORLD_CITIES.filter(c=>world.cities[c.id].factionId===faction.id&&contribution(world.cities[c.id].troops)>=500).flatMap(c=>neighbors(c.id)
       .filter(target=>world.cities[target].factionId!==faction.id&&
-        (faction.id!=='han'||['yellow-turban','zhang-yan'].includes(world.cities[target].factionId))&&
+        (faction.id!=='han'||['yellow-turban','zhang-yan','player'].includes(world.cities[target].factionId))&&
         !world.armies.some(a=>a.targetCityId===target&&['assembling','marching','sieging'].includes(a.phase)))
       .map(target=>({source:c.id,target,score:contribution(world.cities[c.id].troops)/(world.cities[target].troops*1.15+1)-conflictRoadDays(c.id,target)*.003})));
     candidates.sort((a,b)=>b.score-a.score||a.source.localeCompare(b.source)||a.target.localeCompare(b.target));
@@ -174,6 +160,11 @@ function disband(world:WorldConflict,army:ConflictArmy):void {
   world.ledger.losses+=army.troops; reportArmy(world,army,'disband',`${factionAt(army.factionId).name}已无可达据点，${army.troops}人溃散。`,{losses:army.troops}); removeArmy(world,army);
 }
 function retreat(world:WorldConflict,army:ConflictArmy,from=location(army)):void {
+  if(army.factionId==='player'){
+    world.playerReserve=(world.playerReserve??0)+army.troops;
+    reportArmy(world,army,'retreat',`主角所部${army.troops}名余兵撤回随行预备队。`);
+    removeArmy(world,army);return;
+  }
   const bases=WORLD_CITIES.filter(c=>world.cities[c.id].factionId===army.factionId).map(c=>({id:c.id,route:route(world,from,c.id,army.factionId)}))
     .filter((c):c is {id:string;route:{path:string[];days:number}}=>!!c.route);
   if(!bases.length) { disband(world,army); return; }
@@ -206,7 +197,7 @@ function battle(world:WorldConflict,army:ConflictArmy,captured:Set<string>):void
   const city=world.cities[army.targetCityId];
   if(city.factionId===army.factionId) {merge(world,army);return;}
   if(captured.has(army.targetCityId)) {retreat(world,army);return;}
-  const enemy=city.factionId, attack=power(army.troops)*(army.commanderId?1.06:1)*(.9+random(world)*.2),defense=power(city.troops)*1.15*(.9+random(world)*.2);
+  const enemy=city.factionId, attack=power(army.troops)*(army.commanderId||army.factionId==='player'?1.06:1)*(.9+random(world)*.2),defense=power(city.troops)*1.15*(.9+random(world)*.2);
   if(attack>defense) {
     const lost=Math.min(army.troops-1,Math.ceil(city.troops*(.25+random(world)*.2))),defenders=city.troops;
     army.troops-=lost;world.ledger.losses+=lost+defenders;
@@ -262,7 +253,7 @@ export function advanceWorldConflict(world:WorldConflict,date:GameDate,partyIds:
     next.lastDay=day;
     for(const army of next.armies) if(army.commanderId&&!eligibleCommander(army.commanderId,army.factionId,dateAt(day),life))delete army.commanderId;
     if(day%30===0) for(const city of Object.values(next.cities)) {const raised=Math.min(50,20000-city.troops);city.troops+=raised;next.ledger.recruited+=raised;}
-    foundations(next,partyIds,false,life);moveArmies(next);assignGovernors(next,partyIds,life);decisions(next,partyIds,life);
+    foundations(next,partyIds,false,life);moveArmies(next);assignGovernors(next,partyIds,life);decisions(next,partyIds,life);assignGovernors(next,partyIds,life);
   }
   return next;
 }
@@ -275,27 +266,32 @@ export function reconcileWorldPeople(world:WorldConflict,date:GameDate,partyIds:
     (partyIds.includes(city.governorId)||!activePerson(city.governorId,date,life))) delete writable().cities[cityId].governorId;
   for(const [index,army] of world.armies.entries()) if(army.commanderId&&
     (partyIds.includes(army.commanderId)||!eligibleCommander(army.commanderId,army.factionId,date,life))) delete writable().armies[index].commanderId;
-  return next;
+  const assigned=structuredClone(next);assignGovernors(assigned,partyIds,life);
+  return JSON.stringify(assigned)===JSON.stringify(next)?next:assigned;
 }
 
 const integer=(n:unknown,min=0,max=Number.MAX_SAFE_INTEGER):n is number=>typeof n==='number'&&Number.isSafeInteger(n)&&n>=min&&n<=max;
 const record=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x)&&Object.getPrototypeOf(x)===Object.prototype;
 const onlyKeys=(x:object,allowed:readonly string[])=>Object.keys(x).every(k=>allowed.includes(k));
 /** Strict persisted-world validation. A rejected world must be recovered explicitly by the save bridge. */
-export function isWorldConflict(value:unknown,date:GameDate,partyIds:readonly string[]=[],life?:LifeState):value is WorldConflict {
+export function isWorldConflict(value:unknown,date:GameDate,partyIds:readonly string[]=[],life?:LifeState,legacy=false):value is WorldConflict {
   let now:number;try{now=conflictDay(date);}catch{return false;}
-  if(!record(value)||!onlyKeys(value,['version','lastDay','seed','nextArmyId','nextReportId','cities','armies','founded','nextDecision','reports','ledger'])||value.version!==2||!integer(value.lastDay,0,Math.min(now,MAX_DAY))||!integer(value.seed,0,0xffffffff)||!integer(value.nextArmyId,1)||!integer(value.nextReportId,1)||!record(value.cities)||Object.keys(value.cities).length!==WORLD_CITIES.length||!Array.isArray(value.armies)||value.armies.length>12||!Array.isArray(value.founded)||!Array.isArray(value.reports)||value.reports.length>50||!record(value.nextDecision)||!record(value.ledger))return false;
+  if(!record(value)||!onlyKeys(value,['version','lastDay','seed','nextArmyId','nextReportId','nextPrefectId','prefectIds','playerReserve','cities','armies','founded','nextDecision','reports','ledger'])||value.version!==3||!integer(value.nextPrefectId,1,1000001)||!Array.isArray(value.prefectIds)||new Set(value.prefectIds).size!==value.prefectIds.length||value.prefectIds.some(id=>!prefectIdentity(id)||prefectIdentity(id)!.serial>=Number(value.nextPrefectId)||prefectIdentity(id)!.appointedYear>dateAt(Number(value.lastDay)).year)||!integer(value.lastDay,0,Math.min(now,MAX_DAY))||!integer(value.seed,0,0xffffffff)||!integer(value.nextArmyId,1)||!integer(value.nextReportId,1)||!record(value.cities)||Object.keys(value.cities).length!==WORLD_CITIES.length||!Array.isArray(value.armies)||value.armies.length>12||!Array.isArray(value.founded)||!Array.isArray(value.reports)||value.reports.length>50||!record(value.nextDecision)||!record(value.ledger))return false;
   // Top-level collections have been checked; every element and scalar is checked below.
-  const w=value as unknown as WorldConflict, assigned=new Set<string>(partyIds), armyIds=new Set<string>(),factionCount=new Map<string,number>();let stock=0;
+  if(value.playerReserve!==undefined&&!integer(value.playerReserve,0,20000))return false;
+  const w=value as unknown as WorldConflict, assigned=new Set<string>(partyIds), armyIds=new Set<string>(),factionCount=new Map<string,number>();let stock=w.playerReserve??0;
   const dueStages=CONFLICT_FOUNDATIONS.filter(stage=>conflictDay({year:stage.year,month:stage.month})<=w.lastDay);
-  const activeFactions=new Set(['han',...dueStages.map(stage=>stage.factionId)]);
+  const activeFactions=new Set(['han',...(w.playerReserve!==undefined?['player']:[]),...dueStages.map(stage=>stage.factionId)]);
   if(w.founded.length!==dueStages.length||new Set(w.founded).size!==w.founded.length||dueStages.some(stage=>!w.founded.includes(stage.id)))return false;
   if(Object.keys(w.nextDecision).length!==activeFactions.size||Object.entries(w.nextDecision).some(([id,day])=>!activeFactions.has(id)||!integer(day,w.lastDay+1,w.lastDay+30)))return false;
   for(const id of Object.keys(w.cities)) if(!knownCity(id))return false;
   for(const city of WORLD_CITIES) {
     const c=w.cities[city.id];
-    if(!record(c)||!onlyKeys(c,['factionId','troops','occupationDay','governorId'])||!knownFaction(c.factionId)||!activeFactions.has(c.factionId)||!integer(c.troops,0,20000)||!integer(c.occupationDay,-1,w.lastDay as number))return false;
-    if(c.governorId!==undefined) {if(typeof c.governorId!=='string'||!people.has(c.governorId)||!activePerson(c.governorId,dateAt(w.lastDay),life)||factionForPerson(c.governorId,dateAt(w.lastDay))!==c.factionId||assigned.has(c.governorId))return false;assigned.add(c.governorId);}
+    if(!record(c)||!onlyKeys(c,['factionId','troops','occupationDay','governorId','governorKind','governorSince'])||!knownFaction(c.factionId)||!activeFactions.has(c.factionId)||!integer(c.troops,0,20000)||!integer(c.occupationDay,-1,w.lastDay as number))return false;
+    if(c.governorId!==undefined) {if(typeof c.governorId!=='string'||(!people.has(c.governorId)&&!prefectIdentity(c.governorId))||!activePerson(c.governorId,dateAt(w.lastDay),life)||factionForPerson(c.governorId,dateAt(w.lastDay))!==c.factionId||assigned.has(c.governorId))return false;assigned.add(c.governorId);}
+    if(!legacy&&(!c.governorId||!['historical','original'].includes(c.governorKind??'')||!integer(c.governorSince,0,w.lastDay)||
+      (c.governorKind==='original')!==!!prefectIdentity(c.governorId)||prefectIdentity(c.governorId)&&!w.prefectIds.includes(c.governorId)||
+      prefectIdentity(c.governorId)&&((prefectIdentity(c.governorId)!.cityId!==city.id)||prefectIdentity(c.governorId)!.serial>=w.nextPrefectId)))return false;
     stock+=c.troops;
   }
   for(const a of w.armies) {
@@ -311,28 +307,38 @@ export function isWorldConflict(value:unknown,date:GameDate,partyIds:readonly st
     factionCount.set(a.factionId,(factionCount.get(a.factionId)??0)+1);if(factionCount.get(a.factionId)!>2)return false;
     armyIds.add(a.id);stock+=a.troops;
   }
+  if(w.armies.filter(a=>a.factionId==='player').length>1||(w.playerReserve??0)+w.armies.filter(a=>a.factionId==='player').reduce((n,a)=>n+a.troops,0)>20000)return false;
   let previous=0;
   for(const r of w.reports) {
-    if(!record(r)||!onlyKeys(r,['id','day','kind','factionId','cityId','opponentFactionId','armyId','troops','losses','text'])||!integer(r.id,previous+1,(w.nextReportId as number)-1)||!integer(r.day,0,w.lastDay as number)||!['foundation','dispatch','siege','capture','defeat','retreat','return','camp','disband'].includes(r.kind as string)||!knownFaction(r.factionId)||!knownCity(r.cityId)||typeof r.text!=='string'||!r.text.length||r.text.length>2000||(r.opponentFactionId!==undefined&&!knownFaction(r.opponentFactionId))||(r.armyId!==undefined&&(typeof r.armyId!=='string'||!/^army-[1-9]\d*$/.test(r.armyId)||!integer(Number(r.armyId.slice(5)),1,(w.nextArmyId as number)-1)))||(r.troops!==undefined&&!integer(r.troops,0,1000000))||(r.losses!==undefined&&!integer(r.losses,0,2000000)))return false;
+    if(!record(r)||!onlyKeys(r,['id','day','kind','factionId','cityId','opponentFactionId','armyId','troops','losses','text'])||!integer(r.id,previous+1,(w.nextReportId as number)-1)||!integer(r.day,0,w.lastDay as number)||!['foundation','dispatch','siege','capture','defeat','retreat','return','camp','disband','recruit','transfer'].includes(r.kind as string)||!knownFaction(r.factionId)||!knownCity(r.cityId)||typeof r.text!=='string'||!r.text.length||r.text.length>2000||(r.opponentFactionId!==undefined&&!knownFaction(r.opponentFactionId))||(r.armyId!==undefined&&(typeof r.armyId!=='string'||!/^army-[1-9]\d*$/.test(r.armyId)||!integer(Number(r.armyId.slice(5)),1,(w.nextArmyId as number)-1)))||(r.troops!==undefined&&!integer(r.troops,0,1000000))||(r.losses!==undefined&&!integer(r.losses,0,2000000)))return false;
     previous=r.id;
   }
   if(!onlyKeys(w.ledger,['initial','recruited','raised','losses','expansion'])||!(['initial','recruited','raised','losses'] as const).every(k=>integer(w.ledger[k]))||w.ledger.expansion!==undefined&&w.ledger.expansion!==120000)return false;
   return stock===(w.ledger.initial as number)+(w.ledger.expansion??0)+(w.ledger.recruited as number)+(w.ledger.raised as number)-(w.ledger.losses as number);
 }
 
-/** Upgrade exactly the former36city schema; arbitrary holes are corruption, not expansion. */
-export function migrateWorldConflict(value: unknown, date: GameDate, partyIds: readonly string[] = []): WorldConflict | null {
-  if (isWorldConflict(value, date, partyIds)) return value;
-  if (!record(value) || value.version !== 1 || !record(value.cities) || !record(value.ledger) ||
-      Object.keys(value.cities).length !== LEGACY_CITY_IDS.length ||
-      !LEGACY_CITY_IDS.every(id => Object.hasOwn(value.cities as object, id)) || !integer(value.ledger.initial) ||
-      !onlyKeys(value.ledger,['initial','recruited','raised','losses'])) return null;
-  const cities = { ...value.cities };
-  let additional = 0;
-  for (const city of WORLD_CITIES) if (!Object.hasOwn(cities, city.id)) {
-    cities[city.id] = { factionId: expansionFactionAt(city.id,date), troops: 5000, occupationDay: -1 };
-    additional += 5000;
+/** Validate the former schema before repairing appointments; troop ledgers never get reset. */
+export function migrateWorldConflict(value: unknown, date: GameDate, partyIds: readonly string[] = [],life?:LifeState): WorldConflict | null {
+  if (isWorldConflict(value,date,partyIds,life)) return value;
+  if(record(value)&&value.version===3){
+    // A repaired life module can invalidate commissions without corrupting the war.
+    // Retain the full v3 structural, affiliation and troop-ledger checks first.
+    if(!isWorldConflict(value,date,partyIds))return null;
+    const reconciled=reconcileWorldPeople(value,dateAt(value.lastDay),partyIds,life);
+    return isWorldConflict(reconciled,date,partyIds,life)?reconciled:null;
   }
-  const candidate = { ...value, version: 2, cities, ledger: { ...value.ledger, expansion: additional } };
-  return isWorldConflict(candidate, date, partyIds) ? candidate : null;
+  if (!record(value)||![1,2].includes(value.version as number)||!record(value.cities)||!record(value.ledger))return null;
+  if(Object.hasOwn(value,'nextPrefectId')||Object.hasOwn(value,'prefectIds')||Object.values(value.cities).some(c=>!record(c)||!onlyKeys(c,['factionId','troops','occupationDay','governorId'])))return null;
+  const cities=structuredClone(value.cities),ledger={...value.ledger};
+  if(value.version===1){
+    if(Object.keys(cities).length!==LEGACY_CITY_IDS.length||!LEGACY_CITY_IDS.every(id=>Object.hasOwn(cities,id))||!onlyKeys(ledger,['initial','recruited','raised','losses']))return null;
+    let additional=0;
+    for(const city of WORLD_CITIES)if(!Object.hasOwn(cities,city.id)){cities[city.id]={factionId:expansionFactionAt(city.id,date),troops:5000,occupationDay:-1};additional+=5000;}
+    ledger.expansion=additional;
+  }
+  const candidate={...value,version:3,nextPrefectId:1,prefectIds:[],cities,ledger};
+  // Lifespan changes are reconciled separately; legacy validation checks the old structural contract.
+  if(!isWorldConflict(candidate,date,partyIds,undefined,true))return null;
+  const migrated=reconcileWorldPeople(candidate,dateAt(candidate.lastDay),partyIds,life);
+  return isWorldConflict(migrated,date,partyIds,life)?migrated:null;
 }

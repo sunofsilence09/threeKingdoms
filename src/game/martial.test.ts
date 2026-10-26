@@ -8,11 +8,11 @@ import { canRequestTeaching, createMartialProgress, equipMartial, isDuelEncounte
 
 const ready = (affinity = 80, seed = 12345) => ({ ...createInitialState(() => 0), worldConflict: undefined, phase: 'overworld' as const, currentCityId: 'zhuo', relationships: { 'guan-yu': { affinity } }, martial: { ...createMartialProgress(), seed } });
 describe('historically inspired martial catalog', () => {
-  it('gives all 73 named people distinct designs across eleven executable templates', () => {
-    expect(MARTIAL_CATALOG).toHaveLength(73);
-    expect(new Set(MARTIAL_CATALOG.map(s => s.id)).size).toBe(73);
-    expect(new Set(MARTIAL_CATALOG.map(s => s.name)).size).toBe(73);
-    expect(new Set(MARTIAL_CATALOG.map(s => s.personId)).size).toBe(73);
+  it('gives all 105 named people distinct designs across eleven executable templates', () => {
+    expect(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect')).toHaveLength(105);
+    expect(new Set(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect').map(s => s.id)).size).toBe(105);
+    expect(new Set(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect').map(s => s.name)).size).toBe(105);
+    expect(new Set(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect').map(s => s.personId)).size).toBe(105);
     expect(new Set(MARTIAL_CATALOG.map(s => s.template)).size).toBe(11);
     expect(MARTIAL_CATALOG.every(s => s.source && s.basis && s.description && s.cooldown === 3)).toBe(true);
     expect(martialForPerson('himiko')?.readOnly).toBe(true);

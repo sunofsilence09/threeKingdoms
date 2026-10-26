@@ -9,9 +9,9 @@ describe('sixty-city strategic save migration', () => {
     const old = oldSaves.city200;
     const migrated = migrateWorldConflict(old.worldConflict, old.date, Object.keys(old.party));
     expect(migrated).not.toBeNull();
-    expect(migrated!.version).toBe(2);
+    expect(migrated!.version).toBe(3);
     expect(Object.keys(migrated!.cities)).toHaveLength(60);
-    for (const id of LEGACY_CITY_IDS) expect(migrated!.cities[id]).toEqual(old.worldConflict.cities[id as keyof typeof old.worldConflict.cities]);
+    for (const id of LEGACY_CITY_IDS){ const before=old.worldConflict.cities[id as keyof typeof old.worldConflict.cities];expect(migrated!.cities[id]).toMatchObject({factionId:before.factionId,troops:before.troops,occupationDay:before.occupationDay}); }
     expect(migrated!.seed).toBe(old.worldConflict.seed);
     expect(migrated!.armies).toEqual(old.worldConflict.armies);
     expect(migrated!.lastDay).toBe(old.worldConflict.lastDay);
@@ -38,11 +38,11 @@ describe('sixty-city strategic save migration', () => {
     expect(unchanged.ledger.expansion).toBe(120000);
     expect(unchanged.ledger.initial).toBe(old.worldConflict.ledger.initial);
   },20000);
-  it('creates and advances a complete version2world through310', () => {
+  it('creates and advances a complete version3world through310', () => {
     const state = createInitialState(() => 0);
     const world = createWorldConflict({ year: 309, month: 12, day: 29 }, Object.keys(state.party));
     expect(WORLD_CITIES).toHaveLength(60);
-    expect(world.version).toBe(2);
+    expect(world.version).toBe(3);
     const next = advanceWorldConflict(world, { year: 310, month: 1, day: 1 }, Object.keys(state.party));
     expect(isWorldConflict(next, { year: 310, month: 1, day: 1 }, Object.keys(state.party))).toBe(true);
   });

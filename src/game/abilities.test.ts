@@ -5,8 +5,8 @@ import { createPartyProgress } from './growth';
 function duel(ordinary = false): CombatState {
   const base = createCombatState(null);
   return { ...base, terrain: [], width: 8, height: 6, randomSeed: 1, units: [
-    { ...base.units[ordinary ? 1 : 0], x: 1, y: 1, hp: 10, maxHp: 10, attack: 4 },
-    { ...base.units[3], x: 2, y: 1, hp: 20, maxHp: 20, attack: 4 },
+    { ...base.units[ordinary ? 1 : 0], x: 1, y: 1, hp: 10, maxHp: 10, attack: 4, defense: 0, dodgeRate: 0 },
+    { ...base.units[3], x: 2, y: 1, hp: 20, maxHp: 20, attack: 4, defense: 0, dodgeRate: 0 },
   ] };
 }
 

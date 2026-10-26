@@ -1,4 +1,5 @@
 import { attributeBonuses } from './attributes';
+import { baseAttributes, effectiveAttributes, type AttributeVersion } from './characterTalents';
 import type { RouteId } from './state';
 import { createPartyProgress, PARTY_IDS, type Progress, type PartyProgress } from './growth';
 import { recruitProfile } from './recruitmentCatalog';
@@ -43,6 +44,7 @@ export interface CombatUnit {
   martialIds?: string[]; martialReady?: Record<string, number>; effects?: CombatEffect[];
 }
 export interface CombatState {
+  attributeVersion?: AttributeVersion;
   width: number; height: number; terrain: TerrainTile[]; units: CombatUnit[];
   selectedId: string | null; turn: CombatTeam; route: RouteId | null;
   round: number; movedIds: string[]; actedIds: string[]; randomSeed: number; lastEvent?: CombatEvent; turnEvents?: CombatEvent[];
@@ -54,7 +56,7 @@ interface Tile { x: number; y: number }
 interface PathTile extends Tile { cost: number; path: Tile[] }
 
 /** Candidate previews and battle spawns share the same earned attributes and equipment. */
-export function makePartyUnit(id: string, progress: Progress, route: RouteId | null, mode: BattleMode, x = 0, y = 0): CombatUnit {
+export function makePartyUnit(id: string, progress: Progress, route: RouteId | null, mode: BattleMode, x = 0, y = 0, attributeVersion: AttributeVersion = 2): CombatUnit {
   const profile = recruitProfile(id);
   if (!profile) throw new Error(`Unknown party member: ${id}`);
   const initialEquipment: Record<string, WeaponId> = mode === 'route'
@@ -62,7 +64,7 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
     : { traveler: 'cleaver', aman: 'fists', 'chen-da': 'fists' };
   const weapon = initialEquipment[id] ?? profile.weapon;
   const { level, xp, attributes } = progress;
-  const bonus = attributeBonuses(attributes);
+  const bonus = attributeBonuses(effectiveAttributes(id, attributes, attributeVersion));
   const maxHp = WEAPONS[weapon].hp + (level - 1) * 2 + bonus.hp + (route === 'liu' ? 1 : 0);
   return { id, name: profile.name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp, speed: profile.speed,
     attack: WEAPONS[weapon].attack + Math.floor((level - 1) / 2) + bonus.attack + (route === 'cao' && id === 'traveler' ? 1 : 0), guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
@@ -72,8 +74,13 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
 export function createCombatState(route: RouteId | null, party: PartyProgress = createPartyProgress(), mode: BattleMode = route ? 'route' : 'ambush', deployed: readonly string[] = PARTY_IDS, options: { enemyKind?: 'bandits' | 'wolves'; month?: number; seed?: number } = {}): CombatState {
   if (deployed.length < 1 || deployed.length > 5 || new Set(deployed).size !== deployed.length ||
       deployed.some(id => !recruitProfile(id) || recruitProfile(id)!.readOnly || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
-  const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit =>
-    ({ id: deployed.includes(id) ? `enemy:${id}` : id, name, team: 'enemy', x, y, hp, maxHp: hp, attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9, weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: 0, dodgeRate: 0, ultimate: 'desperation', ultimateUsed: false, empowered: false });
+  const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit => {
+    const bonus = attributeBonuses(baseAttributes(id));
+    return { id: deployed.includes(id) ? `enemy:${id}` : id, name, team: 'enemy', x, y, hp: hp + bonus.hp, maxHp: hp + bonus.hp,
+      attack: attack + bonus.attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9,
+      weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
+      ultimate: 'desperation', ultimateUsed: false, empowered: false };
+  };
   const advanced = mode === 'route';
   const allyPositions = [[advanced ? 4 : 3, 4], [3, 5], [advanced ? 4 : 2, 6], [2, 3], [3, 7]];
   const enemyPositions = [[7, 4], [7, 6], [9, 5], [8, 8], [11, 7]];
@@ -82,7 +89,7 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
   }));
   const seed = (options.seed ?? (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0))) >>> 0;
   return advanceTurn({
-    width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: seed,
+    attributeVersion: 2, width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: seed,
     environment: createEnvironment(options.month ?? 3, seed), fires: [], scorched: [],
     units: [
       ...deployed.map((id, index) => makePartyUnit(id, party[id], route, mode, allyPositions[index][0], allyPositions[index][1])),
@@ -136,7 +143,7 @@ function updateUnit(state: CombatState, id: string, updater: (u: CombatUnit) => 
 /** Formation HP is the sole source of its surviving soldiers and effective combat strength. */
 export function updateUnitHp(unit: CombatUnit, hp: number): CombatUnit {
   if (!unit.formation) return { ...unit, hp };
-  const formation = formationStrength(unit.formation.initialTroops, hp);
+  const formation = formationStrength(unit.formation.initialTroops, hp, unit.formation.attributeVersion ?? 1);
   return { ...unit, hp: formation.hp, attack: formation.attack, defense: formation.defense, formation };
 }
 export function endAction(state: CombatState, id: string): CombatState {

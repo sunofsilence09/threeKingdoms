@@ -1,0 +1,1971 @@
+{
+  "life": {
+    "version": 1,
+    "catalogVersion": 1,
+    "seed": 1885037568,
+    "people": {
+      "cao-cao": {
+        "birthYear": 155,
+        "deathYear": 223
+      },
+      "liu-bei": {
+        "birthYear": 161,
+        "deathYear": 222
+      },
+      "sun-quan": {
+        "birthYear": 182,
+        "deathYear": 248
+      },
+      "sun-shangxiang": {
+        "birthYear": 184,
+        "deathYear": 259
+      },
+      "diao-chan": {
+        "birthYear": 166,
+        "deathYear": 237
+      },
+      "cai-yan": {
+        "birthYear": 169,
+        "deathYear": 239
+      },
+      "dong-zhuo": {
+        "birthYear": 142,
+        "deathYear": 193
+      },
+      "lu-bu": {
+        "birthYear": 164,
+        "deathYear": 194
+      },
+      "hua-xiong": {
+        "birthYear": 166,
+        "deathYear": 196
+      },
+      "zhen-ji": {
+        "birthYear": 183,
+        "deathYear": 225
+      },
+      "zhang-liao": {
+        "birthYear": 169,
+        "deathYear": 227
+      },
+      "guan-yu": {
+        "birthYear": 159,
+        "deathYear": 218
+      },
+      "zhang-fei": {
+        "birthYear": 159,
+        "deathYear": 223
+      },
+      "zhao-yun": {
+        "birthYear": 166,
+        "deathYear": 230
+      },
+      "mi-fu-ren": {
+        "birthYear": 171,
+        "deathYear": 236
+      },
+      "zhang-xingcai": {
+        "birthYear": 195,
+        "deathYear": 263
+      },
+      "zhuge-liang": {
+        "birthYear": 181,
+        "deathYear": 235
+      },
+      "zhou-yu": {
+        "birthYear": 175,
+        "deathYear": 207
+      },
+      "yuan-shu": {
+        "birthYear": 164,
+        "deathYear": 204
+      },
+      "chen-gong": {
+        "birthYear": 167,
+        "deathYear": 204
+      },
+      "zhang-miao": {
+        "birthYear": 165,
+        "deathYear": 193
+      },
+      "gao-shun": {
+        "birthYear": 171,
+        "deathYear": 200
+      },
+      "zhou-tai": {
+        "birthYear": 170,
+        "deathYear": 226
+      },
+      "han-dang": {
+        "birthYear": 159,
+        "deathYear": 226
+      },
+      "xiahou-dun": {
+        "birthYear": 164,
+        "deathYear": 217
+      },
+      "xiahou-yuan": {
+        "birthYear": 164,
+        "deathYear": 223
+      },
+      "cao-ren": {
+        "birthYear": 168,
+        "deathYear": 220
+      },
+      "cao-xiu": {
+        "birthYear": 175,
+        "deathYear": 227
+      },
+      "liu-biao": {
+        "birthYear": 142,
+        "deathYear": 205
+      },
+      "liu-zhang": {
+        "birthYear": 169,
+        "deathYear": 234
+      },
+      "zhang-lu": {
+        "birthYear": 166,
+        "deathYear": 232
+      },
+      "ma-teng": {
+        "birthYear": 162,
+        "deathYear": 213
+      },
+      "himiko": {
+        "birthYear": 155,
+        "deathYear": 249
+      },
+      "gongsun-zan": {
+        "birthYear": 159,
+        "deathYear": 194
+      },
+      "yuan-shao": {
+        "birthYear": 163,
+        "deathYear": 200
+      },
+      "liu-yu": {
+        "birthYear": 163,
+        "deathYear": 195
+      },
+      "zhang-yan": {
+        "birthYear": 159,
+        "deathYear": 228
+      },
+      "sun-jian": {
+        "birthYear": 155,
+        "deathYear": 195
+      },
+      "sun-ce": {
+        "birthYear": 175,
+        "deathYear": 203
+      },
+      "wang-yun": {
+        "birthYear": 137,
+        "deathYear": 193
+      },
+      "xu-qiu": {
+        "birthYear": 159,
+        "deathYear": 231
+      },
+      "guo-xun": {
+        "birthYear": 159,
+        "deathYear": 184
+      },
+      "jia-cong": {
+        "birthYear": 159,
+        "deathYear": 233
+      },
+      "guo-dian": {
+        "birthYear": 159,
+        "deathYear": 232
+      },
+      "zhao-qian": {
+        "birthYear": 159,
+        "deathYear": 187
+      },
+      "chu-gong": {
+        "birthYear": 159,
+        "deathYear": 179
+      },
+      "qin-jie": {
+        "birthYear": 159,
+        "deathYear": 182
+      },
+      "cao-pi": {
+        "birthYear": 187,
+        "deathYear": 228
+      },
+      "liu-shan": {
+        "birthYear": 207,
+        "deathYear": 268
+      },
+      "sima-yi": {
+        "birthYear": 179,
+        "deathYear": 246
+      },
+      "sima-zhao": {
+        "birthYear": 211,
+        "deathYear": 261
+      },
+      "sima-yan": {
+        "birthYear": 236,
+        "deathYear": 289
+      },
+      "deng-ai": {
+        "birthYear": 197,
+        "deathYear": 259
+      },
+      "jiang-wei": {
+        "birthYear": 202,
+        "deathYear": 268
+      },
+      "zhong-yao": {
+        "birthYear": 151,
+        "deathYear": 225
+      },
+      "zhong-hui": {
+        "birthYear": 225,
+        "deathYear": 260
+      },
+      "xun-yu": {
+        "birthYear": 163,
+        "deathYear": 216
+      },
+      "xun-you": {
+        "birthYear": 157,
+        "deathYear": 216
+      },
+      "sun-xiu": {
+        "birthYear": 235,
+        "deathYear": 263
+      },
+      "sun-liang": {
+        "birthYear": 243,
+        "deathYear": 256
+      },
+      "liu-chen": {
+        "birthYear": 234,
+        "deathYear": 259
+      },
+      "cao-rui": {
+        "birthYear": 205,
+        "deathYear": 240
+      },
+      "cao-fang": {
+        "birthYear": 232,
+        "deathYear": 279
+      },
+      "cao-mao": {
+        "birthYear": 241,
+        "deathYear": 259
+      },
+      "cao-huan": {
+        "birthYear": 246,
+        "deathYear": 303
+      },
+      "sima-shi": {
+        "birthYear": 208,
+        "deathYear": 259
+      },
+      "sun-hao": {
+        "birthYear": 242,
+        "deathYear": 284
+      },
+      "lu-xun": {
+        "birthYear": 183,
+        "deathYear": 250
+      },
+      "lu-kang": {
+        "birthYear": 226,
+        "deathYear": 269
+      },
+      "zhuge-ke": {
+        "birthYear": 203,
+        "deathYear": 251
+      },
+      "du-yu": {
+        "birthYear": 222,
+        "deathYear": 289
+      },
+      "yang-hu": {
+        "birthYear": 221,
+        "deathYear": 283
+      },
+      "wang-jun": {
+        "birthYear": 206,
+        "deathYear": 282
+      }
+    },
+    "memorials": {},
+    "notices": [],
+    "handledIds": [
+      "guo-xun",
+      "chu-gong",
+      "qin-jie"
+    ],
+    "lastDay": 60
+  },
+  "martial": {
+    "learned": [],
+    "equipped": [],
+    "teachingDates": {},
+    "challengeDates": {},
+    "seed": 734851,
+    "settled": [],
+    "acquisitions": {}
+  },
+  "date": {
+    "year": 184,
+    "month": 3,
+    "day": 1
+  },
+  "originId": "henan",
+  "currentCityId": "henan",
+  "travelCount": 0,
+  "phase": "battle",
+  "route": "sun",
+  "supplies": 3,
+  "morale": 3,
+  "flags": {
+    "met:sun": true
+  },
+  "party": {
+    "traveler": {
+      "level": 1,
+      "xp": 0,
+      "points": 0,
+      "attributes": {
+        "command": 10,
+        "strength": 10,
+        "intellect": 10,
+        "politics": 10,
+        "charisma": 10,
+        "courage": 10
+      }
+    },
+    "aman": {
+      "level": 1,
+      "xp": 0,
+      "points": 0,
+      "attributes": {
+        "command": 10,
+        "strength": 10,
+        "intellect": 10,
+        "politics": 10,
+        "charisma": 10,
+        "courage": 10
+      }
+    },
+    "chen-da": {
+      "level": 1,
+      "xp": 0,
+      "points": 0,
+      "attributes": {
+        "command": 10,
+        "strength": 10,
+        "intellect": 10,
+        "politics": 10,
+        "charisma": 10,
+        "courage": 10
+      }
+    }
+  },
+  "deployed": [
+    "traveler",
+    "aman",
+    "chen-da"
+  ],
+  "relationships": {
+    "traveler": {
+      "affinity": 100
+    },
+    "aman": {
+      "affinity": 60
+    },
+    "chen-da": {
+      "affinity": 60
+    }
+  },
+  "economy": {
+    "coins": 600,
+    "capacity": 40,
+    "cargo": {},
+    "markets": {
+      "yingchuan": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "runan": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "nanyang": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "zhuo": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "henan": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "dongjun": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "donghai": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "beihai": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 80,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "julu": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "taiyuan": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "wuwei": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "shujun": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "changsha": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "wujun": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "danyang": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "nanhai": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "changan": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "chenliu": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "xuxian": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "ye": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "ji": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "linzi": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 80,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "xiangyang": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "jiangling": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "nanzheng": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "jiangzhou": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "guangling": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "nanchang": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "shanyin": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "quanling": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "chen": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "guangxin": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "jincheng": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "didao": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "shouchun": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "xiapi": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "moling": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "chaisang": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "echeng": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "hefei": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "shu": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "nanpi": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 80,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "pingyuan": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "xiangping": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "zhending": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "lu": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "anyi": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "hongnong": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "suiyang": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "pei": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 80,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "jixian": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "linjing": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "xiabian": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 80,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "shangyong": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "zitong": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 80,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "fuxian": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 30,
+          "silk": 80,
+          "wine": 80,
+          "leather": 30
+        }
+      },
+      "yufu": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 80,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 30,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "dianchi": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 80
+        }
+      },
+      "linyuan": {
+        "period": 0,
+        "stock": {
+          "grain": 80,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 30,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      },
+      "yiling": {
+        "period": 0,
+        "stock": {
+          "grain": 30,
+          "cloth": 30,
+          "salt": 30,
+          "iron": 30,
+          "pottery": 30,
+          "tea": 80,
+          "herbs": 80,
+          "silk": 30,
+          "wine": 30,
+          "leather": 30
+        }
+      }
+    },
+    "news": [],
+    "ledger": [],
+    "profit": 0
+  },
+  "travelDays": 3,
+  "worldConflict": {
+    "version": 2,
+    "lastDay": 60,
+    "seed": 1908473838,
+    "nextArmyId": 2,
+    "nextReportId": 2,
+    "cities": {
+      "yingchuan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "runan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "nanyang": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "zhuo": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "henan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "dongjun": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "donghai": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "beihai": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "julu": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "taiyuan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "wuwei": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "shujun": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "changsha": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "wujun": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "danyang": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "nanhai": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "changan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "chenliu": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "xuxian": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "ye": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "ji": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "linzi": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "xiangyang": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "jiangling": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "nanzheng": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "jiangzhou": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "guangling": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "nanchang": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "shanyin": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "quanling": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "chen": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "guangxin": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "jincheng": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "didao": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "shouchun": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "xiapi": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "moling": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "chaisang": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "echeng": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "hefei": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "shu": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "nanpi": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "pingyuan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "xiangping": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "zhending": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "lu": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "anyi": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "hongnong": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "suiyang": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "pei": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "jixian": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "linjing": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "xiabian": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "shangyong": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "zitong": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "fuxian": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "yufu": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "dianchi": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "linyuan": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      },
+      "yiling": {
+        "factionId": "han",
+        "troops": 5000,
+        "occupationDay": -1
+      }
+    },
+    "armies": [
+      {
+        "id": "army-1",
+        "factionId": "yellow-turban",
+        "sourceCityId": "julu",
+        "targetCityId": "julu",
+        "troops": 7600,
+        "contributions": [],
+        "phase": "marching",
+        "path": [
+          "julu"
+        ],
+        "legIndex": 0,
+        "legDay": 0,
+        "phaseDays": 0
+      }
+    ],
+    "founded": [
+      "yellow-184"
+    ],
+    "nextDecision": {
+      "han": 61,
+      "yellow-turban": 61
+    },
+    "reports": [
+      {
+        "id": 1,
+        "day": 60,
+        "kind": "foundation",
+        "factionId": "yellow-turban",
+        "cityId": "julu",
+        "armyId": "army-1",
+        "troops": 7600,
+        "text": "黄巾部众起兵7600人。黄巾起事：城外有限部众，不把巨鹿郡府改写成黄巾占领"
+      }
+    ],
+    "ledger": {
+      "initial": 300000,
+      "recruited": 0,
+      "raised": 7600,
+      "losses": 0
+    }
+  },
+  "encounter": "route",
+  "battleParty": [
+    "traveler",
+    "aman",
+    "chen-da"
+  ],
+  "activeBattle": {
+    "width": 16,
+    "height": 10,
+    "terrain": [
+      {
+        "x": 9,
+        "y": 0,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 1,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 2,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 3,
+        "kind": "bridge"
+      },
+      {
+        "x": 9,
+        "y": 4,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 5,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 6,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 7,
+        "kind": "bridge"
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "kind": "water"
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "kind": "water"
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "kind": "wall"
+      },
+      {
+        "x": 6,
+        "y": 4,
+        "kind": "wall"
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "kind": "wall"
+      },
+      {
+        "x": 12,
+        "y": 2,
+        "kind": "wall"
+      },
+      {
+        "x": 13,
+        "y": 2,
+        "kind": "wall"
+      },
+      {
+        "x": 12,
+        "y": 7,
+        "kind": "wall"
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "kind": "woods"
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "kind": "woods"
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "kind": "woods"
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "kind": "woods"
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "kind": "woods"
+      },
+      {
+        "x": 8,
+        "y": 7,
+        "kind": "woods"
+      },
+      {
+        "x": 11,
+        "y": 5,
+        "kind": "woods"
+      },
+      {
+        "x": 12,
+        "y": 5,
+        "kind": "woods"
+      },
+      {
+        "x": 13,
+        "y": 5,
+        "kind": "woods"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "kind": "rock"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "kind": "rock"
+      },
+      {
+        "x": 14,
+        "y": 8,
+        "kind": "rock"
+      }
+    ],
+    "selectedId": null,
+    "turn": "enemy",
+    "route": "sun",
+    "round": 1,
+    "movedIds": [
+      "aman"
+    ],
+    "actedIds": [
+      "aman"
+    ],
+    "randomSeed": 3175112689,
+    "environment": {
+      "month": 3,
+      "weather": "fog",
+      "windDirection": "e",
+      "windStrength": 2
+    },
+    "fires": [],
+    "scorched": [],
+    "units": [
+      {
+        "id": "traveler",
+        "name": "旅人",
+        "team": "party",
+        "x": 4,
+        "y": 4,
+        "hp": 11,
+        "maxHp": 11,
+        "weapon": "knife",
+        "level": 1,
+        "xp": 0,
+        "speed": 12,
+        "attack": 4,
+        "guarded": false,
+        "defense": 0,
+        "dodgeRate": 0,
+        "ultimate": "survival",
+        "ultimateUsed": false,
+        "empowered": false,
+        "martialIds": [],
+        "martialReady": {},
+        "effects": []
+      },
+      {
+        "id": "aman",
+        "name": "阿满",
+        "team": "party",
+        "x": 6,
+        "y": 6,
+        "hp": 10,
+        "maxHp": 10,
+        "weapon": "spear",
+        "level": 1,
+        "xp": 0,
+        "speed": 14,
+        "attack": 3,
+        "guarded": false,
+        "defense": 0,
+        "dodgeRate": 0,
+        "ultimate": "desperation",
+        "ultimateUsed": false,
+        "empowered": false,
+        "martialIds": [],
+        "martialReady": {},
+        "effects": []
+      },
+      {
+        "id": "chen-da",
+        "name": "陈达",
+        "team": "party",
+        "x": 4,
+        "y": 6,
+        "hp": 9,
+        "maxHp": 9,
+        "weapon": "bow",
+        "level": 1,
+        "xp": 0,
+        "speed": 10,
+        "attack": 3,
+        "guarded": false,
+        "defense": 0,
+        "dodgeRate": 0,
+        "ultimate": "desperation",
+        "ultimateUsed": false,
+        "empowered": false,
+        "martialIds": [],
+        "martialReady": {},
+        "effects": []
+      },
+      {
+        "id": "bandit-leader",
+        "name": "山贼头目",
+        "team": "enemy",
+        "x": 7,
+        "y": 4,
+        "hp": 9,
+        "maxHp": 9,
+        "attack": 3,
+        "speed": 11,
+        "weapon": "spear",
+        "level": 2,
+        "xp": 0,
+        "guarded": false,
+        "defense": 0,
+        "dodgeRate": 0,
+        "ultimate": "desperation",
+        "ultimateUsed": false,
+        "empowered": false,
+        "martialIds": [],
+        "martialReady": {},
+        "effects": []
+      },
+      {
+        "id": "bandit-scout-a",
+        "name": "拦路山贼",
+        "team": "enemy",
+        "x": 8,
+        "y": 6,
+        "hp": 4,
+        "maxHp": 7,
+        "attack": 2,
+        "speed": 13,
+        "weapon": "cleaver",
+        "level": 2,
+        "xp": 0,
+        "guarded": false,
+        "defense": 0,
+        "dodgeRate": 0,
+        "ultimate": "desperation",
+        "ultimateUsed": false,
+        "empowered": false,
+        "martialIds": [],
+        "martialReady": {},
+        "effects": []
+      },
+      {
+        "id": "bandit-scout-b",
+        "name": "山贼弓手",
+        "team": "enemy",
+        "x": 11,
+        "y": 4,
+        "hp": 6,
+        "maxHp": 6,
+        "attack": 2,
+        "speed": 9,
+        "weapon": "bow",
+        "level": 2,
+        "xp": 0,
+        "guarded": false,
+        "defense": 0,
+        "dodgeRate": 0,
+        "ultimate": "desperation",
+        "ultimateUsed": false,
+        "empowered": false,
+        "martialIds": [],
+        "martialReady": {},
+        "effects": []
+      }
+    ],
+    "lastEvent": {
+      "kind": "attack",
+      "actorId": "aman",
+      "targetId": "bandit-scout-a",
+      "damage": 3
+    },
+    "checkpointVersion": 1,
+    "encounterKey": "[null,\"route\",null,null,[\"traveler\",\"aman\",\"chen-da\"]]"
+  }
+}

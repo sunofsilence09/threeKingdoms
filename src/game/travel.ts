@@ -1,6 +1,7 @@
+import { effectiveAttributes } from './characterTalents';
 import { attributeBonuses, victoryExperience } from './attributes';
 import { grantExperience } from './growth';
-import { advanceDays, type GameDate } from './history';
+import { advanceDays, END_YEAR, isGameDate, type GameDate } from './history';
 import { applyMarketNews, GOODS, isMarketNews, type MarketNews } from './economy';
 import { gameDayNumber } from './recruitment';
 import type { GameState, RouteId } from './state';
@@ -149,9 +150,9 @@ export function finishTravelBattle(state: GameState, won: boolean): GameState {
   const wolves = state.journey.event.kind === 'wolves';
   const party = { ...state.party };
   const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
-  if (won) for (const id of fighters) party[id] = grantExperience(party[id], victoryExperience(30, party[id].attributes));
-  const bonus = won ? fighters.reduce((sum, id) => sum + attributeBonuses(party[id].attributes).supplies, 0) : 0;
-  return withWorldDate({ ...state, phase: 'overworld', encounter: undefined, battleParty: undefined, party,
+  if (won) for (const id of fighters) party[id] = grantExperience(party[id], victoryExperience(30,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)));
+  const bonus = won ? fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)).supplies, 0) : 0;
+  return withWorldDate({ ...state,activeBattle:undefined, phase: 'overworld', encounter: undefined, battleParty: undefined, party,
     economy: won && wolves ? { ...state.economy, coins: Math.min(Number.MAX_SAFE_INTEGER, state.economy.coins + 20) } : state.economy,
     supplies: state.supplies + bonus, morale: Math.max(0, state.morale + (won ? 1 : -1)),
     journey: { ...state.journey, event: undefined }, travelNotice: wolves
@@ -159,12 +160,36 @@ export function finishTravelBattle(state: GameState, won: boolean): GameState {
       : won ? '匪患已退，队伍获得经验；整备1日后继续原行程。' : '绕开匪患，耽搁3日；队伍仍在原路段，可继续行旅。' }, advanceDays(state.date, won ? 1 : 3));
 }
 
+/** Work is selected in complete five-day blocks, bounded by the remaining calendar. */
+export function maxCityWorkBlocks(state: GameState): number {
+  if (state.phase !== 'overworld' || state.journey || !WORLD_CITIES.some(city => city.id === state.currentCityId) || !isGameDate(state.date)
+    || !Number.isSafeInteger(state.supplies) || state.supplies < 0 || !Number.isSafeInteger(state.economy.coins) || state.economy.coins < 0) return 0;
+  return Math.min(72, Math.floor((gameDayNumber({ year: END_YEAR, month: 12, day: 30 }) - gameDayNumber(state.date)) / 5));
+}
+
+export function cityWorkQuote(state: GameState, blocks: number): { blocks: number; days: number; supplies: number; coins: number } | undefined {
+  if (!Number.isSafeInteger(blocks) || blocks < 1 || blocks > maxCityWorkBlocks(state)) return undefined;
+  const days = blocks * 5;
+  return { blocks, days, supplies: Math.min(days, Number.MAX_SAFE_INTEGER - state.supplies), coins: Math.min(days * 20, Number.MAX_SAFE_INTEGER - state.economy.coins) };
+}
+
+export function workInCity(state: GameState, blocks: number): GameState {
+  const quote = cityWorkQuote(state, blocks);
+  if (!quote) return state;
+  const date = advanceDays(state.date, quote.days);
+  // Refuse partial blocks even if calendar bounds change in the future.
+  if (gameDayNumber(date) - gameDayNumber(state.date) !== quote.days) return state;
+  return withWorldDate({ ...state, supplies: state.supplies + quote.supplies,
+    economy: { ...state.economy, coins: state.economy.coins + quote.coins },
+    travelNotice: `在${cityNameAt(state.currentCityId,date)}帮工${quote.days}日（${quote.blocks}段），军需+${quote.supplies} / 铜钱+${quote.coins}。` }, date);
+}
+
 export function restInCity(state: GameState, days: number): GameState {
-  if (state.journey || state.phase === 'battle' || ![1, 30, 360].includes(days)) return state;
+  if (state.journey || state.phase === 'battle' || ![30, 360].includes(days)) return state;
   const date = advanceDays(state.date, days);
   if (gameDayNumber(date) === gameDayNumber(state.date)) return state;
-  return withWorldDate({ ...state, economy: days === 1 ? { ...state.economy, coins: Math.min(Number.MAX_SAFE_INTEGER, state.economy.coins + 20) } : state.economy,
-    supplies: state.supplies + (days === 1 ? 1 : 3), travelNotice: `在${cityNameAt(state.currentCityId,date)}${days === 1 ? '帮工休整1日，获得20铜钱' : `安居${days === 30 ? '一月' : '一年'}`}，军需有所补充。` }, date);
+  return withWorldDate({ ...state, supplies: state.supplies + 3,
+    travelNotice: `在${cityNameAt(state.currentCityId,date)}安居${days === 30 ? '一月' : '一年'}，军需有所补充。` }, date);
 }
 
 export function isJourney(value: unknown, currentCityId: string, phase: string): value is Journey {

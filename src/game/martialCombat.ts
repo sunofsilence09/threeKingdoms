@@ -19,6 +19,23 @@ export function initializeMartialCombat(combat: CombatState, state: GameState): 
 export function availableMartials(combat: CombatState, actorId: string): MartialSkill[] {
   return (combat.units.find(u => u.id === actorId)?.martialIds ?? []).map(martialAt).filter((s): s is MartialSkill => !!s && !s.readOnly);
 }
+/** Player command feedback uses the same target legality as execution. */
+export function martialAvailability(combat: CombatState, actorId: string, skillId: string): { selectable: boolean; reason: string; targets: Tile[] } {
+  const unit = combat.units.find(u => u.id === actorId);
+  const blocked = (reason: string) => ({ selectable: false, reason, targets: [] });
+  if (!unit || unit.hp <= 0) return blocked('已退场');
+  if (!availableMartials(combat, actorId).some(skill => skill.id === skillId)) return blocked('未装配');
+  if (unit.weapon === 'claws') return blocked('当前武器无法施展');
+  const remaining = Math.max(0, (unit.martialReady?.[skillId] ?? 0) - combat.round);
+  const actor = currentActor(combat);
+  const waiting = combat.actedIds.includes(actorId) ? '本轮已行动'
+    : actor?.team === 'enemy' ? '敌方行动中'
+    : actor?.id !== actorId ? actorId === 'traveler' ? '等待主角行动' : '等待行动' : '';
+  if (remaining || waiting) return blocked([remaining ? `冷却${remaining}轮` : '', waiting].filter(Boolean).join(' · '));
+  if (unit.team !== 'party') return blocked('敌方行动中');
+  const targets = martialTargets(combat, actorId, skillId);
+  return { selectable: true, reason: targets.length ? '可施展' : '无合法目标', targets };
+}
 function readyActor(combat: CombatState, actorId: string, skillId: string): CombatUnit | undefined {
   const actor = currentActor(combat);
   return actor?.id === actorId && actor.hp > 0 && actor.weapon !== 'claws' &&
@@ -152,8 +169,9 @@ export function createDuelCombat(base: CombatState, state: GameState): CombatSta
   const duel = state.duel;
   if (!duel || duel.status !== 'active') throw new Error('No active duel');
   const teacherProgress = createProgress(Math.min(10, Math.max(3, state.party.traveler.level + 2, state.party[duel.teacherId]?.level ?? 1)));
+  teacherProgress.attributes = {...(state.party[duel.teacherId]?.attributes ?? teacherProgress.attributes)};
   const teacher = makePartyUnit(duel.teacherId, teacherProgress, null, 'route', 7, 4);
   const hero = makePartyUnit('traveler', state.party.traveler, state.route, state.route ? 'route' : 'ambush', 3, 4);
-  return advanceTurn(initializeMartialCombat({ ...base, units: [hero, { ...teacher, id: `enemy:${teacher.id}`, team: 'enemy' }],
+  return advanceTurn(initializeMartialCombat({ ...base, attributeVersion: 2, units: [hero, { ...teacher, id: `enemy:${teacher.id}`, team: 'enemy' }],
     selectedId: null, actedIds: [], movedIds: [], turn: 'party' }, state));
 }

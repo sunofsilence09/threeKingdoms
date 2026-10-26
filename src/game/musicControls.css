@@ -1,0 +1,6 @@
+.spring-music-controls { display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:8px 0 14px;color:var(--game-ink);font-size:14px; }
+.spring-music-controls button { min-height:44px;padding:8px 12px;border:1px solid var(--game-border);border-radius:5px;background:var(--game-background);color:var(--game-ink);font:inherit;cursor:pointer; }
+.spring-music-controls label { display:flex;align-items:center;gap:8px;min-height:44px; }
+.spring-music-controls input { width:110px;min-height:44px;accent-color:#aa652b;cursor:pointer; }
+.spring-music-controls output { min-width:3em; }
+.spring-music-controls small { color:var(--game-muted); }

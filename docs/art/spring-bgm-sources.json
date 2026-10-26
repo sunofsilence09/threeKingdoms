@@ -1,0 +1,28 @@
+{
+  "title": "春季剧情BGM试听",
+  "sourceDirectory": "D:\\games\\bgms\\ThreeKingdoms",
+  "sources": [
+    {
+      "name": "春日.m4a",
+      "sha256": "021203b366f3f640b2dffb6b6455b544b70d762d6bae5017dab4a82f97c9b316",
+      "bytes": 3248671
+    },
+    {
+      "name": "春日2.m4a",
+      "sha256": "021203b366f3f640b2dffb6b6455b544b70d762d6bae5017dab4a82f97c9b316",
+      "bytes": 3248671
+    }
+  ],
+  "uniqueTracks": 1,
+  "duplicateHandling": "Byte-identical sources share a single track; original files remain unchanged.",
+  "tracks": [
+    {
+      "id": "spring-01",
+      "name": "春日",
+      "src": "/assets/music/spring-01.mp3",
+      "sha256": "b0cae826cde33be8ea8c49330aacfef578821ada0851afd738c4aa55ef037adb",
+      "sourceName": "春日.m4a"
+    }
+  ],
+  "conversion": "FFmpeg MP3 192kbps, source metadata and attribution copied (-map_metadata 0); no source files modified."
+}

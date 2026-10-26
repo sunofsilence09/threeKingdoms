@@ -17,7 +17,7 @@ function button(text: string, run: () => void): HTMLButtonElement {
 }
 export function createConflictRecovery(onRebuild: () => void): HTMLElement {
   const box = node('section', '', 'conflict-recovery'); box.setAttribute('aria-label', '天下局势需要恢复');
-  box.append(node('h2', '天下局势暂已暂停'), node('p', '战局存档无法读取。人物、财货与行旅进度仍保留；重建将以当前年月接入新的天下局势。'));
+  box.append(node('h2', '天下局势暂已暂停'), node('p', '战局存档无法读取。人物、财货与行旅进度仍保留；重建将以当前年月接入新的天下局势，重置城池归属、驻军和主角预备兵。'));
   const rebuild = button('重建天下局势（保留人物与行旅）', () => {
     const current = getState();
     setState({ ...current, worldConflict: createWorldConflict(current.date, Object.keys(current.party), undefined, current.life), conflictRecovery: undefined, conflictMigration: undefined });
@@ -60,6 +60,7 @@ export function showConflictPanel(onClose?: () => void): void {
     const state = getState(), world = state.worldConflict; body.replaceChildren();
     if (state.conflictRecovery) { body.append(createConflictRecovery(render)); return; }
     if (!world) { body.append(node('p', '天下局势尚未接入，城中人物与行旅仍可查看。')); return; }
+    if(world.playerReserve!==undefined)body.append(node('p',`主角军府 · 随行预备兵 ${world.playerReserve} 人 · 已有 ${WORLD_CITIES.filter(c=>world.cities[c.id].factionId==='player').length} 城`,'trade-muted'));
     const tabs = node('nav', '', 'conflict-tabs'); tabs.setAttribute('aria-label', '天下局势分类');
     for (const [id, text] of [['cities', '城池势力'], ['armies', '在外军队'], ['reports', '天下战报']] as const) {
       const control = button(text, () => { tab = id; render(); body.querySelector<HTMLButtonElement>(`[data-conflict-tab="${id}"]`)?.focus(); });

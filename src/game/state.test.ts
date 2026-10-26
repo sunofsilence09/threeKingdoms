@@ -11,6 +11,10 @@ import {
   canPlayFactionMission,
   type GameState,
 } from './state';
+import { victoryExperience } from './attributes';
+import { effectiveAttributes } from './characterTalents';
+import { grantExperience } from './growth';
+import { withWorldDate } from './worldTime';
 import { createWorldConflict } from './worldConflict';
 import { createLifeState } from './personLife';
 
@@ -46,7 +50,7 @@ describe('game state', () => {
   const eligible = () => {
     const state=createInitialState(),date={year:200,month:9,day:1};
     const life=createLifeState(date,23);
-    return {...state,date,life,worldConflict:createWorldConflict(date,Object.keys(state.party),undefined,life),flags:{ambushWon:true,recovered:true}};
+    return withWorldDate({...state,date,life,worldConflict:createWorldConflict(date,Object.keys(state.party),undefined,life),flags:{ambushWon:true,recovered:true}}, date);
   };
   it('starts in 184 with a random origin that survives saves', () => {
     const first = createInitialState(() => 0);
@@ -212,14 +216,15 @@ describe('game state', () => {
   it('rewards everyone once per victory and keeps progress through save and route choice', () => {
     const initial = createInitialState();
     const rewarded = rewardVictory(initial, 'ambush');
-    expect(rewarded.party.traveler).toMatchObject({ level: 2, xp: 10 });
-    expect(rewarded.party.aman).toMatchObject({ level: 2, xp: 10 });
+    for (const id of initial.deployed) expect(rewarded.party[id]).toEqual(grantExperience(initial.party[id], victoryExperience(30, effectiveAttributes(id, initial.party[id].attributes))));
+    expect(rewarded.party.traveler).toMatchObject({ level: 2, xp: 11 });
     expect(rewardVictory(rewarded, 'ambush')).toBe(rewarded);
     expect(initial.party.traveler.level).toBe(1);
     const date={year:200,month:9};
     const life=createLifeState(date,23);
-    const route = rewardVictory(selectRoute({ ...rewarded, date, life, worldConflict:createWorldConflict(date,Object.keys(rewarded.party),undefined,life), flags: { ...rewarded.flags, ambushWon: true, recovered: true } }, 'liu'), 'route');
-    expect(route.party.traveler).toMatchObject({ level: 3, xp: 25 });
+    const dated = withWorldDate({ ...rewarded, date, life, worldConflict:createWorldConflict(date,Object.keys(rewarded.party),undefined,life), flags: { ...rewarded.flags, ambushWon: true, recovered: true } }, date);
+    const route = rewardVictory(selectRoute(dated, 'liu'), 'route');
+    for (const id of dated.deployed) expect(route.party[id]).toEqual(grantExperience(dated.party[id], victoryExperience(45, effectiveAttributes(id, dated.party[id].attributes))));
     saveState(route);
     expect(loadState()).toEqual({ ...route, date: { ...route.date, day: 1 } });
   });

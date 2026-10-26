@@ -8,7 +8,8 @@ import { clearOverlay, setStatus, showPanel } from '../ui';
 import { showLocalOfficials } from '../localOfficialPanel';
 import { createWorldMap } from '../worldMapView';
 import { cityAt, cityNameAt, planRoute, WORLD_CITIES } from '../world';
-import { advanceTravel, cityContact, journeyLeg, remainingDays, resolveTravelEvent, restInCity, ROAD_NAMES, startTravel } from '../travel';
+import { advanceTravel, cityContact, journeyLeg, remainingDays, resolveTravelEvent, restInCity, ROAD_NAMES, startTravel, workInCity } from '../travel';
+import { createCityWorkControls } from '../cityWorkControls';
 import '../worldScreen.css';
 import { showPartyPanel, showRecruitmentPanel } from '../partyPanel';
 import { showCityPanel } from '../cityPanel';
@@ -23,6 +24,8 @@ import { isInspecting } from '../inspectionOverlay';
 import { acknowledgeLifeNotices } from '../lifeView';
 import { personName } from '../heroName';
 import { routePrincipalId, routePrincipalName } from '../politicalPresentation';
+import {createMusicControls} from '../musicControls';
+import {showPlayerMilitary} from '../playerMilitaryPanel';
 
 type NodeId = 'ambush' | 'recovery' | 'hub';
 type EventChoice = Parameters<typeof resolveTravelEvent>[1];
@@ -79,7 +82,7 @@ export class OverworldScene extends Phaser.Scene {
     };
     const header = el('header', 'world-header');
     const heading = el('div', 'world-header-title', undefined, header);
-    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 1.0.0 世代更迭`, heading);
+    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 1.1.0 群英新声`, heading);
     el('h1', '', journey ? `${cityNameAt(leg!.from,state.date)} → ${cityNameAt(leg!.to,state.date)}` : `${cityNameAt(city.id,state.date)} · ${city.prefecture}`, heading);
     el('p', 'world-date', dateLabel(state.date), heading);
     const world = state.conflictRecovery ? undefined : state.worldConflict;
@@ -88,8 +91,10 @@ export class OverworldScene extends Phaser.Scene {
     const stats = el('div', 'world-header-stats', undefined, header);
     el('p', '', `军需 ${state.supplies}　士气 ${state.morale}`, stats);
     el('p', '', `铜钱 ${state.economy.coins}　货舱 ${cargoUsed(state.economy)}/${state.economy.capacity}`, stats);
+    if(world?.playerReserve!==undefined)el('p','','随行预备兵 '+world.playerReserve,stats);
     el('p', '', state.route ? `归属 · ${routePrincipalName(state.route,state)}` : '无所属 · 独自行旅', stats);
     el('small', '', `出生地：${originAt(state.originId).name}`, stats);
+    this.root.append(createMusicControls());
     const layout = el('div', 'world-layout');
     const mapColumn = el('div', 'world-map-column', undefined, layout);
     this.map = createWorldMap({ currentId:city.id, selectedId:this.selectedId, path: journey?.path ?? planned?.path,
@@ -167,13 +172,14 @@ export class OverworldScene extends Phaser.Scene {
     const local=el('section','world-card',undefined,side); el('h2','',`城中事务${journey ? ' · 抵达后开放' : ''}`,local);
     const localActions=el('div','world-action-grid',undefined,local);
     button('进入城池',()=>showCityPanel(()=>this.render('enter-city')),localActions,false,!!journey,'enter-city');
+    button('军务 · 募兵 / 攻城',()=>showPlayerMilitary(()=>this.render('world-military')),localActions,true,!!journey||!!state.conflictRecovery,'world-military');
     button('地方官员',showLocalOfficials,localActions,true,!!journey);
     button('寻访人物',()=>showRecruitmentPanel(()=>this.render('world-recruitment')),localActions,true,!!journey,'world-recruitment');
     button(state.flags.escortWon ? canPlayFactionMission(state) ? '阵营护送任务' : '当地故事 · 已完成' : '当地故事',()=>this.localStory(),localActions,true,!!journey);
     const contact=cityContact(city.id,state.date,state);
     if(contact && !state.route) button(`${state.flags[`met:${contact}`]?'再访':'拜访'}${routePrincipalName(contact,state)}`,()=>this.meet(contact),localActions,true,!!journey);
+    local.append(createCityWorkControls(state,blocks=>{setState(workInCity(getState(),blocks));this.render('city-work-blocks');}));
     const rest=el('div','world-action-grid',undefined,local);
-    button('帮工1日 · 军需+1 / 铜钱+20',()=>{setState(restInCity(getState(),1));this.render();},rest,true,!!journey);
     button('安居一月 · 30日',()=>{setState(restInCity(getState(),30));this.render();},rest,true,!!journey);
     button('长期停留 · 一年',()=>this.confirmLongRest(),rest,true,!!journey);
     el('p','world-muted','历法简化为每月30日，可行旅至310年。休整与行旅推进日期，也会结算人物寿命。',local);

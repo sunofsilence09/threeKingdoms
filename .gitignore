@@ -4,5 +4,6 @@ dist/
 *.local
 *.tsbuildinfo
 artifacts/
+output/playwright/
 __pycache__/
 release/

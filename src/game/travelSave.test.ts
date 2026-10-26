@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createInitialState, loadState, saveState, STORAGE_KEY } from './state';
-import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, resolveTravelEvent, startTravel, cityContact, restInCity } from './travel';
+import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, resolveTravelEvent, startTravel, cityContact } from './travel';
+import { withWorldDate } from './worldTime';
 
 beforeEach(() => {
   const data = new Map<string, string>();
@@ -113,7 +114,7 @@ describe('travel saves and historical choices', () => {
     expect(cityContact('zhuo', { year: 184, month: 3 })).toBe('liu');
     expect(cityContact('wujun', { year: 194, month: 12 })).toBeUndefined();
     expect(cityContact('wujun', { year: 195, month: 12 })).toBe('sun');
-    const state = restInCity({ ...createInitialState(), phase: 'overworld', date: { year: 199, month: 12, day: 30 } }, 1);
+    const state = withWorldDate({ ...createInitialState(), phase: 'overworld', date: { year: 199, month: 12, day: 30 }, worldConflict: undefined }, { year: 200, month: 1, day: 1 });
     expect(state.date).toEqual({ year: 200, month: 1, day: 1 });
   });
 });

@@ -8,10 +8,10 @@ import { createLifeState, isAliveAt } from './personLife';
 import { createInitialState } from './state';
 
 describe('all-person recruitment catalog', () => {
-  it('contains exactly 198 unique identities covering every existing identity', () => {
+  it('contains exactly 230 unique identities covering every existing identity', () => {
     const ids = RECRUIT_PROFILES.map(p => p.id);
-    expect(ids).toHaveLength(198);
-    expect(new Set(ids).size).toBe(198);
+    expect(ids).toHaveLength(230);
+    expect(new Set(ids).size).toBe(230);
     expect(ids).toEqual(expect.arrayContaining([
       'traveler', 'aman', 'chen-da', 'bandit', 'bandit-leader', 'sun-jian', 'sun-ce',
       ...HISTORICAL_CHARACTERS.map(p => p.id), ...LOCAL_OFFICIALS.map(p => p.id),

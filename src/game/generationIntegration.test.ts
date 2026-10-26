@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState, completeLocalEscort } from './state';
 import { createLifeState, isLifeState } from './personLife';
-import { createProgress } from './growth';
+import { effectiveAttributes } from './characterTalents';
+import { victoryExperience } from './attributes';
+import { createProgress, grantExperience } from './growth';
 import { withWorldDate } from './worldTime';
 import { createWorldConflict, dispatchConflictArmy, isWorldConflict } from './worldConflict';
 
@@ -41,8 +43,10 @@ describe('lifespans across the shared game clock', () => {
     const state={...campaign(209),battleParty:['traveler','zhou-yu']};
     const next=completeLocalEscort(state);
     expect(next.party['zhou-yu']).toBeUndefined();
-    expect(next.life!.memorials['zhou-yu'].progress.level).toBe(2);
-    expect(next.life!.memorials['zhou-yu'].progress.xp).toBe(25);
+    const before = state.party['zhou-yu'];
+    const xp = victoryExperience(45, effectiveAttributes('zhou-yu', before.attributes));
+    expect(next.life!.memorials['zhou-yu'].progress).toEqual(grantExperience(before, xp));
+    expect(next.life!.memorials['zhou-yu'].progress).toMatchObject({level:3,xp:10,points:6});
     expect(next.flags['xp:escort']).toBe(true);
     expect(completeLocalEscort(next)).toBe(next);
   });

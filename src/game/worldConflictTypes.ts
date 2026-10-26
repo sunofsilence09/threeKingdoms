@@ -1,4 +1,4 @@
-export interface ConflictCity { factionId: string; troops: number; occupationDay: number; governorId?: string }
+export interface ConflictCity { factionId: string; troops: number; occupationDay: number; governorId?: string; governorKind?: 'historical'|'original'; governorSince?:number }
 export type ArmyPhase = 'assembling' | 'marching' | 'sieging' | 'retreating' | 'camped';
 export interface ConflictArmy {
   id: string; factionId: string; commanderId?: string; sourceCityId: string; targetCityId: string; troops: number;
@@ -9,8 +9,10 @@ export interface ConflictReport {
   armyId?: string; troops?: number; losses?: number; text: string;
 }
 export interface WorldConflict {
-  version: 2; lastDay: number; seed: number; nextArmyId: number; nextReportId: number;
+  version: 3; lastDay: number; seed: number; nextArmyId: number; nextReportId: number; nextPrefectId:number;prefectIds:string[];
   cities: Record<string, ConflictCity>; armies: ConflictArmy[]; founded: string[]; nextDecision: Record<string, number>;
   reports: ConflictReport[]; ledger: { initial: number; recruited: number; raised: number; losses: number; expansion?: number };
+  /** Actual player soldiers travelling with the party, audited in the same troop ledger. */
+  playerReserve?:number;
 }
 export interface ConflictFaction { id: string; name: string; color: string }

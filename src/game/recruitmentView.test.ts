@@ -28,7 +28,7 @@ describe('current posting search', () => {
     const state = createInitialState(() => 0); state.phase = 'overworld'; state.currentCityId = 'donghai'; state.date = { year: 196, month: 6, day: 1 };
     // This test isolates current geography while Chen Gong remains alive in this campaign.
     state.life!.people['chen-gong'].deathYear=204;
-    state.worldConflict = { version: 2, lastDay: 4490, seed: 42, nextArmyId: 1, nextReportId: 1,
+    state.worldConflict = { version: 3, nextPrefectId: 1, prefectIds: [], lastDay: 4490, seed: 42, nextArmyId: 1, nextReportId: 1,
       cities: Object.fromEntries(WORLD_CITIES.map(city => [city.id, { factionId: 'han', troops: 5000, occupationDay: -1 }])),
       armies: [], founded: [], nextDecision: {}, reports: [], ledger: { initial: WORLD_CITIES.length*5000, recruited: 0, raised: 0, losses: 0 } } satisfies WorldConflict;
     state.worldConflict.cities.donghai.factionId = 'lu-bu';

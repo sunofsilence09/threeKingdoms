@@ -1,3 +1,5 @@
+import './characterTalents.css';
+import { baseAttributes, combatAttributeVersion, effectiveAttributes, LEGACY_ATTRIBUTE_NOTE } from './characterTalents';
 import { personName } from './heroName';
 import { openInspection } from './inspectionOverlay';
 import { ATTRIBUTE_EFFECTS, ATTRIBUTE_IDS, ATTRIBUTE_LABELS, type AttributeId } from './attributes';
@@ -44,11 +46,11 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState, i
     tabs.append(button);
   }
   const cost = (id: PartyId) => Object.values(drafts[id]).reduce((sum, n) => sum + (n ?? 0), 0);
-  const rows = new Map<AttributeId, { score: HTMLElement; minus: HTMLButtonElement; plus: HTMLButtonElement }>();
+  const rows = new Map<AttributeId, { score: HTMLElement; detail: HTMLElement; minus: HTMLButtonElement; plus: HTMLButtonElement }>();
   for (const id of ATTRIBUTE_IDS) {
     const row = document.createElement('div');
     row.className = 'training-row'; row.dataset.attribute = id;
-    row.innerHTML = `<div><strong>${ATTRIBUTE_LABELS[id]}</strong><small>${ATTRIBUTE_EFFECTS[id]}</small></div><button type="button" class="training-minus" aria-label="减少${ATTRIBUTE_LABELS[id]}">−</button><output class="attribute-value"></output><button type="button" class="training-plus" aria-label="增加${ATTRIBUTE_LABELS[id]}">+</button>`;
+    row.innerHTML = `<div><strong>${ATTRIBUTE_LABELS[id]}</strong><small>${ATTRIBUTE_EFFECTS[id]}</small><small class="attribute-breakdown"></small></div><button type="button" class="training-minus" aria-label="减少${ATTRIBUTE_LABELS[id]}">−</button><output class="attribute-value"></output><button type="button" class="training-plus" aria-label="增加${ATTRIBUTE_LABELS[id]}">+</button>`;
     const minus = row.querySelector<HTMLButtonElement>('.training-minus')!;
     const plus = row.querySelector<HTMLButtonElement>('.training-plus')!;
     minus.addEventListener('click', () => {
@@ -60,7 +62,7 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState, i
       const value = drafts[selected][id] ?? 0;
       if (!readOnly && cost(selected) < progress.points && progress.attributes[id] + value < 30) { drafts[selected][id] = value + 1; render(); }
     });
-    rows.set(id, { score: row.querySelector('.attribute-value')!, minus, plus });
+    rows.set(id, { score: row.querySelector('.attribute-value')!, detail: row.querySelector('.attribute-breakdown')!, minus, plus });
     panel.querySelector('.training-grid')!.append(row);
   }
   function render(): void {
@@ -68,25 +70,29 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState, i
     panel.querySelector('.character-martial')?.remove();
     panel.querySelector('.training-ultimate')!.after(createMartialCard(selected,readOnly));
     panel.querySelector('.training-detail-open')!.textContent = `查看${nameOf(selected)}详情`;
+    const active = combat?.units.find(unit => unit.team === 'party' && unit.id === selected);
+    const version = active && combat ? combatAttributeVersion(combat) : 2;
     const attrs = { ...progress.attributes };
     for (const id of ATTRIBUTE_IDS) attrs[id] += drafts[selected][id] ?? 0;
     panel.querySelector('.training-note')!.textContent = `${nameOf(selected)} Lv.${progress.level} · 经验 ${progress.xp}/${experienceToNextLevel(progress.level) || '满'} · ${readOnly ? '战斗或途中事件期间仅可查看' : '每级获得3点技能点'}`;
+    if (active && version === 1) panel.querySelector('.training-note')!.textContent += ` · ${LEGACY_ATTRIBUTE_NOTE}`;
     panel.querySelector('.training-points')!.textContent = `剩余技能点 ${progress.points - cost(selected)}`;
     for (const [id, row] of rows) {
-      row.score.textContent = `${progress.attributes[id]}${attrs[id] !== progress.attributes[id] ? ` → ${attrs[id]}` : ''}`;
+      row.score.textContent = `${effectiveAttributes(selected, progress.attributes, version)[id]}${attrs[id] !== progress.attributes[id] ? ` → ${effectiveAttributes(selected, attrs, version)[id]}` : ''}`;
+      row.detail.textContent = `天赋${baseAttributes(selected)[id]} + 培养${attrs[id]-10}/20 · ${version === 1 ? `下场${effectiveAttributes(selected, attrs)[id]} · ` : ''}上限${baseAttributes(selected)[id]+20}`;
       row.minus.disabled = readOnly || !(drafts[selected][id] ?? 0);
       row.plus.disabled = readOnly || cost(selected) >= progress.points || attrs[id] >= 30;
     }
     for (const tab of tabs.querySelectorAll<HTMLButtonElement>('button')) tab.setAttribute('aria-pressed', String(tab.dataset.character === selected));
     const mode = original.route ? 'route' : 'ambush';
-    const active = combat?.units.find(unit => unit.team === 'party' && unit.id === selected);
-    const before = active ?? makePartyUnit(selected, progress, original.route, mode);
-    const after = readOnly ? before : makePartyUnit(selected, { ...progress, attributes: attrs }, original.route, mode);
+    const before = active ?? makePartyUnit(selected, progress, original.route, mode, 0, 0, version);
+    const after = readOnly ? before : makePartyUnit(selected, { ...progress, attributes: attrs }, original.route, mode, 0, 0, version);
+    const beforeAttrs = effectiveAttributes(selected, progress.attributes, version), afterAttrs = effectiveAttributes(selected, attrs, version);
     const values: Array<[string, number, number, string]> = [
       ['攻击', before.attack, after.attack, ''], ['防御', before.defense, after.defense, ''],
       ['闪避', Math.round(before.dodgeRate * 100), Math.round(after.dodgeRate * 100), '%'],
-      ['最大体力', before.maxHp, after.maxHp, ''], ['战后补给', progress.attributes.politics - 10, attrs.politics - 10, ''],
-      ['胜利经验', 100 + (progress.attributes.charisma - 10) * 5, 100 + (attrs.charisma - 10) * 5, '%'],
+      ['最大体力', before.maxHp, after.maxHp, ''], ['战后补给', beforeAttrs.politics - 10, afterAttrs.politics - 10, ''],
+      ['胜利经验', 100 + (beforeAttrs.charisma - 10) * 5, 100 + (afterAttrs.charisma - 10) * 5, '%'],
     ];
     const preview = panel.querySelector('.ability-preview')!;
     preview.replaceChildren();

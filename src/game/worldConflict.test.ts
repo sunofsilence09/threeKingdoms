@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceWorldConflict, armyRemainingDays, conflictDay, conflictRoadDays, createWorldConflict, dispatchConflictArmy, isWorldConflict } from './worldConflict';
+import { advanceWorldConflict, armyRemainingDays, conflictDay, conflictRoadDays, createWorldConflict, dispatchConflictArmy, reconcileWorldPeople, isWorldConflict } from './worldConflict';
 import { CONFLICT_FACTIONS, factionAt, leaderForFaction } from './worldConflictData';
 import { WORLD_CITIES } from './world';
 import { garrisonTroopsAt } from './garrisonSchedule';
@@ -158,9 +158,10 @@ describe('persistent world conflict', () => {
   });
   it('binds a dated historical prefect only when active, at home and serving the current faction',()=>{
     const w=createWorldConflict({year:190,month:1,day:1},['liu-biao']);
-    expect(w.cities.xiangyang.governorId).toBeUndefined();
+    expect(w.cities.xiangyang.governorId).toMatch(/^prefect-xiangyang-/);
     expect(w.cities.nanyang.governorId).not.toBe('yuan-shu'); // Actual founder army has its commander abroad.
-    expect(createWorldConflict({year:190,month:1,day:1}).cities.xiangyang.governorId).toBe('liu-biao');
+    expect(createWorldConflict({year:193,month:1,day:1}).cities.shanyin.governorId).toBe('wang-lang');
+    expect(createWorldConflict({year:190,month:1,day:1}).cities.xiangyang.governorId).not.toBe('liu-biao'); // Rulers do not occupy the separate prefect slot.
     expect(isWorldConflict(w,{year:190,month:1,day:1},['liu-biao'])).toBe(true);
   });
   it('never overwrites a previously captured city with a later historical foundation',()=>{
@@ -260,7 +261,7 @@ describe('persistent world conflict', () => {
       w.cities.ye.factionId='cao';w.cities.dongjun.factionId='liu';w.cities.chenliu.factionId='liu';
       if(reachable)w.cities.henan.factionId='cao';
       w.armies=[{id:'army-999',factionId:'cao',sourceCityId:'ye',targetCityId:'chenliu',troops:1000,contributions:[],phase:'retreating',path:['dongjun','chenliu'],legIndex:0,legDay:elapsed,phaseDays:0}];w.nextArmyId=1000;
-      w.ledger={initial:total(w),recruited:0,raised:0,losses:0};return w;
+      w.ledger={initial:total(w),recruited:0,raised:0,losses:0};return reconcileWorldPeople(w,date(w.lastDay));
     };
     const early=setup(1);expect(isWorldConflict(early,date(early.lastDay))).toBe(true);
     const walking=advanceWorldConflict(early,date(early.lastDay+1));

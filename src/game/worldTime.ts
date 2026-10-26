@@ -1,7 +1,7 @@
 import type { GameState } from './state';
 import type { GameDate } from './history';
 import { advanceWorldConflict, conflictDay, createWorldConflict } from './worldConflict';
-import { createLifeState, reconcileLives } from './personLife';
+import { createLifeState, reconcileLives,ensureLifePeople } from './personLife';
 
 /** The only bridge between RPG time and the strategic clock; rendering never calls it. */
 export function withWorldDate(state: GameState, date: GameDate): GameState {
@@ -16,7 +16,8 @@ export function withWorldDate(state: GameState, date: GameDate): GameState {
     const living=reconcileLives(next,at);
     const world=next.conflictRecovery ? undefined : next.worldConflict ?? createWorldConflict(next.date,partyIds,undefined,next.life);
     const worldConflict=world ? advanceWorldConflict(world,at,partyIds,living.life) : undefined;
-    if(living!==next || worldConflict!==next.worldConflict || conflictDay(next.date)!==conflictDay(at)) next={...living,date:at,worldConflict};
+    const life=ensureLifePeople(living.life!,worldConflict?.prefectIds??[]);
+    if(living!==next || life!==living.life || worldConflict!==next.worldConflict || conflictDay(next.date)!==conflictDay(at)) next={...living,life,date:at,worldConflict};
   }
   return next;
 }

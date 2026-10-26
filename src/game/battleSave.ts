@@ -19,10 +19,18 @@ export function checkpointBattle(combat: CombatState, state: GameState): BattleS
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const integer = (v: unknown, min: number, max: number): v is number => Number.isSafeInteger(v) && (v as number) >= min && (v as number) <= max;
 const unique = (v: unknown[]): boolean => new Set(v).size === v.length;
+const validAttributeVersion = (value: unknown): value is 1 | 2 | undefined => value === undefined || value === 1 || value === 2;
+/** Formation fields are validated recursively; JSON object insertion order has no meaning. */
+function sameFields(actual: unknown, expected: unknown): boolean {
+  if (!object(expected)) return Object.is(actual, expected);
+  if (!object(actual)) return false;
+  const keys = Object.keys(expected);
+  return Object.keys(actual).length === keys.length && keys.every(key => Object.hasOwn(actual, key) && sameFields(actual[key], expected[key]));
+}
 
 /** New checkpoint errors are recoverable without throwing away the RPG save. */
 export function isBattleSnapshot(value: unknown, state?: GameState): value is BattleSnapshot {
-  if (!object(value) || value.checkpointVersion !== 1 || typeof value.encounterKey !== 'string' ||
+  if (!object(value) || !validAttributeVersion(value.attributeVersion) || value.checkpointVersion !== 1 || typeof value.encounterKey !== 'string' ||
       value.width !== 16 || value.height !== 10 || !integer(value.round, 1, 100000) ||
       !integer(value.randomSeed, 0, 0xffffffff) || !['party', 'enemy'].includes(value.turn as string) ||
       ![null, 'cao', 'sun', 'liu'].includes(value.route as null) || !Array.isArray(value.units) || value.units.length < 2 || value.units.length > 32 ||
@@ -52,9 +60,10 @@ export function isBattleSnapshot(value: unknown, state?: GameState): value is Ba
     const kind = terrain.find(t => t.x === u.x && t.y === u.y)?.kind ?? 'road';
     if (!Number.isFinite(TERRAIN[kind as keyof typeof TERRAIN].cost)) return false;
     if (u.formation !== undefined) {
-      if (!object(u.formation) || !integer(u.formation.initialTroops, 1, 1000000)) return false;
-      const expected = formationStrength(u.formation.initialTroops, u.hp);
-      if (JSON.stringify(u.formation) !== JSON.stringify(expected) || u.maxHp !== expected.maxHp || u.attack !== expected.attack || u.defense !== expected.defense) return false;
+      if (!object(u.formation) || !validAttributeVersion(u.formation.attributeVersion) || !integer(u.formation.initialTroops, 1, 1000000)) return false;
+      const attributeVersion = u.formation.attributeVersion ?? 1;
+      const expected = formationStrength(u.formation.initialTroops, u.hp, attributeVersion);
+      if (!sameFields({ ...u.formation, attributeVersion }, expected) || u.maxHp !== expected.maxHp || u.attack !== expected.attack || u.defense !== expected.defense) return false;
     }
     if (u.martialIds !== undefined && (!Array.isArray(u.martialIds) || !unique(u.martialIds) || u.martialIds.length > 3 || !u.martialIds.every((id: unknown) => typeof id === 'string' && !!martialAt(id) && !martialAt(id)!.readOnly))) return false;
     if (u.id !== 'traveler' && Array.isArray(u.martialIds) && u.martialIds.some((id: string) => martialForPerson(u.id.replace(/^enemy:/, ''))?.id !== id)) return false;

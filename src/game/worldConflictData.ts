@@ -1,23 +1,10 @@
 import type { GameDate } from './history';
 import { CITY_CAREERS } from './careerData';
-import type { ConflictFaction } from './worldConflictTypes';
 import type { LifeState } from './lifeTypes';
 import { isAliveAt } from './personLife';
+import { prefectIdentity } from './prefectIdentity';
 
-/** Authored campaign parameters, not reconstructed historical borders or census counts. */
-export const CONFLICT_FACTIONS: readonly ConflictFaction[] = [
-  ['han','汉廷地方官军','#997646'], ['yellow-turban','黄巾部众','#bc9b24'],
-  ['cao','曹氏军府','#526e9b'], ['liu','刘备军府','#488068'], ['sun','孙氏军府','#b85a48'],
-  ['yuan-shao','袁绍军府','#a575a5'], ['yuan-shu','袁术军府','#b58b49'], ['liu-biao','刘表军府','#578c9d'],
-  ['yi','益州军府','#6b9366'], ['zhang-lu','张鲁军府','#738c92'], ['ma-teng','马腾军府','#93775d'],
-  ['gongsun-zan','公孙瓒军府','#8493af'], ['liu-yu','刘虞军府','#819b81'], ['zhang-yan','黑山部众','#776c85'],
-  ['dong-zhuo','董卓军府','#8e675d'], ['lu-bu','吕布军府','#ae6b86'],
-].map(([id,name,color])=>({id,name,color}));
-export function factionAt(id: string): ConflictFaction {
-  const faction=CONFLICT_FACTIONS.find(f=>f.id===id);
-  if(!faction) throw new Error(`Unknown conflict faction: ${id}`);
-  return faction;
-}
+export { CONFLICT_FACTIONS, factionAt } from './conflictFactions';
 export interface ConflictFoundation {
   id: string; year: number; month: number; factionId: string; cities: readonly string[]; raised: number; note: string;
 }
@@ -64,11 +51,13 @@ const personalFaction:Record<string,string>={
   'wang-yun':'han','xu-qiu':'han','guo-xun':'han','jia-cong':'han','guo-dian':'han','zhao-qian':'han','chu-gong':'han','qin-jie':'han',
 };
 export function factionForPerson(id:string,date:GameDate):string|undefined {
+  const original=prefectIdentity(id);if(original)return date.year>=original.appointedYear?original.factionId:undefined;
   if(id==='zhao-yun') return date.year<191?undefined:date.year<=199?'gongsun-zan':'liu';
   if(id==='zhuge-liang') return date.year>=207?'liu':undefined;
   if(id==='zhang-liao') return date.year<187?undefined:date.year<=192?'dong-zhuo':date.year<=198?'lu-bu':'cao';
   const m=monthAt(date),career=CITY_CAREERS[id]?.find(c=>m>=c.from.year*12+(c.from.month??1)&&m<=c.to.year*12+(c.to.month??12));
   if(id==='jiang-wei' && career && date.year<228) return 'cao';
+  if(career?.factionId)return career.factionId;
   if(career?.employerId) return factionForPerson(career.employerId,date);
   if(career?.kind==='free') return undefined;
   if(generationFaction[id]) return career ? generationFaction[id] : undefined;

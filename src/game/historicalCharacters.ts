@@ -1,6 +1,7 @@
 import type { CharacterAppearance, ModelWeapon } from './characters';
 import type { RouteId } from './state';
 import { GENERATION_CHARACTERS } from './generationData';
+import { V11_CHARACTERS } from './v11Data';
 
 export interface HistoricalCharacter {
   id: string;
@@ -276,6 +277,7 @@ export const HISTORICAL_CHARACTERS: readonly HistoricalCharacter[] = [
       pose: 'scout', outfit: 'armor', hair: 'bun', accent: 0x3d4440 },
   },
   ...GENERATION_CHARACTERS,
+  ...V11_CHARACTERS,
 ];
 
 export function getHistoricalCharacter(id: string): HistoricalCharacter | undefined {

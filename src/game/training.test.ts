@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { attributeBonuses, createAttributes } from './attributes';
+import { attributeBonuses, createAttributes, victoryExperience } from './attributes';
+import { effectiveAttributes } from './characterTalents';
 import { createProgress, grantExperience } from './growth';
 import { createInitialState, rewardVictory, spendSkillPoints } from './state';
 
@@ -49,9 +50,13 @@ describe('six attributes and earned skill points', () => {
     const state = rewardVictory(createInitialState(), 'ambush');
     const trained = spendSkillPoints(state, 'traveler', { charisma: 2, politics: 1 });
     const next = rewardVictory(trained, 'route');
-    expect(next.party.traveler).toMatchObject({ level: 3, xp: 29, points: 3 });
-    expect(next.party.aman).toMatchObject({ level: 3, xp: 25, points: 6 });
-    expect(next.supplies).toBe(trained.supplies + 1);
+    for (const id of trained.deployed) {
+      const attrs = effectiveAttributes(id, trained.party[id].attributes);
+      expect(next.party[id]).toEqual(grantExperience(trained.party[id], victoryExperience(45, attrs)));
+    }
+    expect(next.party.traveler).toMatchObject({ level: 3, xp: 32, points: 3 });
+    const supplies = trained.deployed.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id, trained.party[id].attributes)).supplies, 0);
+    expect(next.supplies).toBe(trained.supplies + supplies);
     expect(rewardVictory(next, 'route')).toBe(next);
   });
   it('computes charisma experience using exact integer percentages', () => {
@@ -59,7 +64,10 @@ describe('six attributes and earned skill points', () => {
     initial.party.traveler = createProgress(4);
     const trained = spendSkillPoints(initial, 'traveler', { charisma: 8 });
     const rewarded = rewardVictory(trained, 'route');
-    expect(rewarded.party.traveler).toMatchObject({ level: 5, xp: 13, points: 4 });
+    const xp = victoryExperience(45, effectiveAttributes('traveler', trained.party.traveler.attributes));
+    expect(xp).toBe(65);
+    expect(rewarded.party.traveler).toEqual(grantExperience(trained.party.traveler, xp));
+    expect(rewarded.party.traveler).toMatchObject({ level: 5, xp: 15, points: 4 });
   });
 
 });

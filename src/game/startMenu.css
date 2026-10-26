@@ -17,3 +17,8 @@
 .start-menu .panel-body { margin-top: 14px; line-height: 1.65; }
 .start-menu .panel-actions { margin-top: 18px; }
 .start-menu .panel-button { min-height: 44px; }
+.start-menu .audio-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 16px; }
+.start-menu .audio-controls button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--game-border); border-radius: 5px; background: var(--game-background); color: var(--game-ink); font: inherit; cursor: pointer; }
+.start-menu .audio-controls label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.start-menu .audio-controls input { width: 120px; min-height: 44px; accent-color: #aa652b; cursor: pointer; }
+.start-menu .audio-controls output { min-width: 3em; }

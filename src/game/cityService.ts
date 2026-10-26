@@ -1,5 +1,5 @@
 import { personPosting } from './personPosting';
-import { RECRUIT_PROFILES } from './recruitmentCatalog';
+import { allRecruitProfiles } from './recruitmentCatalog';
 import { CITY_CAREERS } from './careerData';
 import { recruitProfile } from './recruitmentCatalog';
 import type { GameState } from './state';
@@ -57,7 +57,7 @@ export function serviceForPerson(state: GameState, id: string): CityService | un
 
 /** Omitting cityId returns the complete current roster across all cities. */
 export function cityServices(state: GameState, cityId?: string): CityService[] {
-  const ids = state.life || state.worldConflict && !state.conflictRecovery ? RECRUIT_PROFILES.map(profile => profile.id) : [...Object.keys(CITY_CAREERS), ...GARRISON_PROFILES.map(profile => profile.id)];
+  const ids = state.life || state.worldConflict && !state.conflictRecovery ? allRecruitProfiles(state).map(profile => profile.id) : [...Object.keys(CITY_CAREERS), ...GARRISON_PROFILES.map(profile => profile.id)];
   return ids.flatMap(id => {
     const service = serviceForPerson(state, id);
     return service && (cityId === undefined || service.cityId === cityId) ? [service] : [];

@@ -1,0 +1,1361 @@
+{
+  "generator": "built-in image_gen",
+  "style": "Original painterly semi-realistic late-Han character cutouts; transparent RGBA; 2:3 full body",
+  "entries": [
+    {
+      "id": "dian-wei",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Dian Wei 典韦, massive broad shouldered bodyguard with a rugged square face and close dark beard; chestnut-brown heavy iron lamellar armor, warm bronze fittings, coarse brown underrobe. Holds TWO clearly visible short ji halberds, one in each hand angled outward down at his sides. Powerful planted feet and vigilant loyal expression, no helmet, hair in sturdy topknot.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-da6ba307-cda5-47aa-9376-6b719dee6469.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/dian-wei-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: full head, both hands, boots and complete distinct weapon visible; matches authored armor/color/body concept; no text."
+      },
+      "sha256": "6f03abefc3c73cc53ceee51d32eb3222ca8398829fb9739ceb84bbeb03fbfef3",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          17,
+          12,
+          1007,
+          1519
+        ],
+        "margins": [
+          17,
+          12,
+          17,
+          17
+        ],
+        "transparentPixelFraction": 0.5385487874348959
+      }
+    },
+    {
+      "id": "xu-chu",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Xu Chu 许褚, immensely broad stocky strongman bodyguard with a wide clean-shaven face, cautious quiet expression. Earth ochre and dull olive thick lamellar armor over sand brown clothing. Holds one long single-edged glaive horizontally at waist height, complete blade and shaft fitting in frame. Rounded sturdy face, heavy arms, black hair tied in a bun, grounded guard stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-ffbbade6-0edd-4e77-8d23-57df982a1a4b.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/xu-chu-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: full head, both hands, boots and complete distinct weapon visible; matches authored armor/color/body concept; no text."
+      },
+      "sha256": "925d1330cb6110931c48e9a27e18dade2ea054a903025acff364f757ded950be",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          13,
+          81,
+          1015,
+          1465
+        ],
+        "margins": [
+          13,
+          81,
+          9,
+          71
+        ],
+        "transparentPixelFraction": 0.5990886688232422
+      }
+    },
+    {
+      "id": "zhang-he",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Zhang He 张郃, agile medium-built experienced tactician general with a narrow alert face, neat short moustache and beard. Muted purple-grey light lamellar armor, buff bronze edging, ash-purple cloth. Full long spear held diagonally with all spear tip and shaft inside frame. Sideways scouting stance and looking to the left, black topknot with subdued small headpiece.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-6aeee186-a6dc-4ed2-903b-7c493148941e.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/zhang-he-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: full head, both hands, boots and complete distinct weapon visible; matches authored armor/color/body concept; no text."
+      },
+      "sha256": "23122129e912b3aa7d5e4393e8afef90d22ca7135a4ec9c343b496858b76726e",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          34,
+          5,
+          995,
+          1515
+        ],
+        "margins": [
+          34,
+          5,
+          29,
+          21
+        ],
+        "transparentPixelFraction": 0.6087017059326172
+      }
+    },
+    {
+      "id": "xu-huang",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Xu Huang 徐晃, disciplined mature general with a long serious face, straight medium-length dark beard. Iron grey and blue-grey lamellar armor with russet leather fastenings. Holds a complete long-handled broad battle AXE with both hands close to the body, axe blade clearly visible and all handle ends in frame. Composed compact sentinel stance, sober dark military headwrap.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-8e68b998-070a-4fd6-9beb-bd91bcfe7b3a.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/xu-huang-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: full head, both hands, boots and complete distinct weapon visible; matches authored armor/color/body concept; no text."
+      },
+      "sha256": "9afc9681a5b61ebc76f02bf4e9b6cd6c9c0e0fd8810519409dfd41adaf1ca9ea",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          172,
+          12,
+          989,
+          1522
+        ],
+        "margins": [
+          172,
+          12,
+          35,
+          14
+        ],
+        "transparentPixelFraction": 0.5475616455078125
+      }
+    },
+    {
+      "id": "yue-jin",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Yue Jin 乐进, notably SHORT and compact muscular assault warrior, clean shaven blunt broad face, fierce focused gaze. Rust red light lamellar armor with ochre sash, simple helmet-less tied hair. Forward leaning but grounded standing pose with a short spear pointing diagonally down; whole spear inside frame.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-c81cb067-eeac-4b55-b3ab-74673c0c2e8f.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/yue-jin-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "7a4beb2e5d5b1c0dc0e8782850c445de5a617249ee3a3d848b1cdfe58f51da3a",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          52,
+          37,
+          998,
+          1492
+        ],
+        "margins": [
+          52,
+          37,
+          26,
+          44
+        ],
+        "transparentPixelFraction": 0.6222826639811198
+      }
+    },
+    {
+      "id": "yu-jin",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Yu Jin 于禁, stern mature soldier with straight dark medium beard, narrow disciplined eyes. Blue iron lamellar armor with silver grey trim. Upright formal shieldguard stance holding a rectangular deep navy wooden shield and a lowered straight sword, both fully visible. Helmet with restrained dark crest.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-dc36f9f4-1b21-440f-8584-4d0fc9da267b.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/yu-jin-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "cd50a715b010787c947b9c1a692becbb4b0f1b4874d77219c13826e016ffd3ab",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          71,
+          10,
+          913,
+          1515
+        ],
+        "margins": [
+          71,
+          10,
+          111,
+          21
+        ],
+        "transparentPixelFraction": 0.5587921142578125
+      }
+    },
+    {
+      "id": "guo-jia",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Guo Jia 郭嘉, youthful slender Chinese strategist with intelligent angular clean-shaven face and relaxed keen eyes. Mist blue long scholar robes, ivory inner collar, muted taupe sash, low black scholar cap. One hand points at open bamboo slips held in the other; refined thoughtful standing gesture, black hair neatly tied.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-58e56ee8-82ba-49e3-b5da-5280573892e8.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/guo-jia-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "1382dab6bf4dc71a5375eee777161314f6c1beeded9b9e905285c2df932b6e5f",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          128,
+          15,
+          904,
+          1520
+        ],
+        "margins": [
+          128,
+          15,
+          120,
+          16
+        ],
+        "transparentPixelFraction": 0.5646101633707682
+      }
+    },
+    {
+      "id": "jia-xu",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Jia Xu 贾诩, older wary strategist with narrow wrinkled face and long greying beard, hooded analytical eyes. Smoky dark umber long robes with subdued khaki trim, simple black cloth scholarly headpiece. Holds a rolled scroll low in two hands; reserved still posture and guarded expression.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-f8b3f328-3972-4e26-b11a-b6bac23e0103.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/jia-xu-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "a753f2ad284e1049bce63d5568a27d1cc91b33371a2853563a0c10108fafbc87",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          245,
+          9,
+          848,
+          1522
+        ],
+        "margins": [
+          245,
+          9,
+          176,
+          14
+        ],
+        "transparentPixelFraction": 0.632415771484375
+      }
+    },
+    {
+      "id": "cheng-yu",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Cheng Yu 程昱, exceptionally tall thin older statesman with high cheekbones and very long dark-grey beard. Olive green formal long robe with warm wheat collar and sash; tall modest black official cap. Resolute upright stance, right hand resting on a fully sheathed sword at the hip. Distinct stern commanding face.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-494af452-822e-49ae-a370-b5d672254d49.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/cheng-yu-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "fffaf77bd0ad6270d01f6e6af3702cbf2aef33a03fc0b2a60023180c06756b2a",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          219,
+          4,
+          860,
+          1532
+        ],
+        "margins": [
+          219,
+          4,
+          164,
+          4
+        ],
+        "transparentPixelFraction": 0.6025575002034506
+      }
+    },
+    {
+      "id": "chen-qun",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Chen Qun 陈群, dignified middle-aged administrator with an oval composed face and tidy dark beard. Warm light brown and creamy ivory formal court robes, pale bronze sash, tall rectangular Han official hat. Holds an expanded bamboo document neatly in both hands, balanced symmetrical scholarly stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-25f63888-bd9a-4bf5-98c5-b27b4091dc06.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/chen-qun-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "f82091b2c6fe7cb8f659ab6d3ce01cd899e290500119e35662db57809eb2980c",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          158,
+          6,
+          851,
+          1529
+        ],
+        "margins": [
+          158,
+          6,
+          173,
+          7
+        ],
+        "transparentPixelFraction": 0.5708777109781901
+      }
+    },
+    {
+      "id": "ma-chao",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Ma Chao 马超, handsome athletic young western cavalry general with clean-shaven long face and piercing confident eyes. Pale gold and ivory lamellar armor with muted turquoise accents, light teal cloak. Long spear with teal tassel held upright diagonally, all tip and shaft inside frame. Elegant forward stepping stance, gold-edged modest helmet, no horse.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-90207e00-f5fa-40a9-b0e1-8fe6d5a821d4.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/ma-chao-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "e419e3c0b5a5ca285de6146eb4ae7a7f28d1e3119341ab2a668040b04b008b0d",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          45,
+          3,
+          985,
+          1510
+        ],
+        "margins": [
+          45,
+          3,
+          39,
+          26
+        ],
+        "transparentPixelFraction": 0.5212523142496744
+      }
+    },
+    {
+      "id": "huang-zhong",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Huang Zhong 黄忠, vigorous older stocky general with broad lined face, grey-white hair and substantial grey beard. Ancient bronze armor, warm brown fabric with pale grey bindings. Holds a thick powerful traditional wooden bow in one hand, other hand resting at waist, sheathed saber on belt. Feet planted, self-assured wise expression, no arrow drawn.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-76097c09-f6e2-4a03-80b2-a0f94c807678.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/huang-zhong-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; authored distinct face, clothing, weapon and palette; no text."
+      },
+      "sha256": "1ebfee17b0b86736a7a8f731d1253ffc0f7dbbf9b8efe8513010572ab30e681a",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          88,
+          34,
+          983,
+          1509
+        ],
+        "margins": [
+          88,
+          34,
+          41,
+          27
+        ],
+        "transparentPixelFraction": 0.554986317952474
+      }
+    },
+    {
+      "id": "wei-yan",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Wei Yan 魏延, proud mature military commander with square chin, long dark moustache and short pointed beard, raised chin and intense gaze. Deep dark red lamellar armor and muted olive details. Holds a complete long-handled broad single-edged glaive upright at his side, high confident commander stance, dark simple battle helmet.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-8eb66919-8117-4956-9c57-d4b3a5719b99.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/wei-yan-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "b64592e03be2c84a285fa165a9bbe5e57def6ddeb83415b24c9320af9927b9a7",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          123,
+          5,
+          983,
+          1520
+        ],
+        "margins": [
+          123,
+          5,
+          41,
+          16
+        ],
+        "transparentPixelFraction": 0.5412762959798177
+      }
+    },
+    {
+      "id": "pang-tong",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Pang Tong 庞统, unconventional middle-aged strategist with thick strong brows, broad nose, dark beard and lively intelligent expression. Loose brown-olive robes with muted teal sash and a simple low scholar cap. Holds an open paper scroll in two hands, thoughtful off-center stance. Human scholarly face, no bird, no magic.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-fbe876e4-2072-4169-9c18-a70a463fc947.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/pang-tong-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "a611de6ee5423770ad0ed1166f525b1ad80250c65cfb84ec238bd6a4a567b06b",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          107,
+          30,
+          956,
+          1512
+        ],
+        "margins": [
+          107,
+          30,
+          68,
+          24
+        ],
+        "transparentPixelFraction": 0.5225505828857422
+      }
+    },
+    {
+      "id": "fa-zheng",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Fa Zheng 法正, slim mature adviser with angular face, narrow alert eyes, neat medium dark beard. Ink green tailored long robes with bronze brown sash and understated embroidery. A fully sheathed straight sword hangs low from his left hand. Still reserved sentinel stance, modest black official headpiece, cold decisive expression.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-557557c2-5dab-4de9-847e-0c1014502121.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/fa-zheng-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "075e8567c6ab0a4cec76d7c08b4b4eae7f14f20f5107e8dc0b72141d8ee28d2b",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          173,
+          8,
+          885,
+          1527
+        ],
+        "margins": [
+          173,
+          8,
+          139,
+          9
+        ],
+        "transparentPixelFraction": 0.5988712310791016
+      }
+    },
+    {
+      "id": "lu-su",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Lu Su 鲁肃, sturdy middle-aged scholar-general with open honest broad face, neatly trimmed short beard and welcoming attentive eyes. Wheat brown robe with pale sage green trim, ivory underrobe and sober black cloth scholar cap. One hand reaches out in a measured discussion gesture; fully sheathed sword at his belt. Practical gracious standing posture.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-2a41e6da-6c91-4f9f-8cd4-5ad79c4d7785.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/lu-su-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "9d105e05b78c3af91dea5e4cc68acf6499ace1d30f536266c998de6a1b3bc21b",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          185,
+          11,
+          840,
+          1522
+        ],
+        "margins": [
+          185,
+          11,
+          184,
+          14
+        ],
+        "transparentPixelFraction": 0.5812911987304688
+      }
+    },
+    {
+      "id": "lv-meng",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Lu Meng 吕蒙, athletic middle-aged commander with broad clean-shaven face and focused thoughtful eyes. Teal blue steel lamellar armor with warm bronze edges and dark turquoise cloth. Holds a small blue-green rectangular shield angled low and a short straight sword, looking back over his shoulder in a restrained turning stance. Entire shield and sword visible.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-d3a0499b-9a8a-480f-99fa-444e5823f979.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/lv-meng-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "f03f6a563c941998c8624badfac548d0b86344ae952d8f7253c3fd0e35dffe8e",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          47,
+          16,
+          975,
+          1512
+        ],
+        "margins": [
+          47,
+          16,
+          49,
+          24
+        ],
+        "transparentPixelFraction": 0.5822416941324869
+      }
+    },
+    {
+      "id": "gan-ning",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Gan Ning 甘宁, lean athletic river raider turned general with clean-shaven sharp face, expressive confident smile and short tied black hair. Bright but muted turquoise short lamellar cuirass, dark cloth leggings, brass belt bells. Slight low alert standing posture, lowered short single-edged saber in one hand, other hand open. No boat, no backdrop.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-bd81823d-835d-4911-86a9-5a666448b708.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/gan-ning-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "5a479d87c38cc422f141a5751e6d31c22ea0e6d4075833835aee3e4102b720c4",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          166,
+          8,
+          926,
+          1528
+        ],
+        "margins": [
+          166,
+          8,
+          98,
+          8
+        ],
+        "transparentPixelFraction": 0.6222998301188151
+      }
+    },
+    {
+      "id": "taishi-ci",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Taishi Ci 太史慈, handsome mature athletic archer with neat dark moustache and beard, narrow resolute eyes. Purple-blue lamellar armor and tan grey accents. Holds a complete long traditional bow vertically with an arrow in the other hand; torso turned as if preparing to aim but bow not drawn. Dark topknot under a modest bronze headpiece.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-599cd2ee-121a-420b-9a96-8af853c26133.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/taishi-ci-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "73974f7aea417796ca3605b0256bf7a590eb38ffcd50fbcc4388b1492a17e9bd",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          91,
+          7,
+          938,
+          1522
+        ],
+        "margins": [
+          91,
+          7,
+          86,
+          14
+        ],
+        "transparentPixelFraction": 0.5776761372884115
+      }
+    },
+    {
+      "id": "huang-gai",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Huang Gai 黄盖, weathered older muscular veteran with grey flecked beard, broad sun-browned face and unwavering expression. Ancient bronze armor with ochre fabric and slate green waist bindings. Both hands steadily grip a full long-handled single-edged glaive, shaft diagonal and entirely inside frame; planted sturdy feet. No fire or scenery.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-63930368-f0c6-4092-964a-9df2b4425813.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/huang-gai-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and authored equipment; unique face, clothing, palette and pose; no text."
+      },
+      "sha256": "904baf6cff635b68ce0c10236d6a7dcd12a87ea6867e596000f661d724dd1cd1",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          11,
+          7,
+          1018,
+          1528
+        ],
+        "margins": [
+          11,
+          7,
+          6,
+          8
+        ],
+        "transparentPixelFraction": 0.5567614237467448
+      }
+    },
+    {
+      "id": "kong-rong",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Kong Rong 孔融, scholarly mature official with thoughtful long face, neatly combed long dark beard and expressive intellectual eyes. Grey-blue long Confucian robes with ivory and pale wheat trim, understated black Han scholar crown. Holds an unfurled paper scroll at chest height, courteous upright scholarly stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-089cc7d9-eb82-49cb-b427-92dcefe29e7c.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/kong-rong-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "d712f21f07182f80b17b1247e1d300c272bee97d208580fb749a1c0a1511cf83",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          145,
+          5,
+          842,
+          1530
+        ],
+        "margins": [
+          145,
+          5,
+          182,
+          6
+        ],
+        "transparentPixelFraction": 0.5427989959716797
+      }
+    },
+    {
+      "id": "tao-qian",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Tao Qian 陶谦, old regional governor with kind yet tired broad wrinkled face, full grey beard and grey eyebrows. Warm cinnamon brown formal long robes with muted grey-green trim, simple black official cap. One hand rests on a completely sheathed sword at the hip, other hand tucked loosely within sleeve. Dignified elderly posture.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-dcfba694-81e2-440f-8a5f-56c0bb41010d.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/tao-qian-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "7dd08c20852ccfb03612be9aec23ae462fc53ccf49baa8d344f094d9a2254d4c",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          204,
+          9,
+          833,
+          1527
+        ],
+        "margins": [
+          204,
+          9,
+          191,
+          9
+        ],
+        "transparentPixelFraction": 0.5755634307861328
+      }
+    },
+    {
+      "id": "wang-lang",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Wang Lang 王朗, mature learned administrator with narrow face, medium dark beard lightly grey at tips, calm articulate expression. Lake teal long official robes with muted beige-gold trim and ivory collar; structured black official cap. Holds narrow bamboo slips in one hand while the other hand gestures in discussion, composed full standing pose.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-92fcce56-4b67-4e29-8dab-8db20bd7d55b.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/wang-lang-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "93431b24b2c76b00e97279ffdb266422eca58b39e3e745126a23c09cfe3e897f",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          188,
+          25,
+          830,
+          1512
+        ],
+        "margins": [
+          188,
+          25,
+          194,
+          24
+        ],
+        "transparentPixelFraction": 0.5844936370849609
+      }
+    },
+    {
+      "id": "shi-xie",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Shi Xie 士燮, venerable southern scholar governor with warm tan skin, broad calm wrinkled face and very long silver-white beard. Earth gold and ochre long robes, dark jade green trim and belt ornament, modest black scholarly hat. Holds rolled scroll low at abdomen, serene sturdy balanced stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-6be50df5-b704-47a1-9cf6-0d1c6d7c1c8e.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/shi-xie-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "c959c56cceb30ab22e736061445daa258dbd4b8a0e30ee708e7ed267e0b040dc",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          183,
+          6,
+          928,
+          1531
+        ],
+        "margins": [
+          183,
+          6,
+          96,
+          5
+        ],
+        "transparentPixelFraction": 0.5450242360432943
+      }
+    },
+    {
+      "id": "liu-yao",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Liu Yao 刘繇, middle-aged provincial official with long oval face, dark tapered beard and serious alert expression. Deep ocean blue formal long robes with muted sandy bronze details, black Han official crown. One hand points sideways as if discussing a map, other hand rests on fully sheathed sword at belt; authoritative restrained posture.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-e7eb1d28-5fd3-452e-bfd3-e31643a0f05b.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/liu-yao-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "9893ffa159a3fe9019fd0f190bab76a1233a1b4d3b670805bbb9aff567549f23",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          77,
+          20,
+          949,
+          1515
+        ],
+        "margins": [
+          77,
+          20,
+          75,
+          21
+        ],
+        "transparentPixelFraction": 0.5259927113850912
+      }
+    },
+    {
+      "id": "huang-zu",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Huang Zu 黄祖, weathered mature river-defense general with broad ruddy face, coarse dark beard streaked grey. Reddish brown lamellar armor, faded green-grey cloth, old bronze helmet without long plume. Holds full long spear upright by his side, entire tip and shaft clearly within frame. Wary solid guard stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-5b605ad3-a85d-4c4e-8860-8d28fe2fb129.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/huang-zu-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "4f57c7975c91a92e1a2bb2764de11f5180788025084d7ba924a3aba697149baf",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          228,
+          10,
+          882,
+          1505
+        ],
+        "margins": [
+          228,
+          10,
+          142,
+          31
+        ],
+        "transparentPixelFraction": 0.6481939951578776
+      }
+    },
+    {
+      "id": "gongsun-du",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Gongsun Du 公孙度, stern formidable frontier ruler with square lined face, heavy dark-grey moustache and beard. Purple iron lamellar armor, grey fur shoulder mantle and muted silver trim. Right hand grips a complete lowered straight sword, left hand at belt. Intimidating proud upright stance, modest severe bronze helmet.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-19996a7e-5c64-4d06-9e4c-b2d08a8b5887.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/gongsun-du-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "95c75d873173ce98b45e41a2582f0adfe140f73bbe18144d19caa17a1f3a5a1d",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          105,
+          3,
+          996,
+          1526
+        ],
+        "margins": [
+          105,
+          3,
+          28,
+          10
+        ],
+        "transparentPixelFraction": 0.46927515665690106
+      }
+    },
+    {
+      "id": "han-fu",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Han Fu 韩馥, older hesitant provincial official with soft broad face, worried brows and wispy greying beard. Grey-taupe long official robes with pale sage trim, simple black official crown. Holds bamboo slips uncertainly with both hands near abdomen, slightly angled gentle standing pose. Distinct anxious thoughtful character.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-c823ce97-fd65-45a1-9e2e-de60a3bc9d92.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/han-fu-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face, age, authored palette and robe/armor; no text."
+      },
+      "sha256": "1af13cc51068ea106bf4dbf78112de81997109c976c71baf5d205954aa95374f",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          230,
+          6,
+          810,
+          1526
+        ],
+        "margins": [
+          230,
+          6,
+          214,
+          10
+        ],
+        "transparentPixelFraction": 0.5992984771728516
+      }
+    },
+    {
+      "id": "zhang-yang",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Zhang Yang 张杨, mature escort general with kindly resolute broad face, neatly shaped medium dark beard. Sand brown lamellar armor with pale dusty blue shoulder scarf and steel grey accents. Holds a long spear close in a protective lowered diagonal stance, full tip and shaft inside frame, other hand open as if shielding someone. Black topknot, no passenger.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-7d660dc6-697a-40e4-8158-278e7e1e8094.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/zhang-yang-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face and authored outfit; Zhang Yang spear, Hua Xin scroll, Zhao Yu envoy staff/slips, Liu Chong crossbow all readable; no text."
+      },
+      "sha256": "eb920cd430d53d7b71df7dcf2da04387f88268a2eca2a61e097c2081c0405cd8",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          54,
+          25,
+          970,
+          1518
+        ],
+        "margins": [
+          54,
+          25,
+          54,
+          18
+        ],
+        "transparentPixelFraction": 0.5509173075358073
+      }
+    },
+    {
+      "id": "hua-xin",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Hua Xin 华歆, slim middle-aged civil minister with refined long narrow face, neatly trimmed dark beard, thoughtful measured expression. Bamboo green long robes with cream collar and pale gold-taupe edging, sober black official cap. Holds a neatly rolled paper scroll with both hands in a formal scholarly pose, sleeves and boots completely visible.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-c3d532c0-2f23-4a1d-8338-7444c731d606.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/hua-xin-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face and authored outfit; Zhang Yang spear, Hua Xin scroll, Zhao Yu envoy staff/slips, Liu Chong crossbow all readable; no text."
+      },
+      "sha256": "11444e4dce95213904bc17f0e3be735e79766a5c66fd8b540aeaf3b953235ae8",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          242,
+          13,
+          815,
+          1522
+        ],
+        "margins": [
+          242,
+          13,
+          209,
+          14
+        ],
+        "transparentPixelFraction": 0.6258742014567057
+      }
+    },
+    {
+      "id": "zhao-yu",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Zhao Yu 赵昱, mature Han envoy and administrator with dignified oval face, tidy dark moustache and beard. Muted plum-grey long official robes with tan gold trim and ivory inner collar, modest black Han crown. Holds a slender ceremonial envoy staff upright in one hand and bamboo slips in the other, entire staff from top to foot visible. Courteous greeting stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-69795ddd-0355-4c64-802e-387c5aa02d85.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/zhao-yu-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face and authored outfit; Zhang Yang spear, Hua Xin scroll, Zhao Yu envoy staff/slips, Liu Chong crossbow all readable; no text."
+      },
+      "sha256": "602cd2b5423942d75d53ebbed3ee7c9a10b040efdd0027b5060aceadd6e8ee11",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          200,
+          11,
+          860,
+          1525
+        ],
+        "margins": [
+          200,
+          11,
+          164,
+          11
+        ],
+        "transparentPixelFraction": 0.5578346252441406
+      }
+    },
+    {
+      "id": "liu-chong",
+      "prompt": "Use case: historical-scene. Asset: original historical strategy RPG character cutout, Chinese late Han / Three Kingdoms. Vertical 2:3 portrait, 1024x1536. Painterly semi-realistic hand-painted character illustration with refined face, textured silk and iron armor, restrained elegant natural colors, readable silhouette. Exactly one Chinese adult man, standing head-to-toe with head, hands, boots and entire weapon visible; centered subject occupying about 82% height, generous clear margins on all sides, three-quarter standing pose. GENUINELY TRANSPARENT RGBA background, no backdrop or gradient, no ground, no scenery, no glow, no text, no lettering, no watermark. Distinct individual face and body; tasteful historical interpretation, not a photograph, not anime. Liu Chong 刘宠 Prince of Chen, mature sturdy princely military lord with broad noble face, medium dark beard and firm focused eyes. Gold-brown lamellar armor with subdued amber fittings over rich warm brown cloth, modest bronze crown. Holds a clearly recognizable large traditional Chinese wooden CROSSBOW with broad transverse bow arms horizontally at waist height, complete crossbow inside frame, finger away from trigger, no drawn arrow aimed at viewer. Upright protective stance.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a1721d-bf6f-7e81-b04b-f758cddb12d3\\exec-e6ea221c-d6b8-47c1-8525-76c99cf90c4c.png",
+      "destinationPath": "D:/games/ThreeKingdoms/public/assets/characters/liu-chong-v1.png",
+      "visualReview": {
+        "status": "approved",
+        "reviewer": "v11_audio",
+        "notes": "Individually inspected with view_image: complete head, hands, boots and equipment; distinct face and authored outfit; Zhang Yang spear, Hua Xin scroll, Zhao Yu envoy staff/slips, Liu Chong crossbow all readable; no text."
+      },
+      "sha256": "0da586d221c985c4fbda341d3a1909640aaf3527b3a784621a50697f6e14c2b9",
+      "audit": {
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGBA",
+        "alphaRange": [
+          0,
+          254
+        ],
+        "cornerAlpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "effectiveAlphaBBox": [
+          118,
+          6,
+          1005,
+          1519
+        ],
+        "margins": [
+          118,
+          6,
+          19,
+          17
+        ],
+        "transparentPixelFraction": 0.5648180643717448
+      }
+    }
+  ],
+  "summary": {
+    "count": 32,
+    "uniqueSha256": 32,
+    "allOriginalsPreserved": true,
+    "allManuallyViewed": true,
+    "allNativeRGBA": true,
+    "cornerAlphaMaximum": 1,
+    "minimumEffectiveAlphaMarginPx": 3,
+    "destinationBytes": 72623399,
+    "note": "Native alpha preserved byte-for-byte; no programmatic background removal, compositing, cropping or resizing. Two images contain a single corner alpha=1/255; all effective silhouettes have margins."
+  }
+}

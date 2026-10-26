@@ -1,0 +1,244 @@
+{
+  "tool": "image_gen.imagegen",
+  "mode": "new-generation",
+  "transparent_background": true,
+  "items": [
+    {
+      "id": "local-prefect-1",
+      "detail": "An ORIGINAL MALE CIVIC PREFECT archetype around40, oval face, short neat moustache and reserved kind eyes. Dark teal Han official robe with ivoryinnercollar, brownbronze belt, simpleblack officialcap. Holds a closed bamboo ledger with bothhands atwaist. Upright balanced stance, humblepractical administrativepresence.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL MALE CIVIC PREFECT archetype around40, oval face, short neat moustache and reserved kind eyes. Dark teal Han official robe with ivoryinnercollar, brownbronze belt, simpleblack officialcap. Holds a closed bamboo ledger with bothhands atwaist. Upright balanced stance, humblepractical administrativepresence.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-aba3484a-c7fa-4686-8f46-6c8a5ffba0f1.png",
+      "file": "public\\assets\\characters\\local-prefect-1-v1.png",
+      "sha256": "77deda8c1c4884e7135c78e20f7f19debf98c70253a2e95622bf10d7a3ef1649",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        240,
+        13,
+        768,
+        1520
+      ]
+    },
+    {
+      "id": "local-prefect-2",
+      "detail": "An ORIGINAL MALE CIVIC PREFECT archetype around50, stockier broadface, trimmed black-and-grey beard, attentiveexpression. Muted ochrebrown broad-sleeve robe with cream lining and narrowred sash, modestofficialcrown. Right hand holds a compact bronze sealcase, left supports a rolled blank document. Threequarter slightlyturnedleft, completeboots.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL MALE CIVIC PREFECT archetype around50, stockier broadface, trimmed black-and-grey beard, attentiveexpression. Muted ochrebrown broad-sleeve robe with cream lining and narrowred sash, modestofficialcrown. Right hand holds a compact bronze sealcase, left supports a rolled blank document. Threequarter slightlyturnedleft, completeboots.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-e1ee40ea-5025-42e8-a100-64ac6abb5c4d.png",
+      "file": "public\\assets\\characters\\local-prefect-2-v1.png",
+      "sha256": "7a557328300861e930c6ef66361bc4772a0d4821a424c3e89da32f47136425f8",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        129,
+        4,
+        889,
+        1515
+      ]
+    },
+    {
+      "id": "local-prefect-3",
+      "detail": "An ORIGINAL MALE CIVIC PREFECT archetype around35, lean angularclean-shaven face, alert composedeyes. Forestgreen robe over discreetdarklamellar vest, agedbronze belt andsimpleclothcrown. One handrests on a complete sheathed straight sword hanging atside, otherhand opencalmgesture. Localcivil-military administrator, no drawnsword.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL MALE CIVIC PREFECT archetype around35, lean angularclean-shaven face, alert composedeyes. Forestgreen robe over discreetdarklamellar vest, agedbronze belt andsimpleclothcrown. One handrests on a complete sheathed straight sword hanging atside, otherhand opencalmgesture. Localcivil-military administrator, no drawnsword.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-d8757775-e494-4149-a66b-59953940fac1.png",
+      "file": "public\\assets\\characters\\local-prefect-3-v1.png",
+      "sha256": "115a91ac4ff3058e52a967baf3a282d4d1410dc9cbbfd0e466b5ab49625f8357",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        174,
+        12,
+        970,
+        1520
+      ]
+    },
+    {
+      "id": "local-prefect-4",
+      "detail": "An ORIGINAL MALE CIVIC PREFECT archetype around48, long thin face, slender moustache and pointedbeard, reflectiveexpression. Dustyplum and slate layered officialrobe, ivorycollar, softblackcap. Holds a closed plainfoldingfan inonehand and blanktablet inother. Slightlyasymmetric composed scholarstance, allpropscomplete.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL MALE CIVIC PREFECT archetype around48, long thin face, slender moustache and pointedbeard, reflectiveexpression. Dustyplum and slate layered officialrobe, ivorycollar, softblackcap. Holds a closed plainfoldingfan inonehand and blanktablet inother. Slightlyasymmetric composed scholarstance, allpropscomplete.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-e91aa2c7-907d-4fff-b18a-4e5a13cb081e.png",
+      "file": "public\\assets\\characters\\local-prefect-4-v1.png",
+      "sha256": "fd1d5f2bdba7f686db54c7f0f29c08b60ddf1b63e9392f46f890b9de889794e1",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        236,
+        17,
+        902,
+        1519
+      ]
+    },
+    {
+      "id": "local-prefect-5",
+      "detail": "An ORIGINAL MALE CIVIC PREFECT archetype around40, sturdy brownsquareface and short moustache, watchfulresponsibleexpression. Indigo robe with understated agedbronze edging over grey lightweight lamellarchest, mutedred belt, smallblack officialcap. Holds a completely sheathed straight Chinese sword verticallybesidebody with onehand, otherrests on belt. Civiccommand presence ratherthanbattlepose.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL MALE CIVIC PREFECT archetype around40, sturdy brownsquareface and short moustache, watchfulresponsibleexpression. Indigo robe with understated agedbronze edging over grey lightweight lamellarchest, mutedred belt, smallblack officialcap. Holds a completely sheathed straight Chinese sword verticallybesidebody with onehand, otherrests on belt. Civiccommand presence ratherthanbattlepose.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-f8f00628-d829-46e8-bfc0-c238cf20817b.png",
+      "file": "public\\assets\\characters\\local-prefect-5-v1.png",
+      "sha256": "9549c9050f7ec5aa921b9e223286ab19ae9de9650db3bc48b6d232dce88c94d3",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        244,
+        29,
+        981,
+        1510
+      ]
+    },
+    {
+      "id": "local-prefect-6",
+      "detail": "An ORIGINAL MALE CIVIC PREFECT archetype around58, gently lined leanface, silver-black beard, kind attentiveeyes. Warm greybrown layeredadministrative robe, oliveinnercollar, simpleofficialclothcrown. Bothhands hold a closed plainbamboo ledger beforechest. Slightlyturnedright stableposture, fullrobehem andbothbootsvisible.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL MALE CIVIC PREFECT archetype around58, gently lined leanface, silver-black beard, kind attentiveeyes. Warm greybrown layeredadministrative robe, oliveinnercollar, simpleofficialclothcrown. Bothhands hold a closed plainbamboo ledger beforechest. Slightlyturnedright stableposture, fullrobehem andbothbootsvisible.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-d36158b8-ba63-47b9-a5db-e516a25d04eb.png",
+      "file": "public\\assets\\characters\\local-prefect-6-v1.png",
+      "sha256": "8deea802708d81337a77568fc025757029ead361e54f6a6a2ef76a569b4019b4",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        231,
+        8,
+        877,
+        1520
+      ]
+    },
+    {
+      "id": "local-prefect-7",
+      "detail": "An ORIGINAL FEMALE CIVIC PREFECT archetype in a fictionalThreeKingdoms RPG, around35, composed intelligent ovalface, tidy black hair in a restrained highHanbun with smallbronze hairpin. Full-length mutedteal andivory administrativestyle robe, broadmodest sleeves, narrow ochre belt, jadependant heldgently inright hand, closed silkdocumentcase inleft. Dignifiedpractical officialstance; explicitlygamefiction, no extravagantqueenheaddress, no revealingdress.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL FEMALE CIVIC PREFECT archetype in a fictionalThreeKingdoms RPG, around35, composed intelligent ovalface, tidy black hair in a restrained highHanbun with smallbronze hairpin. Full-length mutedteal andivory administrativestyle robe, broadmodest sleeves, narrow ochre belt, jadependant heldgently inright hand, closed silkdocumentcase inleft. Dignifiedpractical officialstance; explicitlygamefiction, no extravagantqueenheaddress, no revealingdress.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-dd3c4818-9114-4478-97cc-ff5bd185d6a5.png",
+      "file": "public\\assets\\characters\\local-prefect-7-v1.png",
+      "sha256": "4e321a219bafae55a76b538b60a95ca499d04faa891af0000603e69774cf3f19",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        243,
+        30,
+        887,
+        1504
+      ]
+    },
+    {
+      "id": "local-prefect-8",
+      "detail": "An ORIGINAL FEMALE CIVIC PREFECT archetype in a fictionalThreeKingdoms RPG, around40, strongerangularface, decisivecalmexpression, darkhair neatlypinned with plainwoodhairpins. Desaturatedgold andslateblue full-length modestrobe, darkblue belt andbrownboots. Holds a rolledblankbamboo administrationregister inbothhands atwaist. Straightbalancedposture, differentfaceandcostume fromtealfemale archetype, no fan/jewelry overload, no fantasyglow.",
+      "prompt": "Use case: stylized-concept. Create ONE independent full-body transparent character asset for a Three Kingdoms Chinese RPG. Original game concept, not an authentic historical portrait. Painterly semi-realism, realistic East Asian anatomy and expressive distinct face, muted layered silk/leather with restrained bronze detail, fine fabric folds, soft directional studio lighting, readable silhouette. A single complete standing adult, three-quarter pose. Vertical2:3 composition. Keep entire headwear, hair, fingers, hem, BOTH boots, and complete prop/weapon within central80% of frame, with generous fully transparent margins around every edge. GENUINE TRANSPARENT ALPHA background. No scenery, floor, cast shadow cloud, vignette, gradient, glow, labels, calligraphy, text, border or watermark. Han/Wei-Jin-inspired clothing, no modern/European/Qing fashions or fantasyspikes.  An ORIGINAL FEMALE CIVIC PREFECT archetype in a fictionalThreeKingdoms RPG, around40, strongerangularface, decisivecalmexpression, darkhair neatlypinned with plainwoodhairpins. Desaturatedgold andslateblue full-length modestrobe, darkblue belt andbrownboots. Holds a rolledblankbamboo administrationregister inbothhands atwaist. Straightbalancedposture, differentfaceandcostume fromtealfemale archetype, no fan/jewelry overload, no fantasyglow.",
+      "originalPath": "C:\\Users\\silence\\.codex\\generated_images\\01a16ca6-d875-72d3-afa4-0c4bb762b8cd\\exec-d346f067-56ef-42fd-acfa-984929d0e4ee.png",
+      "file": "public\\assets\\characters\\local-prefect-8-v1.png",
+      "sha256": "3b7d56a472af77601da83166d2ee658a0878cf38597d0d10ae95abc3849efbc9",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "subjectBounds": [
+        164,
+        10,
+        809,
+        1524
+      ]
+    }
+  ],
+  "visualReview": {
+    "status": "approved",
+    "reviewer": "root",
+    "notes": "All eight inspected individually with view_image; complete head, hands and boots, distinct original civic clothing and poses, no text. All raw RGBA copies match originals."
+  }
+}

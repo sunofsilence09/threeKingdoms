@@ -1,0 +1,7 @@
+.city-work { margin: 14px 0; padding: 12px 0; border-block: 1px solid #a7b19a88; }
+.city-work-stepper { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; }
+.city-work-stepper input { min-width: 0; text-align: center; }
+.city-work-stepper .world-button { padding: 8px; font-size: 18px; }
+.city-work input:focus-visible { outline: 3px solid #94713c; outline-offset: 2px; }
+.city-work [aria-invalid="true"] { border-color: #a04734; }
+.city-work #city-work-preview { font-size: 12px; font-variant-numeric: tabular-nums; }

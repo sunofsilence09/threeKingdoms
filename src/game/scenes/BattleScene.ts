@@ -29,6 +29,8 @@ import { martialAt } from '../martialCatalog';
 import { settleDuel } from '../martial';
 import { gameDayNumber } from '../recruitment';
 import { createBattleCommands, type TargetMode } from '../battleCommands';
+import { createBattleAudio } from '../battleAudio';
+import { effectiveAttributes } from '../characterTalents';
 
 interface BattleData { mode?: BattleMode }
 
@@ -48,6 +50,7 @@ export class BattleScene extends Phaser.Scene {
   private queueLabel!: Phaser.GameObjects.Text;
   private targetMode: TargetMode = null;
   private commands?: ReturnType<typeof createBattleCommands>;
+  private audio?: ReturnType<typeof createBattleAudio>;
 
   constructor() { super('Battle'); }
   init(data: BattleData): void { this.mode = data.mode ?? 'route'; }
@@ -70,6 +73,8 @@ export class BattleScene extends Phaser.Scene {
       return state.duel ? createDuelCombat(base, state) : initializeMartialCombat(base, state);
     };
     this.combat = state.activeBattle && isBattleSnapshot(state.activeBattle, state) ? state.activeBattle : fresh();
+    this.audio = createBattleAudio([...(this.combat.turnEvents ?? []), ...(this.combat.lastEvent ? [this.combat.lastEvent] : [])]);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.audio?.destroy(); this.audio = undefined; });
     this.combat = { ...this.combat, units: this.combat.units.map(u => u.id === 'traveler' ? { ...u, name: heroName(state) } : u) };
     this.drawBackground();
     this.board = new BattleBoard(this, (x, y) => this.selectTile(x, y));
@@ -178,7 +183,7 @@ export class BattleScene extends Phaser.Scene {
     if (this.finished || this.enemyPending || isInspecting()) return;
     const unit = this.combat.units.find(u => u.id === id && u.team === 'party' && u.hp > 0);
     if (!unit) return;
-    if (currentActor(this.combat)?.id !== id) { this.message.setText(`${unit.name} 尚未轮到行动，请按右侧次序操作。`); return; }
+    if (currentActor(this.combat)?.id !== id) { this.message.setText(`${unit.name} 尚未轮到行动，请按右侧次序操作。`); this.renderBoard(false); return; }
     this.combat = { ...this.combat, selectedId: id };
     const weapon = WEAPONS[unit.weapon];
     const availability = ultimateAvailability(this.combat, unit);
@@ -192,10 +197,11 @@ export class BattleScene extends Phaser.Scene {
       const actor = currentActor(this.combat);
       if (!actor || actor.team !== 'party') return;
       const mode = this.targetMode;
+      const audioUnits = this.combat.units;
       const next = mode === 'fire' ? setFire(this.combat, actor.id, x, y) : performMartial(this.combat, actor.id, mode.skillId, x, y);
       if (next === this.combat) { this.message.setText('该格不是当前指令的合法目标，或武学仍在冷却。请选择高亮格，也可取消。'); this.renderBoard(false); return; }
       this.combat = next;
-      this.recordEvents(mode !== 'fire' ? next.turnEvents ?? [] : next.lastEvent ? [next.lastEvent] : []);
+      this.recordEvents(mode !== 'fire' ? next.turnEvents ?? [] : next.lastEvent ? [next.lastEvent] : [], this.combat.round, audioUnits);
       const skill = typeof mode === 'object' ? martialAt(mode.skillId) : undefined;
       const fire = mode === 'fire' || skill?.template === 'firegod';
       this.message.setText(`${actor.name}${mode === 'fire' ? '放火' : `施展《${skill?.name}》`}：${fire ? next.lastEvent?.success ? '点燃成功，留意风向与友军。' : '此次未点燃，行动已消耗。' : next.lastEvent?.kind === 'dodge' ? '被目标闪避。' : next.lastEvent?.damage ? `造成${next.lastEvent.damage}点伤害。` : '已施展。'}`);
@@ -213,10 +219,11 @@ export class BattleScene extends Phaser.Scene {
       return;
     }
     if (target?.team === 'enemy') {
+      const audioUnits = this.combat.units;
       const next = performAttack(this.combat, selected.id, target.id);
       if (next === this.combat) { this.message.setText('目标不在有效射程或被障碍挡住。\n猎弓不能贴身射击，试着换个位置。'); return; }
       this.combat = next;
-      this.recordEvents(next.lastEvent ? [next.lastEvent] : []);
+      this.recordEvents(next.lastEvent ? [next.lastEvent] : [], this.combat.round, audioUnits);
       this.message.setText(next.lastEvent?.kind === 'dodge' ? `${target.name} 闪避了${selected.name}的攻击！\n本次攻击机会已消耗。` : `${selected.name} 攻击${target.name}，造成 ${next.lastEvent?.damage ?? 0} 点伤害。`);
       this.finishPlayerAction();
       return;
@@ -282,11 +289,12 @@ export class BattleScene extends Phaser.Scene {
       if (this.finished) return;
       if (isInspecting()) { this.time.delayedCall(100, act); return; }
       const round = this.combat.round;
+      const audioUnits = this.combat.units;
       this.combat = resolveEnemyTurn(this.combat, resolveMartialAI);
       this.enemyPending = false;
       const events = this.combat.turnEvents ?? [];
       const hit = events.find(e => e.kind !== 'ultimate');
-      this.recordEvents(events, round);
+      this.recordEvents(events, round, audioUnits);
       this.message.setText(hit ? this.eventText(hit) : `${actor.name}进入守势。`);
       this.continueTurns();
     };
@@ -296,7 +304,8 @@ export class BattleScene extends Phaser.Scene {
     if (this.finished) return;
     this.finished = true;
     this.renderBoard();
-    const state = { ...getState(), activeBattle: undefined };
+    // Keep the encounter marker through reward calculation, including resumed 1.0 battles.
+    const state = getState();
     if (state.duel) {
       const settled = setState(settleDuel(state, result === 'win'));
       showPanel({ eyebrow: '人物切磋 · 1对1', title: result === 'win' ? '切磋获胜。' : '切磋结束。',
@@ -312,7 +321,7 @@ export class BattleScene extends Phaser.Scene {
       return;
     }
     if (result === 'loss') {
-      setState(state);
+      setState({...state,activeBattle:undefined});
       showPanel({ eyebrow: '队伍溃散', title: '路还在，但你们走不动了。', body: '这次未获得经验。等级与装备进度保留，重整队伍再试。', actions: [
         { label: '重试这场战斗', onClick: () => { setState({ ...getState(), activeBattle: undefined }); this.scene.restart({ mode: this.mode }); } },
         { label: '从序章重新开始', variant: 'quiet', onClick: () => { resetState(); this.scene.start('Prologue'); } },
@@ -323,15 +332,15 @@ export class BattleScene extends Phaser.Scene {
     const summary = (state.battleParty ?? state.deployed).map(id => {
       const before = state.party[id], after = rewarded.party[id] ?? rewarded.life?.memorials[id]?.progress ?? before;
       const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
-      const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, before.attributes);
+      const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, effectiveAttributes(id, before.attributes, this.combat.attributeVersion ?? 1));
       return `${personName(id, state)}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）`;
     }).join('\n');
     if (this.mode === 'ambush') {
-      setState(completeJourneyTask({ ...rewarded, phase: 'overworld', battleParty: undefined, supplies: Math.max(0, rewarded.supplies - (state.flags.ambushWon ? 0 : 1)) }, 'ambushWon'));
+      setState(completeJourneyTask({ ...rewarded,activeBattle:undefined,encounter:undefined, phase: 'overworld', battleParty: undefined, supplies: Math.max(0, rewarded.supplies - (state.flags.ambushWon ? 0 : 1)) }, 'ambushWon'));
       showPanel({ eyebrow: `${cityNameAt(state.currentCityId,state.date)}城外 · 战斗胜利`, title: '路口让开了，你们也更坚韧了。', body: `基础经验 30，魅力可提供额外经验。\n${summary}\n\n菜刀和拳脚撑过了这段路。去村里换些粮水，再护送乡民。`, actions: [{ label: '分配技能点', onClick: () => showCharacterPanel() }, { label: '继续行旅', onClick: () => { clearOverlay(); this.scene.start('Overworld'); } }] });
       return;
     }
-    setState({ ...rewarded, phase: 'ending', battleParty: undefined });
+    setState({ ...rewarded,activeBattle:undefined, phase: 'ending', battleParty: undefined });
     this.scene.start('Ending', { rewardSummary: summary + (rewarded.supplies > state.supplies ? `\n政略带回额外补给 +${rewarded.supplies - state.supplies}` : '') });
   }
   private persistCombat(): void {
@@ -351,8 +360,9 @@ export class BattleScene extends Phaser.Scene {
     if (event.kind === 'martial' && event.success !== undefined) return `${name(event.actorId)}${skill}，${event.success ? '点燃成功' : '此次未点燃'}。`;
     return `${name(event.actorId)}${skill}${event.damage ? `，对${name(event.targetId)}造成${event.damage}点伤害` : '完毕'}。`;
   }
-  private recordEvents(events: NonNullable<CombatState['turnEvents']>, round = this.combat.round): void {
+  private recordEvents(events: NonNullable<CombatState['turnEvents']>, round = this.combat.round, audioUnits = this.combat.units): void {
     if (!events.length) return;
+    this.audio?.emit(events, audioUnits);
     this.combat = { ...this.combat, battleLog: [...(this.combat.battleLog ?? []), ...events.map(e => `第${round}轮 · ${this.eventText(e)}`)].slice(-50) };
   }
   private chooseMode(mode: TargetMode): void {

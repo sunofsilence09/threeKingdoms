@@ -7,6 +7,7 @@ import { CONFLICT_FOUNDATIONS, factionAt, factionForPerson, leaderForFaction } f
 import { cityAt, planRoute, WORLD_CITIES } from './world';
 import { isAliveAt, lifeBaseline, lifeStatus } from './personLife';
 import { cityNameAt } from './cityNames';
+import { prefectIdentity } from './prefectIdentity';
 
 export interface PersonPosting {
   cityId?: string;
@@ -29,7 +30,7 @@ export function currentGovernorId(state: GameState, cityId: string): string | un
   const world = state.conflictRecovery ? undefined : state.worldConflict;
   if (!world) return undefined;
   const city = world.cities[cityId], id = city?.governorId;
-  if (!id || !isAliveAt(state.life,id,state.date) || !activeProfile(id, state.date) || Object.hasOwn(state.party, id) || factionForPerson(id, state.date) !== city.factionId ||
+  if (!id || !isAliveAt(state.life,id,state.date,true) || !activeProfile(id, state.date) || Object.hasOwn(state.party, id) || factionForPerson(id, state.date) !== city.factionId ||
       world.armies.some(army => army.commanderId === id)) return undefined;
   // Invalid duplicate assignments never put the same person in two offices in the UI.
   return WORLD_CITIES.find(candidate => world.cities[candidate.id]?.governorId === id)?.id === cityId ? id : undefined;
@@ -40,6 +41,15 @@ export function personPosting(state: GameState, id: string): PersonPosting | und
   if (!Number.isInteger(state.date.year) || !Number.isInteger(state.date.month) || state.date.month < 1 || state.date.month > 12) return undefined;
   const profile = recruitProfile(id);
   if (!profile || !isAliveAt(state.life,id,state.date,true) || Object.hasOwn(state.party, id) || id === 'himiko') return undefined;
+  const original=prefectIdentity(id);
+  if(original){
+    const city=state.worldConflict?.cities[original.cityId];
+    if(!state.life?.people[id]&&city?.governorId!==id)return undefined;
+    const governing=currentGovernorId(state,original.cityId)===id;
+    return {cityId:original.cityId,kind:governing?'governing':'free',title:governing?'太守（游戏人物）':'卸任地方官（游戏人物）',
+      office:governing?`${factionAt(city!.factionId).name} · ${cityNameAt(original.cityId,state.date)}府署`:'游居',
+      ...(governing?{factionId:city!.factionId}:{}),reason:'本局原创人物与任命，不属于史载官职记录。'};
+  }
   if (!activeProfile(id, state.date)) {
     const last = [...profile.windows].filter(window => window.to).sort((a,b) => monthAt(b.to!,true)-monthAt(a.to!,true))[0];
     if (!state.life || !lifeBaseline(id) || !last?.to || monthAt(state.date) <= monthAt(last.to,true)) return undefined;
@@ -54,7 +64,7 @@ export function personPosting(state: GameState, id: string): PersonPosting | und
     const cityId = preferred[0], city = cityAt(cityId), rawBinding = historicalCommander(cityId, state.date);
     const binding = rawBinding && isAliveAt(state.life,rawBinding.employerId,state.date,true) ? rawBinding : undefined;
     const owner = world?.cities[cityId], governorId = owner ? currentGovernorId(state, cityId) : binding?.employerId;
-    const waiting = !profile.readOnly && binding && Object.hasOwn(state.party, binding.employerId) && (!owner || owner.occupationDay < 0);
+    const waiting = (!owner || !governorId) && !profile.readOnly && binding && Object.hasOwn(state.party, binding.employerId) && (!owner || owner.occupationDay < 0);
     if (waiting) return { cityId, factionId: owner?.factionId, kind: 'waiting', title: profile.role, office: '待聘', reason: '原驻城主事已同行，地方职位暂缺。' };
     const employerId = governorId && !Object.hasOwn(state.party, governorId) ? governorId : undefined;
     return { cityId, factionId: owner?.factionId, kind: 'employed', title: profile.role,

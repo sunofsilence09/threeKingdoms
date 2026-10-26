@@ -20,8 +20,8 @@ const expectedArts = [
 
 describe('approved generation roster', () => {
   it('adds all twenty-six stable identities, models, and recruit profiles', () => {
-    expect(HISTORICAL_CHARACTERS).toHaveLength(63);
-    expect(RECRUIT_PROFILES).toHaveLength(78 + WORLD_CITIES.length * 2);
+    expect(HISTORICAL_CHARACTERS).toHaveLength(95);
+    expect(RECRUIT_PROFILES).toHaveLength(110 + WORLD_CITIES.length * 2);
     const added = expectedArts.map(([id]) => getHistoricalCharacter(id)!);
     expect(added.every(Boolean)).toBe(true);
     expect(new Set(added.map(person => person.appearance.robe)).size).toBe(26);
@@ -37,9 +37,9 @@ describe('approved generation roster', () => {
   it.each(expectedArts)('gives %s the approved %s effect', (id, name, template) => {
     expect(martialForPerson(id)).toMatchObject({ personId: id, name, template, readOnly: false, story: false });
   });
-  it('keeps seventy-three unique arts and Himiko read-only', () => {
-    expect(MARTIAL_CATALOG).toHaveLength(73);
-    expect(new Set(MARTIAL_CATALOG.map(skill => skill.name)).size).toBe(73);
+  it('keeps 105 unique named arts and Himiko read-only', () => {
+    expect(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect')).toHaveLength(105);
+    expect(new Set(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect').map(skill => skill.name)).size).toBe(105);
     expect(martialForPerson('himiko')?.readOnly).toBe(true);
     expect(recruitProfile('himiko')).toMatchObject({ readOnly: true, windows: [] });
   });

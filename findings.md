@@ -154,3 +154,28 @@
 - New-world migration uses an explicit version2 schema and ledger.expansion120000, retaining all old stocks, troops, army legs and world seed. Only added nodes use dated institutional scene parameters; the scene table never replays over a running campaign.
 - On portrait phones, the battle command text changes height. A vertically centered app moved the canvas by11px, almost a full tile at that scale, producing real rapid-tap off-by-one targets. Battle-only top alignment fixes the root cause; real pointer QA now asserts unchanged canvas top through selection and movement.
 - Startup is now a separate explicit choice. Merely opening a fresh title screen does not create a continue slot; existing snapshots remain unchanged until choosing continue or explicitly restarting.
+## 2026-10-25 1.1需求检查
+
+- 当前实际基线为main 9ef51af、package1.0.0；工作区仅progress.md有用户/既有会话更新，应保留。记录显示1.0合并前524项单测，本轮尚未重新跑测试。
+- src/game/scenes/BattleScene.ts已有真实攻击/闪避/武学/点火/环境事件统一记录点，可按发生时机播放音效；仓库没有audio/sound模块与声音资源。音频随机变化不能消耗战斗/风火/旅行的随机流，读档不重放旧事件。
+- growth.createProgress与attributes.createAttributes均固定全10。party和memorial严格按每项减10校验已投入点数；差异天赋必须同步处理存档、纪念、成长面板、候选预览、敌我实战和经验补给，不能只改显示。
+- 当前GARRISON_COMMANDERS仅9条日期任职，worldConflict.assignGovernors额外使用governing履历，但多数城市依赖机构。用户要求每城独立太守，本轮需要覆盖城市岗位和人事继任；是否允许原创补位尚待回答。
+- 公开古籍核验：卷08是《三国志》二公孙陶四张；孔融主要应引《后汉书》卷70。王朗应引《三国志》卷13，非卷49；卷49为刘繇/太史慈/士燮。卷13可见赵昱广陵太守、王朗会稽太守、华歆豫章太守，故拟首批地方名单加入赵昱与华歆，直接改善广陵/山阴/南昌岗位覆盖。仍需逐人核验日期，不从死亡年或摘要捏造完整任期。
+- 已保存1.1完整草案docs/superpowers/specs/2026-10-25-sound-governors-talents-design.md：拟32新历史人物＋独立立绘、105具名武学；音效按武器/命中类型多变体及音量持久化；天赋10—18＋保留原每项20点培养，最高有效38，旧培养/纪念不截断。每城补位人选与美术范围取决于待答问题。
+
+## 2026-10-25 1.1.0最终验证
+
+- 用户确认允许原创补位。新增32名史人及逐人来源；正式图32张，原创地方官职业画像8张，全为独立原生RGBA并保留原件/提示/SHA。
+- worldv3记录nextPrefectId和prefectIds，所有中途任命也进入生命资料；招募/离世/易主即时补位，维持兵力账、时间与战略RNG。史载候选窗口到来/结束可以换任，不将存活等同于连续官职。
+- 完整1.0活动战斗fixture从9ef51af原源码生成，旧校验器确认有效。新版恢复后不改旧HP/攻击/RNG，UI实际结算旧45XP（主角Lv2xp25），下一场启用人物天赋。
+- 根审查修正bulk遗漏中途原创身份、已有现任仍误标士兵长待聘、完整旧档备份、孔融北海相称谓、共享武学占位ID切磋校验及战斗结算过早清除属性版本。
+- 577项单元/集成测试全绿；tsc/生产构建/便携服务器测试通过。161个dist/www文件逐一哈希匹配。离线浏览器零外部请求、零pageerror；继续/重开、静音35%持久化、40画像及旧战斗恢复均通过。
+- 音频13类×3变体的试听WAV与真实敌我攻击WebM已保存；真实浏览器输出非零、设置持久化、恢复不回放，独立随机流不改战斗。
+
+## 2026-10-26 帮工、武学与主角军府验证
+
+城内帮工与途中商旅事件分开：用户截图中的城内按钮改为5日块，奖励保持原日率。主角武学使用障碍来自默认阿满先手时按钮被隐藏和目标限制提示不足，真实施展逻辑可用；现在装备技能持续显示状态。
+
+主角围攻复用天下战略算法，UI明确3—10日自动结算，兵员从付费预备兵转入军队，失败余兵回队、成功驻城，统一ledger计入损耗。NPC反攻在实际日推进及单测都夺回弱玩家城。玩家军府不自动出征，个人投奔关系独立。新增预备兵字段可选，旧世界不会因加载新代码增加决策时钟。
+
+最终618项回归、三尺寸开发UI和离线包流程通过，162文件SHA256匹配。验收输出artifacts/work-martials-conquest/package-results.json；军务预览/拥有城截图artifacts/player-military，工作artifacts/city-work，武学output/playwright/equipped-martials。

@@ -33,6 +33,6 @@ export function renderCityOffice(state:GameState,onTalk:(personId:string)=>void)
     }
     root.append(grid);
   }
-  root.append(node('p',state.worldConflict&&!state.conflictRecovery?'府署现任与在城人员随当前天下局势变化；历史官员记录可从“地方官员”独立查阅，动态任职不是史实记载。姓名缺考时由军府机构代管。':'府署岗位与驻城为沿历史背景编排的游戏阶段，不是完整任期或逐日行踪；未详官员姓名不编造。','trade-muted'));
+  root.append(node('p',state.worldConflict&&!state.conflictRecovery?'每城设独立太守；姓名缺考、原任离世或同行时，由本局原创地方官补位，并标明“游戏人物”。府署任命随本局局势变化，历史官员记录可从“地方官员”独立查阅。':'府署岗位与驻城为沿历史背景编排的游戏阶段，不是完整任期或逐日行踪。','trade-muted'));
   return root;
 }

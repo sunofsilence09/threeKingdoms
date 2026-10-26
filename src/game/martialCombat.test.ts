@@ -24,9 +24,9 @@ function fixture(personId: string) {
 
 function supportFixture(personId: string) {
   const base = fixture(personId);
-  const caster = { ...base.combat.units[0], hp: 50, maxHp: 100, attack: 8 };
+  const caster = { ...base.combat.units[0], hp: 50, maxHp: 100, attack: 8, defense: 0, dodgeRate: 0 };
   const friend = { ...caster, id: 'aman', name: '阿满', x: 3, hp: 41, speed: 20, martialIds: [], effects: [] };
-  const enemy = { ...base.combat.units[1], hp: 100, maxHp: 100, attack: 10 };
+  const enemy = { ...base.combat.units[1], hp: 100, maxHp: 100, attack: 10, defense: 0, dodgeRate: 0 };
   return { ...base, combat: { ...base.combat, units: [caster, friend, enemy] } };
 }
 
@@ -165,7 +165,7 @@ describe('martial combat actions', () => {
 
   it('break uses the current weapon range and caps combined attack bonuses', () => {
     const { combat, id } = fixture('guan-yu');
-    combat.units = combat.units.map((u, i) => ({ ...u, hp: 100, maxHp: 100, attack: 10, defense: i ? 2 : 0 }));
+    combat.units = combat.units.map((u, i) => ({ ...u, hp: 100, maxHp: 100, attack: 10, dodgeRate: 0, defense: i ? 2 : 0 }));
     combat.units[0].empowered = true;
     combat.units[0].effects = [{ kind: 'attack-up', value: .25, sourceId: id, expiresRound: 3 }];
     combat.units[1].guarded = true;
@@ -181,7 +181,7 @@ describe('martial combat actions', () => {
 
   it('pierce reaches a straight target two tiles away but cannot cut through a wall or turn a corner', () => {
     const { combat, id } = fixture('zhang-liao');
-    combat.units = combat.units.map((u, i) => ({ ...u, hp: 100, maxHp: 100, attack: 10, defense: i ? 2 : 0 }));
+    combat.units = combat.units.map((u, i) => ({ ...u, hp: 100, maxHp: 100, attack: 10, dodgeRate: 0, defense: i ? 2 : 0 }));
     const skillId = martialForPerson(id)!.id;
     expect(performMartial(combat, id, skillId, 4, 2).units[1].hp).toBe(89);
     const blocked: CombatState = { ...combat, terrain: [{ x: 3, y: 2, kind: 'wall' }] };
@@ -192,7 +192,7 @@ describe('martial combat actions', () => {
 
   it('shoot needs no bow, respects its minimum range, cover, guard and dodge', () => {
     const { combat, id } = fixture('lu-bu');
-    combat.units = combat.units.map((u, i) => ({ ...u, hp: 100, maxHp: 100, attack: 10, defense: i ? 2 : 0 }));
+    combat.units = combat.units.map((u, i) => ({ ...u, hp: 100, maxHp: 100, attack: 10, dodgeRate: 0, defense: i ? 2 : 0 }));
     combat.units[0].weapon = 'fists';
     combat.terrain = [{ x: 4, y: 2, kind: 'woods' }];
     const skillId = martialForPerson(id)!.id;
@@ -212,7 +212,7 @@ describe('martial combat actions', () => {
 
   it('intimidate weakens movement and damage for precisely the victim next action', () => {
     const { combat, id } = fixture('zhang-fei');
-    combat.units = combat.units.map(u => ({ ...u, hp: 100, maxHp: 100, attack: 10, defense: 0 }));
+    combat.units = combat.units.map(u => ({ ...u, hp: 100, maxHp: 100, attack: 10, dodgeRate: 0, defense: 0 }));
     const next = advanceTurn(performMartial(combat, id, martialForPerson(id)!.id, 4, 2));
     const victim = next.units[1];
     expect(victim.hp).toBe(90);
@@ -327,5 +327,9 @@ describe('martial combat actions', () => {
     expect(duel.environment).toEqual(base.environment);
     expect(state.party).toEqual(before);
     expect(duel.units[1].martialReady).toEqual({});
+    const trainedTeacher = {...state.party['zhou-yu'], attributes: {...state.party['zhou-yu'].attributes, strength: 14, courage: 12}};
+    const trained = createDuelCombat(base, {...state, party: {...state.party, 'zhou-yu': trainedTeacher}});
+    expect(trained.units[1].attack).toBe(duel.units[1].attack + 4);
+    expect(trained.units[1].maxHp).toBe(duel.units[1].maxHp + 4);
   });
 });

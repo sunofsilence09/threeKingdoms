@@ -8,6 +8,7 @@ import { WORLD_CITIES } from './world';
 import { CITY_CAREERS } from './careerData';
 import { GARRISON_PROFILES } from './garrisonData';
 import { isAliveAt } from './personLife';
+import { originalPrefectProfile } from './prefectProfiles';
 
 export interface RecruitWindow {
   from: { year: number; month?: number };
@@ -166,7 +167,15 @@ export const RECRUIT_PROFILES: readonly RecruitProfile[] = [
 ];
 
 export function recruitProfile(id: string): RecruitProfile | undefined {
-  return RECRUIT_PROFILES.find(profile => profile.id === id);
+  return RECRUIT_PROFILES.find(profile => profile.id === id) ?? originalPrefectProfile(id);
+}
+
+/** Enumerate actual persisted identities; never synthesize unencountered officers. */
+export function allRecruitProfiles(state:GameState):readonly RecruitProfile[] {
+  const ids=new Set([...Object.keys(state.life?.people??{}),...Object.keys(state.life?.memorials??{}),
+    ...Object.keys(state.party),...Object.values(state.worldConflict?.cities??{}).flatMap(c=>c.governorId?[c.governorId]:[])]);
+  const known=new Set(RECRUIT_PROFILES.map(p=>p.id));
+  return [...RECRUIT_PROFILES,...[...ids].filter(id=>!known.has(id)).flatMap(id=>originalPrefectProfile(id)??[])];
 }
 
 export function canMeetPerson(id: string, cityId: string, date: GameDate, state?: GameState): boolean {
