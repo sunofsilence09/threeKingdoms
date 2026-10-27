@@ -311,4 +311,4 @@ The first slice's per-action enemy response allowed three enemy actions for each
 - [x] 确认483e777基线与四季音乐/部队改动，建立codex/troops-seasons-2.0审查分支，保留现有改动。
 - [x] 完成战斗士气、配兵/存档守恒、四季音乐/地图三路独立只读复查，修复确认缺陷并回归。
 - [x] 全量测试、构建、桌面/触屏及离线成品验证，确认差异检查。
-- [ ] 提交并合并main，复验后推送并确认同步。
+- [x] 提交并合并main，复验后推送并确认同步（代码bbc4a36，合并后663测试/构建/本地服务/导入测试通过）。
