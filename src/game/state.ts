@@ -1,4 +1,6 @@
 import { effectiveAttributes } from './characterTalents';
+import type { TroopAssignment } from './troopCombat';
+import { validAssignments, assignedCount, reconcileTroops } from './troopManagement';
 import { ATTRIBUTE_IDS, attributeBonuses, victoryExperience, type AttributeId } from './attributes';
 import { createPartyProgress, grantExperience, migratePartyProgress, PARTY_IDS, type PartyId, type PartyProgress } from './growth';
 import { ORIGINS, advanceDays, isGameDate, randomOrigin, type GameDate, type OriginId } from './history';
@@ -23,6 +25,7 @@ export type RouteId = 'cao' | 'sun' | 'liu';
 export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | 'ending';
 
 export interface GameState {
+  troopAssignments?: Record<string, TroopAssignment>;
   heroName?: string;
   life?: LifeState;
   lifeMigration?: boolean;
@@ -181,7 +184,33 @@ export function loadState(): GameState | null {
     // Keep real battle/duel evidence locked until its own settlement or recovery.
     if(restored.phase==='overworld' && parsed.activeBattle===undefined && parsed.duel===undefined &&
       parsed.battleParty===undefined && !parsed.journey?.event?.inBattle) restored.encounter=undefined;
-    let initialized=withWorldDate(restored, restored.date);
+    if (restored.troopAssignments !== undefined && (!validAssignments(restored.troopAssignments, restored) || assignedCount(restored) !== (restored.worldConflict?.playerAssigned ?? 0))) {
+      backup('troops', parsed.troopAssignments);
+      const raw = restored.troopAssignments;
+      const candidate = raw && typeof raw === 'object' && !Array.isArray(raw)
+        ? Object.fromEntries(Object.entries(raw).map(([id,t]) => [id,{kind:t?.kind,count:t?.count}])) : undefined;
+      if (validAssignments(candidate,restored) && assignedCount({...restored,troopAssignments:candidate}) === (restored.worldConflict?.playerAssigned ?? 0)) {
+        // Unknown metadata is recoverable; retain the valid allocation and its
+        // already-validated battle instead of refunding its pending casualties.
+        restored.troopAssignments=candidate;
+      } else {
+        if (restored.activeBattle) {
+          backup('active-battle-troops',parsed.activeBattle);
+          const troops=restored.activeBattle.units.filter(u=>u.team==='party'&&u.troop).map(u=>u.troop!);
+          const initial=troops.reduce((sum,t)=>sum+t.initial,0), losses=troops.reduce((sum,t)=>sum+t.initial-t.count,0);
+          const world=restored.worldConflict;
+          if(world && initial <= (world.playerAssigned??0)) restored.worldConflict={...world,
+            playerAssigned:(world.playerAssigned??0)-losses,ledger:{...world.ledger,losses:world.ledger.losses+losses}};
+          delete restored.activeBattle;restored.battleRecovery=true;
+        }
+        delete restored.troopAssignments;
+      }
+    }
+    if (!restored.troopAssignments && restored.worldConflict?.playerAssigned) {
+      const w = restored.worldConflict;
+      restored.worldConflict = { ...w, playerReserve: (w.playerReserve ?? 0) + w.playerAssigned!, playerAssigned: 0 };
+    }
+    let initialized=reconcileTroops(withWorldDate(restored, restored.date));
     if(initialized.duel&&!isAliveAt(initialized.life,initialized.duel.teacherId,initialized.date,true)) {
       backup('duel-life',parsed.duel);backup('active-battle-life',parsed.activeBattle);
       initialized={...initialized,phase:'overworld',duel:undefined,activeBattle:undefined,battleParty:undefined,encounter:undefined,

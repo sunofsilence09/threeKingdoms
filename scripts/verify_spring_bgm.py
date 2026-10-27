@@ -40,7 +40,7 @@ with sync_playwright() as p:
  assert page.evaluate(SNAP)['paused'];page.evaluate("delete document.hidden;document.dispatchEvent(new Event('visibilitychange'))");page.wait_for_timeout(150)
  assert not page.evaluate(SNAP)['paused']
  page.evaluate('''async()=>{const {getState,setState}=await import('/src/game/runtime.ts');setState({...getState(),date:{...getState().date,month:6}});}''')
- summer=page.evaluate(SNAP);assert summer['paused'] and summer['track'] is None
+ page.wait_for_timeout(250);summer=page.evaluate(SNAP);assert not summer['paused'] and summer['track']=='summer-01'
  page.evaluate('''async()=>{const {setState}=await import('/src/game/runtime.ts');setState({...originalGameState,date:{...originalGameState.date,month:4}});}''');page.wait_for_timeout(250)
  spring=page.evaluate(SNAP);assert not spring['paused'] and spring['time']<2
  # An actual media-ended event, rather than merely calling the playlist helper.
@@ -60,5 +60,5 @@ with sync_playwright() as p:
  page.locator('[data-music-mute]').click();page.wait_for_timeout(250);assert not page.evaluate(SNAP)['paused']
  assert not errors,errors
  browser.close()
- result={'source':'spring-01.mp3','uniqueTracks':1,'springNarrativePlayback':True,'sameSongAcrossPanels':True,'battleAndBackgroundPauseResume':True,'summerStops':True,'endedLoops':True,'independentSettingsPersist':True,'signal':signal,'viewports':3,'pageErrors':errors}
+ result={'source':'spring-01.mp3','springTracks':1,'springNarrativePlayback':True,'sameSongAcrossPanels':True,'battleAndBackgroundPauseResume':True,'summerSwitches':True,'endedLoops':True,'independentSettingsPersist':True,'signal':signal,'viewports':3,'pageErrors':errors}
  (OUT/'browser-results.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(result,ensure_ascii=False))

@@ -9,7 +9,7 @@ import { dateLabel } from './history';
 import { cityNameAt } from './world';
 import { allRecruitProfiles, recruitProfile, canMeetPerson, type RecruitProfile } from './recruitmentCatalog';
 import { AFFINITY_REQUIRED, canInteractPerson, canManageParty, gameDayNumber, interactPerson, invitePerson, setDeployment } from './recruitment';
-import { makePartyUnit, WEAPONS, type CombatState } from './combat';
+import { attackPower, makePartyUnit, WEAPONS, type CombatState } from './combat';
 import { showCharacterDetails } from './characterDetails';
 import { showCharacterPanel } from './characterPanel';
 import type { GameState } from './state';
@@ -18,6 +18,9 @@ import { getCharacterAppearance } from './characters';
 import { filterRecruitProfiles, type LifeFilter, type PersonFilter } from './recruitmentView';
 import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { showMartialPanel } from './martialPanel';
+import { createTroopControls } from './troopControls';
+import { showPlayerMilitary } from './playerMilitaryPanel';
+import { attachTroops, defensePower } from './troopCombat';
 
 const nameOf = (id: string) => personName(id, getState());
 const cityName = (id: string) => cityNameAt(id,getState().date);
@@ -74,11 +77,13 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
     const state = getState(); const locked = !canManageParty(state); body.replaceChildren();
     body.append(element('p', `出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length} 人 · ${heroName(state)}固定上阵`, 'company-summary'));
     body.append(element('p', '候补保留成长与装备，仅本场出战成员获得战斗经验。', 'company-note'));
+    body.append(element('p', `预备兵 ${state.worldConflict?.playerReserve??0} · 已配兵 ${state.worldConflict?.playerAssigned??0}。先在军务募兵，再为角色分配；士气80为标准，低于10每轮流失10%士兵。`, 'company-note'));
     if (combat && combatAttributeVersion(combat) === 1) body.append(element('p', LEGACY_ATTRIBUTE_NOTE, 'company-notice'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
     const tools = element('div', '', 'party-actions');
     tools.append(button('角色成长', () => showCharacterPanel(render, combat)), button('寻访人物', () => showRecruitmentPanel(render, combat)), button('主角武学',() => showMartialPanel(render,Boolean(combat))));
     body.append(tools);
+    if (!combat) tools.append(button('军务 · 募兵', () => showPlayerMilitary(render)));
     if (replacement) {
       const chooser = element('section', '', 'replacement-picker');
       chooser.setAttribute('aria-label', '选择替换对象');
@@ -92,11 +97,14 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
       const ids = deployed ? state.deployed : Object.keys(state.party).filter(id => !state.deployed.includes(id));
       for (const id of ids) {
         const profile = recruitProfile(id), progress = state.party[id];
-        const unit = combat?.units.find(u => u.team === 'party' && u.id === id) ?? makePartyUnit(id, progress, state.route, state.route ? 'route' : 'ambush');
+        const baseUnit = makePartyUnit(id, progress, state.route, state.route ? 'route' : 'ambush');
+        const assigned = state.troopAssignments?.[id];
+        const unit = combat?.units.find(u => u.team === 'party' && u.id === id) ?? (assigned ? attachTroops(baseUnit,assigned.kind,assigned.count) : baseUnit);
         const card = element('article', '', 'company-card'); card.dataset.member = id;
         const info = element('div', '', 'company-card-info');
         info.append(element('h3', `${nameOf(id)} · Lv.${progress.level}`), element('p', `${profile?.role ?? '同行伙伴'} · ${WEAPONS[unit.weapon].name}`), element('p', `亲密 ${state.relationships[id]?.affinity ?? 0}/100 · 技能点 ${progress.points}`));
-        info.append(element('p', `攻 ${unit.attack} · 防 ${unit.defense} · 体力 ${unit.hp}/${unit.maxHp}`, 'company-note'));
+        info.append(element('p', `攻 ${Number(attackPower(unit).toFixed(1))} · 防 ${Number(defensePower(unit).toFixed(1))} · 体力 ${unit.hp}/${unit.maxHp}`, 'company-note'));
+        info.append(createTroopControls(id,unit,Boolean(combat),render));
         const version = combat && combat.units.some(u => u.id === id) ? combatAttributeVersion(combat) : 2;
         info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(id, progress.attributes, version)[key]}`).join(' · '), 'company-note'));
         info.append(element('p',lifeReferenceText(state,id),'company-life'));

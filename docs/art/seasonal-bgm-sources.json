@@ -1,0 +1,81 @@
+{
+  "title": "四季剧情BGM",
+  "sourceDirectory": "D:\\games\\bgms\\ThreeKingdoms",
+  "sources": [
+    {
+      "name": "春日.m4a",
+      "season": "spring",
+      "sha256": "021203b366f3f640b2dffb6b6455b544b70d762d6bae5017dab4a82f97c9b316",
+      "bytes": 3248671
+    },
+    {
+      "name": "春日2.m4a",
+      "season": "spring",
+      "sha256": "021203b366f3f640b2dffb6b6455b544b70d762d6bae5017dab4a82f97c9b316",
+      "bytes": 3248671
+    },
+    {
+      "name": "东雪.m4a",
+      "season": "winter",
+      "sha256": "d82f1aed3707282c3ad523f6a659311a6fc5dc1bbe0dbfefe0e63cf92a4e1836",
+      "bytes": 1834914
+    },
+    {
+      "name": "秋风.m4a",
+      "season": "autumn",
+      "sha256": "d1461a6cdbd927e45dcc0eec64d8707da0fedd344286c2a9f45ba26100a2f520",
+      "bytes": 2134948
+    },
+    {
+      "name": "夏天.m4a",
+      "season": "summer",
+      "sha256": "9f9f8b81b7e19eef6ec7e820093185068b440288ffcc4139f97b79e079c4ab63",
+      "bytes": 1888384
+    }
+  ],
+  "skipped": [],
+  "uniqueTracks": 4,
+  "seasonCounts": {
+    "spring": 1,
+    "summer": 1,
+    "autumn": 1,
+    "winter": 1
+  },
+  "duplicateHandling": "Byte-identical sources share one track within their season; original files remain unchanged.",
+  "tracks": [
+    {
+      "id": "spring-01",
+      "name": "春日",
+      "season": "spring",
+      "src": "/assets/music/spring-01.mp3",
+      "sha256": "b0cae826cde33be8ea8c49330aacfef578821ada0851afd738c4aa55ef037adb",
+      "sourceName": "春日.m4a"
+    },
+    {
+      "id": "summer-01",
+      "name": "夏天",
+      "season": "summer",
+      "src": "/assets/music/summer-01.mp3",
+      "sha256": "d8c7298b75470cb64f22ac7d884d89fd1b46ca3da649b1f4f751a1ad39a8e5ef",
+      "sourceName": "夏天.m4a"
+    },
+    {
+      "id": "autumn-01",
+      "name": "秋风",
+      "season": "autumn",
+      "src": "/assets/music/autumn-01.mp3",
+      "sha256": "ca52e711bd42ffc35c23d313b9e0b863a0eabce358929321f227504c07cb4c93",
+      "sourceName": "秋风.m4a"
+    },
+    {
+      "id": "winter-01",
+      "name": "东雪",
+      "season": "winter",
+      "src": "/assets/music/winter-01.mp3",
+      "sha256": "0c808beff20ade819cec1b8320567664c85d1d97c6e91c33128ef76bc4ecf27a",
+      "sourceName": "东雪.m4a"
+    }
+  ],
+  "winterFilename": "东雪.m4a is the user-provided winter track; its filename/title are preserved.",
+  "conversion": "FFmpeg MP3 192kbps; source metadata and attribution copied (-map_metadata 0); no source files modified."
+}

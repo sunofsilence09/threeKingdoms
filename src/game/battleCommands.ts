@@ -5,8 +5,9 @@ import { martialAt } from './martialCatalog';
 import { createAudioControls } from './audioSettings';
 import { battleAudio } from './battleAudio';
 import './battleCommands.css';
+import { troopStatus, troopTargets, troopAvailability, TROOP_TYPES } from './troopCombat';
 
-export type TargetMode = null | 'fire' | { skillId: string };
+export type TargetMode = null | 'fire' | 'troop' | { skillId: string };
 export function createBattleCommands(callbacks: {
   mode: (mode: TargetMode) => void;
   target: (x: number, y: number) => void;
@@ -36,6 +37,14 @@ export function createBattleCommands(callbacks: {
       b.addEventListener('click', action); parent.append(b); return b;
     };
     button('移动 / 攻击', () => callbacks.mode(null)).setAttribute('aria-pressed', String(mode === null));
+    if (actor) {
+      add('p', troopStatus(actor)).className = 'battle-troop-status';
+      if (actor.troop?.count) {
+        const type = TROOP_TYPES[actor.troop.kind], availability = troopAvailability(combat,actor.id);
+        const b = button(`${type.name} · ${type.skill}（士气−${type.cost}） · ${availability.reason}`,()=>callbacks.mode('troop'),controls,!enabled || !availability.available);
+        b.title = type.description; b.dataset.troopSkill=actor.troop.kind; b.setAttribute('aria-pressed',String(mode==='troop'));
+      }
+    }
     button('放火', () => callbacks.mode('fire'), controls, !enabled || actor?.weapon === 'claws').setAttribute('aria-pressed', String(mode === 'fire'));
     button('守势 / 结束行动', callbacks.guard);
     button('撤退', callbacks.retreat, controls, finished);
@@ -56,9 +65,9 @@ export function createBattleCommands(callbacks: {
     }
     if (mode && actor && enabled) {
       const skill = typeof mode === 'object' ? martialAt(mode.skillId) : undefined;
-      const targets = mode === 'fire' ? fireTargets(combat, actor.id) : martialTargets(combat, actor.id, mode.skillId);
+      const targets = mode === 'fire' ? fireTargets(combat, actor.id) : mode === 'troop' ? troopTargets(combat,actor.id) : martialTargets(combat, actor.id, mode.skillId);
       const hint = mode === 'fire' ? '选择自身或相邻燃料格。点火失败也消耗行动；火焰会伤及敌我。'
-        : `${skill?.name}：${skill?.description} 施展后结束行动。`;
+        : mode === 'troop' ? `${TROOP_TYPES[actor.troop!.kind].skill}：${TROOP_TYPES[actor.troop!.kind].description} 消耗${TROOP_TYPES[actor.troop!.kind].cost}士气并结束行动。` : `${skill?.name}：${skill?.description} 施展后结束行动。`;
       add('p', hint).className = 'battle-command-hint';
       const picker = add('div', ''); picker.className = 'battle-target-picker';
       const select = document.createElement('select'); select.setAttribute('aria-label', '目标格');
@@ -78,6 +87,9 @@ export function createBattleCommands(callbacks: {
     add('summary', '火势规则', details);
     add('p', '森林基础75%、道路35%、木桥60%、木车65%；天气与风力修正后最高95%。每轮末熄灭、烧伤并蔓延，火伤不分敌我。经过火格也会受伤。点火消耗本次行动。', details);
     content.append(details);
+    const moraleRules = document.createElement('details');
+    add('summary','士气与兵战规则',moraleRules);
+    add('p','各部队士气0—120，80时攻击、防御、速度为标准值。攻击命中+3，受伤降低士气（每次最多20）；守势+10。低于10时每轮末流失当前士兵10%，向上取整。兵战技消耗士气，射程和移动由带领兵种决定；已损失士兵无法用治疗补回，战后须重新配兵。',moraleRules); content.append(moraleRules);
     if (combat.fires?.length) {
       const fires = document.createElement('details');
       add('summary', `当前火格 · ${combat.fires.length}处`, fires);

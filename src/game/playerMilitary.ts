@@ -28,7 +28,7 @@ export function playerMilitaryStatus(state:GameState){
 }
 export function recruitPlayerTroops(state:GameState,count:number):GameState {
  const status=playerMilitaryStatus(state),date=advanceDays(state.date,1);
- if(!status.canOperate||!positive(count)||count%RECRUIT_UNIT||count+status.reserve>PLAYER_MAX_RESERVE||
+ if(!status.canOperate||!positive(count)||count%RECRUIT_UNIT||count+status.reserve+(state.worldConflict?.playerAssigned??0)>PLAYER_MAX_RESERVE||
   state.economy.coins<count*COST_PER_SOLDIER||conflictDay(date)-conflictDay(state.date)!==1||
   !Number.isSafeInteger(state.worldConflict!.ledger.recruited+count))return state;
  const world=playerWorld(state.worldConflict!);world.playerReserve!+=count;world.ledger.recruited+=count;
@@ -38,7 +38,7 @@ export function recruitPlayerTroops(state:GameState,count:number):GameState {
 }
 export function withdrawPlayerTroops(state:GameState,count:number):GameState {
  const status=playerMilitaryStatus(state);
- if(!status.canOperate||!status.currentOwned||!positive(count)||count>status.availableWithdraw||count+status.reserve>PLAYER_MAX_RESERVE)return state;
+ if(!status.canOperate||!status.currentOwned||!positive(count)||count>status.availableWithdraw||count+status.reserve+(state.worldConflict?.playerAssigned??0)>PLAYER_MAX_RESERVE)return state;
  const world=playerWorld(state.worldConflict!);world.cities[state.currentCityId].troops-=count;world.playerReserve!+=count;
  militaryReport(world,'transfer',state.currentCityId,`从${cityNameAt(state.currentCityId,state.date)}抽调${count}名驻军加入随行预备队。`,{troops:count});
  return {...state,worldConflict:world,travelNotice:`抽调${count}人，城内至少保留${cityReserve}人；现有预备兵${world.playerReserve}人。`};

@@ -4,7 +4,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const output = path.join(root, 'release', '三国行旅-本地版');
+const outputArg = process.argv.indexOf('--output-dir');
+const outputName = outputArg < 0 ? '三国行旅-本地版' : process.argv[outputArg + 1];
+if (!outputName || /[\\/:]|^\.{1,2}$/.test(outputName)) throw new Error('输出目录须为release下的单个目录名。');
+const output = path.join(root, 'release', outputName);
 if (process.platform !== 'win32') throw new Error('请在 Windows 上打包，以包含 Windows 运行程序。');
 if (!existsSync(path.join(root, 'dist', 'index.html'))) throw new Error('请先运行 npm run build');
 const runtime = path.join(output, 'runtime', 'node.exe');
@@ -22,12 +25,15 @@ copyFileSync(path.join(root, 'node_modules', 'phaser', 'LICENSE.md'), path.join(
 copyFileSync(path.join(root, 'scripts', 'licenses', 'NODE-LICENSE.txt'), path.join(output, 'NODE-LICENSE.txt'));
 writeFileSync(path.join(output, '启动游戏.cmd'), '@echo off\r\nchcp 65001 >nul\r\ncd /d "%~dp0"\r\ntitle 三国行旅 - 本地版\r\n"%~dp0runtime\\node.exe" "%~dp0server.cjs"\r\nif errorlevel 1 pause\r\n', 'utf8');
 writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
-  '乱世行旅 · 1.1.0 群英新声 · Windows 本地版', '',
+  '乱世行旅 · 2.0.0 城邑与兵战 · Windows 本地版', '',
+  '2.0新增立体城邑图标；队伍中为每名角色从预备兵分配0—1000士兵，选择步/枪/骑/弓/弩兵。军务募兵后再配兵，候补也能带兵；战后及撤退保留真实余兵。',
+  '独立部队士气0—120，80为标准，修正攻击、防御和速度。守势恢复10士气；低于10每轮流失当前士兵10%。治疗不能复活士兵。',
+  '五类兵战技消耗士气并占攻击行动：坚阵15、突刺20、冲锋25、齐射20、强射20。弩兵强射将本次射程从2—3增加至2—5格；请选择高亮目标。',
   '城内帮工可自选1—72个五日块（5—360日），确认前显示总天数、军需和铜钱；每日仍得军需1、铜钱20。',
   '战斗持续显示主角已装配武学，说明等待行动、冷却与目标限制；轮到主角后选武学，再点击合法格或用目标格下拉框施展。',
   '地图与城内新增军务：每100人为单位募兵，每人2铜钱、整编1日；随行预备兵上限20000。到目标城检视并确认攻城军令，显示守军、军需和3—10日围城，按天下规则自动结算真实伤亡。',
   '败退余兵回预备队，胜利余兵驻守所占城池；城池归主角军府，太守和存档同步更新。NPC可反攻，主角驻军不会自主出征；自己的城池可补兵或提兵，至少留守2000人。',
-  '春季BGM试听：3—5月剧情与地图随机播放春季曲库；战斗/后台暂停，返回续播。启动页和地图有独立音乐音量、静音。当前两份春日源文件内容相同，去重为一首循环。',
+  '四季BGM：春3—5月《春日》、夏6—8月《夏天》、秋9—11月《秋风》、冬12—2月《东雪》。随季节切换曲库，曲终随机选曲，目前每季各一首；重复春日已合并。战斗/后台暂停，返回续播，十二月跨次年一、二月不重头。音乐音量、静音独立保存。',
   '新增13类攻击/命中/武学/火伤音效，每类3种变化；敌我双方均有声音。启动页和战斗可独立调整音量、静音，偏好自动保存。',
   '新增32位人物与32张独立立绘：典韦、许褚、郭嘉、贾诩、马超、黄忠、庞统、鲁肃、吕蒙、甘宁、孔融、陶谦等。',
   '60城各有独立太守；史料未详或候选不合格时，由明确标记“游戏人物”的原创地方官补位，新增8种职业立绘。',

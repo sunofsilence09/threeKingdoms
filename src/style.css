@@ -784,3 +784,4 @@ button.hero-portrait:disabled {
   .official-info { padding: 20px; }
   .official-empty { padding: 20px; }
 }
+.hero-action { flex-shrink: 0; white-space: nowrap; }

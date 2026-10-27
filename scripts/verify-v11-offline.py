@@ -3,6 +3,7 @@ import json,os
 from pathlib import Path
 from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'artifacts/v11-offline';OUT.mkdir(parents=True,exist_ok=True)
+VERSION=json.loads((ROOT/'package.json').read_text(encoding='utf-8'))['version']
 URL=os.environ.get('H5_PACKAGE_URL','http://127.0.0.1:18844')
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True);context=browser.new_context(viewport={'width':1440,'height':1000})
@@ -11,7 +12,7 @@ with sync_playwright() as p:
         if request.request.url.startswith(URL+'/'):request.continue_()
         else:external.append(request.request.url);request.abort()
     context.route('**/*',route);page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
-    page.goto(URL,wait_until='networkidle');expect(page.locator('.start-menu')).to_contain_text('1.1.0 群英新声')
+    page.goto(URL,wait_until='networkidle');expect(page.locator('.start-menu')).to_contain_text(VERSION)
     expect(page.get_by_role('button',name='继续游戏',exact=True)).to_be_disabled()
     page.screenshot(path=str(OUT/'start.png'))
     page.locator('[data-audio-mute]').click();page.locator('[data-audio-volume]').fill('35')

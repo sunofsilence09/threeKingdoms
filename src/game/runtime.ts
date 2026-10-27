@@ -5,13 +5,14 @@ import {
   type GameState,
 } from './state';
 import { applyCalendarTheme } from './theme';
-import { springMusic } from './seasonalMusic';
+import { seasonalMusic } from './seasonalMusic';
+import { reconcileTroops } from './troopManagement';
 
 const restoredState=loadState();
 let currentState = restoredState ?? createInitialState();
 let savedGameAvailable=restoredState!==null;
 applyCalendarTheme(currentState.date);
-springMusic.update(currentState);
+seasonalMusic.update(currentState);
 
 /** Reading the title screen does not create a fake continue slot. */
 export function hasSavedGame(): boolean { return savedGameAvailable; }
@@ -21,10 +22,11 @@ export function getState(): GameState {
 }
 
 export function setState(next: GameState): GameState {
+  next = reconcileTroops(next);
   currentState = next;
   savedGameAvailable=true;
   applyCalendarTheme(next.date);
-  springMusic.update(next);
+  seasonalMusic.update(next);
   saveState(currentState);
   return currentState;
 }

@@ -18,6 +18,7 @@ import { renderGarrisonSummary } from './garrisonView';
 import { createMartialCard } from './martialPanel';
 import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { lifeStatus } from './personLife';
+import { attachTroops, defensePower, speedPower, troopRange, troopStatus } from './troopCombat';
 
 function detailPerson(id: string) {
   const profile = recruitProfile(id);
@@ -37,7 +38,10 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   const state = getState();
   const profiles = allRecruitProfiles(state);
   const encounter = combat ?? createCombatState(state.route, state.party, state.route ? 'route' : 'ambush', state.deployed);
-  const units = combat ? encounter.units : Object.entries(state.party).map(([key, progress]) => makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'));
+  const units = combat ? encounter.units : Object.entries(state.party).map(([key, progress]) => {
+    const unit = makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'), t = state.troopAssignments?.[key];
+    return t ? attachTroops(unit,t.kind,t.count) : unit;
+  });
   const memorialUnits=Object.values(state.life?.memorials??{}).map(record=>makePartyUnit(record.id,record.progress,state.route,state.route?'route':'ambush'));
   let selected = units.find(u => u.id === id) ?? memorialUnits.find(u=>u.id===id) ?? units[0];
   let visualPreview: { level: number; weapon: WeaponId } | undefined;
@@ -181,10 +185,12 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
       `${selected.hp <= 0 ? '倒地' : combat.actedIds.includes(selected.id) ? '已行动' : combat.movedIds.includes(selected.id) ? '已移动' : '待行动'} · ${selected.ultimateUsed ? '本场绝招已用' : '本场绝招未用'}${selected.empowered ? ' · 下一击强化中' : ''}${selected.guarded ? ' · 守势中' : ''}`;
     const threshold = experienceToNextLevel(selected.level);
     const weapon = WEAPONS[selected.weapon];
+    const range = troopRange(selected);
     const stats: Array<[string, string]> = [
-      ['体力', `${selected.hp} / ${selected.maxHp}`], ['武器', weapon.name], ['攻击', `${attackPower(selected)}`],
-      ['速度', `${selected.speed}`], ['防御', `${selected.defense}`], ['闪避', `${Math.round(selected.dodgeRate * 100)}%`],
-      ['移动', `${movementRange(encounter, selected)} 格`], ['射程', `${weapon.min}–${weapon.max} 格`],
+      ['体力', `${selected.hp} / ${selected.maxHp}`], ['武器', weapon.name], ['攻击', `${Number(attackPower(selected).toFixed(1))}`],
+      ['速度', `${speedPower(selected)}`], ['防御', `${Number(defensePower(selected).toFixed(1))}`], ['闪避', `${Math.round(selected.dodgeRate * 100)}%`],
+      ['移动', `${movementRange(encounter, selected)} 格`], ['射程', `${range.min}–${range.max} 格`],
+      ['部队', troopStatus(selected)],
       ['经验', selected.team === 'enemy' ? '—' : threshold ? `${selected.xp} / ${threshold}` : '等级已满'],
     ];
     renderStats(stats);

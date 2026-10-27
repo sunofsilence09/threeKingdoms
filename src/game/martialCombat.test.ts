@@ -217,11 +217,11 @@ describe('martial combat actions', () => {
     const victim = next.units[1];
     expect(victim.hp).toBe(90);
     expect(movementRange(next, victim)).toBe(1);
-    expect(attackPower(victim)).toBe(8);
+    expect(attackPower(victim)).toBeCloseTo(7.8); // 76 morale scales the intimidated attack.
     const attacked = performAttack(moveUnit(next, victim.id, 3, 2), victim.id, id);
     expect(attacked.units[0].hp).toBe(92);
     expect(attacked.units[1].effects).toEqual([]);
-    expect(attackPower(attacked.units[1])).toBe(10);
+    expect(attackPower(attacked.units[1])).toBeCloseTo(9.9375); // The hit restores3 morale to79.
   });
 
   it('dash charges forest cost, cannot cross occupied tiles, and can follow a normal move', () => {

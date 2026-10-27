@@ -5,6 +5,7 @@ import { factionAt } from './worldConflictData';
 import { armySummary, showConflictArmy } from './conflictPanel';
 import { armyRemainingDays, conflictRoadDays } from './worldConflict';
 import './worldMap.css';
+import { cityModelMarkup } from './cityModel';
 
 export interface WorldMapOptions {
   currentId: string;
@@ -92,6 +93,10 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
     return el;
   };
   const defs = make('defs', {});
+  for (const variant of ['town','capital','port']) {
+    const symbol = make('symbol',{id:`${uid}-${variant}`,viewBox:'-24 -30 48 50'},defs);
+    symbol.innerHTML = cityModelMarkup(variant==='capital',variant==='port');
+  }
   const arrow = make('marker', { id: `${uid}-army-arrow`, markerWidth: 6, markerHeight: 6, refX: 5, refY: 3, orient: 'auto', markerUnits: 'strokeWidth' }, defs);
   make('path', { d: 'M0,0 L6,3 L0,6 Z', fill: '#885635' }, arrow);
   const pattern = make('pattern', { id: `${uid}-paper`, width: 13, height: 13, patternUnits: 'userSpaceOnUse' }, defs);
@@ -148,15 +153,18 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
     const ownership = stock && faction ? `，${faction.name}，城内守军${stock.troops}人` : '';
     const g = make('g', { class: `world-map-city ${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''} ${isPath ? 'is-path' : ''} ${city.originId ? 'is-origin' : ''}`, transform: `translate(${x} ${y})`, role: 'button', tabindex: 0, 'aria-label': `${cityName(city.id)}，${city.prefecture}${ownership}${isCurrent ? options.progress ? '，出发地' : '，当前位置' : ''}`, 'aria-pressed': String(isSelected), 'data-city-id': city.id, ...(faction ? {'data-faction-id': faction.id} : {}) });
     const title = make('title', {}, g); title.textContent = `${cityName(city.id)} · ${city.prefecture}${ownership}`;
-    make('circle', { r: 17, class: 'world-map-city-hit' }, g);
-    if (isCurrent) make('circle', { r: 11, class: 'world-map-current-ring' }, g);
-    make('circle', { r: isCurrent ? 5 : 4, class: 'world-map-city-dot' }, g);
+    make('circle', { r: 23, class: 'world-map-city-hit' }, g);
+    if (isCurrent) make('ellipse', { cy: 9, rx: 23, ry: 12, class: 'world-map-current-ring' }, g);
+    const capital = ['henan','changan','ye','xuxian','shujun','moling','xiangyang'].includes(city.id);
+    const port = ['jiangling','jiangxia','wujun','guangling','changsha','nanchang','nanhai','shouchun'].includes(city.id);
+    const variant = capital ? 'capital' : port ? 'port' : 'town';
+    make('use', { href:`#${uid}-${variant}`, x:-21, y:-27, width:42, height:44, class:'world-map-city-model', 'data-city-model':variant, style:`color:${faction?.color??'#547656'}`, 'pointer-events':'none' },g);
     if (faction && stock) {
-      make('path', { d: 'M-9,-24 V-7 M-9,-24 H12 L7,-18 H-9', fill: faction.color, stroke: '#f9f5df', 'stroke-width': 1.2, class: 'world-map-faction-flag' }, g);
-      const mark = make('text', { x: -7, y: -18, class: 'world-map-faction-abbr' }, g); mark.textContent = faction.name.replace(/军府|部众|地方官军/g,'').slice(0,3);
-      const troops = make('text', { x: 9, y: 10, class: 'world-map-city-troops' }, g); troops.textContent = `${stock.troops}`;
+      make('path', { d: 'M-17,-36 V-19 M-17,-36 H4 L-1,-30 H-17', fill: faction.color, stroke: '#f9f5df', 'stroke-width': 1.2, class: 'world-map-faction-flag' }, g);
+      const mark = make('text', { x: -15, y: -30, class: 'world-map-faction-abbr' }, g); mark.textContent = faction.name.replace(/军府|部众|地方官军/g,'').slice(0,3);
+      const troops = make('text', { x: 15, y: 18, class: 'world-map-city-troops' }, g); troops.textContent = `${stock.troops}`;
     }
-    const name = make('text', { x: city.id === 'xiapi' ? -8 : 9, y: city.id === 'xiapi' ? 16 : -8, ...(city.id === 'xiapi' ? {'text-anchor':'end'} : {}), class: 'world-map-city-name' }, g); name.textContent = cityName(city.id);
+    const name = make('text', { x: city.id === 'xiapi' ? -22 : 22, y: city.id === 'xiapi' ? 8 : -8, ...(city.id === 'xiapi' ? {'text-anchor':'end'} : {}), class: 'world-map-city-name' }, g); name.textContent = cityName(city.id);
     g.addEventListener('click', () => { if (!suppressClick) options.onSelect(city.id); });
     g.addEventListener('keydown', e => {
       const event = e as KeyboardEvent;

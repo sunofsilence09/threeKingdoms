@@ -14,5 +14,6 @@ export interface WorldConflict {
   reports: ConflictReport[]; ledger: { initial: number; recruited: number; raised: number; losses: number; expansion?: number };
   /** Actual player soldiers travelling with the party, audited in the same troop ledger. */
   playerReserve?:number;
+  playerAssigned?:number;
 }
 export interface ConflictFaction { id: string; name: string; color: string }

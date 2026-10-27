@@ -31,6 +31,8 @@ import { gameDayNumber } from '../recruitment';
 import { createBattleCommands, type TargetMode } from '../battleCommands';
 import { createBattleAudio } from '../battleAudio';
 import { effectiveAttributes } from '../characterTalents';
+import { defensePower, speedPower, troopRange, troopStatus, troopTargets, performTroopSkill, TROOP_TYPES } from '../troopCombat';
+import { initializeTroopCombat, settleTroops } from '../troopManagement';
 
 interface BattleData { mode?: BattleMode }
 
@@ -70,12 +72,12 @@ export class BattleScene extends Phaser.Scene {
         enemyKind: state.journey?.event?.kind === 'wolves' ? 'wolves' : 'bandits', month: state.date.month,
         seed: (state.martial.seed ^ gameDayNumber(state.date) ^ (state.travelCount * 53)) >>> 0,
       });
-      return state.duel ? createDuelCombat(base, state) : initializeMartialCombat(base, state);
+      return state.duel ? createDuelCombat(base, state) : initializeMartialCombat(initializeTroopCombat(base, state), state);
     };
     this.combat = state.activeBattle && isBattleSnapshot(state.activeBattle, state) ? state.activeBattle : fresh();
     this.audio = createBattleAudio([...(this.combat.turnEvents ?? []), ...(this.combat.lastEvent ? [this.combat.lastEvent] : [])]);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.audio?.destroy(); this.audio = undefined; });
-    this.combat = { ...this.combat, units: this.combat.units.map(u => u.id === 'traveler' ? { ...u, name: heroName(state) } : u) };
+    this.combat = { ...this.combat, units: this.combat.units.map(u => ({ ...u, morale: u.morale ?? 80, ...(u.id === 'traveler' ? { name: heroName(state) } : {}) })) };
     this.drawBackground();
     this.board = new BattleBoard(this, (x, y) => this.selectTile(x, y));
     this.roster = this.add.container().setDepth(20);
@@ -110,7 +112,7 @@ export class BattleScene extends Phaser.Scene {
     addText(this, 24, 20, getState().duel ? `${heroName(getState())} · 切磋${personName(getState().duel!.teacherId, getState())}` : trip ? `${cityNameAt(journeyLeg(trip).from,getState().date)}至${cityNameAt(journeyLeg(trip).to,getState().date)} · ${trip.event?.kind === 'wolves' ? '山狼袭击' : '途中匪患'}` : route ? ROUTES[route].title : `${cityNameAt(getState().currentCityId,getState().date)} · ${heroName(getState())}一行`, { color: hex(theme.ink), fontFamily: 'STKaiti, KaiTi, serif', fontSize: '27px' });
     addText(this, 26, 60, getState().duel ? '一对一切磋：胜后40%概率获传秘籍；没有普通战斗经验或物资奖励。' : trip?.event?.kind === 'wolves' ? '击退狼群，出战成员基础经验30，获得20铜钱；候补不分经验。' : this.mode === 'ambush' ? '击退拦路山贼，出战成员各获基础经验30；候补不分战斗经验。' : '护送乡民过桥，出战成员各获基础经验45；候补不分战斗经验。', { color: hex(theme.muted), fontSize: '14px' });
     const state = getState();
-    addText(this, 710, 30, `粮 ${state.supplies} · 士气 ${state.morale}`, { color: hex(theme.ink), fontSize: '14px' });
+    addText(this, 710, 30, `粮 ${state.supplies} · 行旅士气 ${state.morale}`, { color: hex(theme.ink), fontSize: '14px' });
     addText(this, 710, 55, `${state.date.year} 年 ${state.date.month} 月 · ${theme.season}`, { color: hex(theme.muted), fontSize: '12px' });
     addText(this, 26, 91, '16×10 · 拖动查看战场', { color: hex(theme.muted), fontSize: '13px' });
   }
@@ -145,7 +147,7 @@ export class BattleScene extends Phaser.Scene {
     this.heroHud.update(this.combat);
     const actorForTargets = currentActor(this.combat);
     const targeting = this.targetMode && actorForTargets?.team === 'party'
-      ? { tiles: this.targetMode === 'fire' ? fireTargets(this.combat, actorForTargets.id) : martialTargets(this.combat, actorForTargets.id, this.targetMode.skillId),
+      ? { tiles: this.targetMode === 'fire' ? fireTargets(this.combat, actorForTargets.id) : this.targetMode === 'troop' ? troopTargets(this.combat,actorForTargets.id) : martialTargets(this.combat, actorForTargets.id, this.targetMode.skillId),
         mode: this.targetMode === 'fire' ? 'fire' as const : 'martial' as const } : undefined;
     this.board.render(this.combat, targeting);
     this.commands?.update(this.combat, this.targetMode, this.message.text, this.finished);
@@ -169,7 +171,7 @@ export class BattleScene extends Phaser.Scene {
       shape.on('pointerdown', () => unit.team === 'party' ? this.selectUnit(unit.id) : showCharacterDetails(unit.id, this.combat));
       this.roster.add(shape);
       const color = acted ? '#829087' : unit.team === 'party' ? '#c4dec3' : '#ecb3a4';
-      this.roster.add(addText(this, 688, y, `${active ? '▶' : this.queueStart + index + 1} ${unit.name} · 速 ${unit.speed}`, { color, fontSize: '12px' }).setOrigin(0, 0.5));
+      this.roster.add(addText(this, 688, y, `${active ? '▶' : this.queueStart + index + 1} ${unit.name} · 速 ${speedPower(unit)}`, { color, fontSize: '12px' }).setOrigin(0, 0.5));
       this.roster.add(addText(this, 880, y, acted ? '已行动' : active ? '当前' : '等待', { color, fontSize: '11px' }).setOrigin(1, 0.5));
       const detail = this.add.rectangle(908, y, 36, 21, 0x3c493e).setStrokeStyle(1, 0x8c9a7d).setInteractive({ useHandCursor: true });
       detail.setName(`detail:${unit.id}`);
@@ -186,8 +188,9 @@ export class BattleScene extends Phaser.Scene {
     if (currentActor(this.combat)?.id !== id) { this.message.setText(`${unit.name} 尚未轮到行动，请按右侧次序操作。`); this.renderBoard(false); return; }
     this.combat = { ...this.combat, selectedId: id };
     const weapon = WEAPONS[unit.weapon];
+    const range = troopRange(unit);
     const availability = ultimateAvailability(this.combat, unit);
-    this.message.setText(`${unit.name} Lv.${unit.level} · ${weapon.name}\n攻 ${attackPower(unit)} · 速 ${unit.speed} · 防 ${unit.defense} · 闪 ${Math.round(unit.dodgeRate * 100)}% · 移 ${movementRange(this.combat, unit)}\n体力 ${unit.hp}/${unit.maxHp} · 射程 ${weapon.min}–${weapon.max} · ${availability.available ? '绝招可用' : availability.reason}`);
+    this.message.setText(`${unit.name} Lv.${unit.level} · ${weapon.name} · ${troopStatus(unit)}\n攻 ${Number(attackPower(unit).toFixed(1))} · 速 ${speedPower(unit)} · 防 ${Number(defensePower(unit).toFixed(1))} · 闪 ${Math.round(unit.dodgeRate * 100)}% · 移 ${movementRange(this.combat, unit)}\n体力 ${unit.hp}/${unit.maxHp} · 射程 ${range.min}–${range.max} · ${availability.available ? '绝招可用' : availability.reason}`);
     this.board.focus(unit);
     this.renderBoard();
   }
@@ -198,13 +201,14 @@ export class BattleScene extends Phaser.Scene {
       if (!actor || actor.team !== 'party') return;
       const mode = this.targetMode;
       const audioUnits = this.combat.units;
-      const next = mode === 'fire' ? setFire(this.combat, actor.id, x, y) : performMartial(this.combat, actor.id, mode.skillId, x, y);
+      const next = mode === 'fire' ? setFire(this.combat, actor.id, x, y) : mode === 'troop' ? performTroopSkill(this.combat,actor.id,x,y) : performMartial(this.combat, actor.id, mode.skillId, x, y);
       if (next === this.combat) { this.message.setText('该格不是当前指令的合法目标，或武学仍在冷却。请选择高亮格，也可取消。'); this.renderBoard(false); return; }
       this.combat = next;
-      this.recordEvents(mode !== 'fire' ? next.turnEvents ?? [] : next.lastEvent ? [next.lastEvent] : [], this.combat.round, audioUnits);
+      this.recordEvents(mode !== 'fire' && mode !== 'troop' ? next.turnEvents ?? [] : next.lastEvent ? [next.lastEvent] : [], this.combat.round, audioUnits);
       const skill = typeof mode === 'object' ? martialAt(mode.skillId) : undefined;
       const fire = mode === 'fire' || skill?.template === 'firegod';
       this.message.setText(`${actor.name}${mode === 'fire' ? '放火' : `施展《${skill?.name}》`}：${fire ? next.lastEvent?.success ? '点燃成功，留意风向与友军。' : '此次未点燃，行动已消耗。' : next.lastEvent?.kind === 'dodge' ? '被目标闪避。' : next.lastEvent?.damage ? `造成${next.lastEvent.damage}点伤害。` : '已施展。'}`);
+      if (mode === 'troop') this.message.setText(`${actor.name}施展兵战技《${TROOP_TYPES[actor.troop!.kind].skill}》，消耗${TROOP_TYPES[actor.troop!.kind].cost}士气。${next.lastEvent?.kind === 'dodge' ? '目标闪避。' : next.lastEvent?.damage ? `造成${next.lastEvent.damage}点伤害。` : '进入坚阵。'}`);
       this.targetMode = null;
       this.finishPlayerAction(); return;
     }
@@ -215,7 +219,7 @@ export class BattleScene extends Phaser.Scene {
     const fire = this.combat.fires?.find(f => f.x === x && f.y === y);
     const tileInfo = `${terrain.description}${fire ? `\n火势${fire.level}级 · 剩余${fire.remainingRounds}轮 · 火伤不分敌我。` : ''}`;
     if (!selected) {
-      this.message.setText(target ? `${target.name} · ${WEAPONS[target.weapon].name}\n体力 ${target.hp}/${target.maxHp} · 攻击 ${target.attack} · 速度 ${target.speed}\n${tileInfo}\n先选择一名同行队员。` : `${terrain.name} · ${x + 1},${y + 1}\n${tileInfo}\n先选择一名同行队员。`);
+      this.message.setText(target ? `${target.name} · ${WEAPONS[target.weapon].name} · ${troopStatus(target)}\n体力 ${target.hp}/${target.maxHp} · 攻击 ${Number(attackPower(target).toFixed(1))} · 速度 ${speedPower(target)}\n${tileInfo}\n先选择一名同行队员。` : `${terrain.name} · ${x + 1},${y + 1}\n${tileInfo}\n先选择一名同行队员。`);
       return;
     }
     if (target?.team === 'enemy') {
@@ -305,7 +309,7 @@ export class BattleScene extends Phaser.Scene {
     this.finished = true;
     this.renderBoard();
     // Keep the encounter marker through reward calculation, including resumed 1.0 battles.
-    const state = getState();
+    const state = settleTroops(getState(),this.combat);
     if (state.duel) {
       const settled = setState(settleDuel(state, result === 'win'));
       showPanel({ eyebrow: '人物切磋 · 1对1', title: result === 'win' ? '切磋获胜。' : '切磋结束。',
@@ -333,7 +337,8 @@ export class BattleScene extends Phaser.Scene {
       const before = state.party[id], after = rewarded.party[id] ?? rewarded.life?.memorials[id]?.progress ?? before;
       const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
       const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, effectiveAttributes(id, before.attributes, this.combat.attributeVersion ?? 1));
-      return `${personName(id, state)}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）`;
+      const troops = this.combat.units.find(u=>u.id===id)?.troop;
+      return `${personName(id, state)}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）${troops ? `\n部队余兵${troops.count} · 损失${troops.initial-troops.count}` : ''}`;
     }).join('\n');
     if (this.mode === 'ambush') {
       setState(completeJourneyTask({ ...rewarded,activeBattle:undefined,encounter:undefined, phase: 'overworld', battleParty: undefined, supplies: Math.max(0, rewarded.supplies - (state.flags.ambushWon ? 0 : 1)) }, 'ambushWon'));
@@ -355,6 +360,8 @@ export class BattleScene extends Phaser.Scene {
     if (event.kind === 'burnout') return `${tile}格燃料耗尽，留下焦痕。`;
     if (event.kind === 'fire') return `${name(event.actorId)}在${tile}格放火${event.success ? '成功' : '失败'}。`;
     if (event.kind === 'ultimate') return `${name(event.actorId)}发动绝招。`;
+    if (event.kind === 'rout') return `${name(event.actorId)}士气低于10，${event.damage}名士兵溃散离队。`;
+    if (event.kind === 'troop') return `${name(event.actorId)}施展《${TROOP_TYPES[event.skillId as keyof typeof TROOP_TYPES]?.skill ?? '兵战技'}》${event.damage ? `，造成${event.damage}点伤害` : '，进入坚阵'}。`;
     const skill = event.skillId ? `施展《${martialAt(event.skillId)?.name ?? '武学'}》` : '攻击';
     if (event.kind === 'dodge') return `${name(event.actorId)}${skill}被${name(event.targetId)}闪避。`;
     if (event.kind === 'martial' && event.success !== undefined) return `${name(event.actorId)}${skill}，${event.success ? '点燃成功' : '此次未点燃'}。`;
@@ -368,14 +375,14 @@ export class BattleScene extends Phaser.Scene {
   private chooseMode(mode: TargetMode): void {
     if (this.finished || this.enemyPending || isInspecting() || currentActor(this.combat)?.team !== 'party') return;
     this.targetMode = mode;
-    this.message.setText(mode === 'fire' ? '放火：选择高亮燃料格，指令栏可预览各格成功率。' : mode ? `武学《${martialAt(mode.skillId)?.name}》：选择高亮目标。` : '选择亮格移动，或点击射程内敌人攻击。');
+    this.message.setText(mode === 'fire' ? '放火：选择高亮燃料格，指令栏可预览各格成功率。' : mode === 'troop' ? '兵战技：选择高亮目标，合法施展后消耗士气并结束行动。' : mode ? `武学《${martialAt(mode.skillId)?.name}》：选择高亮目标。` : '选择亮格移动，或点击射程内敌人攻击。');
     this.renderBoard(false);
   }
   private retreat(): void {
     if (this.finished || isInspecting()) return;
     if (getState().duel || getState().journey) { this.finishBattle('loss'); return; }
     this.finished = true;
-    setState({ ...getState(), phase: 'overworld', activeBattle: undefined, battleParty: undefined, encounter: undefined,
+    setState({ ...settleTroops(getState(),this.combat), phase: 'overworld', activeBattle: undefined, battleParty: undefined, encounter: undefined,
       travelNotice: '已撤回城池，本次没有获得战斗奖励。' });
     this.scene.start('Overworld');
   }

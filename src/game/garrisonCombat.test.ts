@@ -39,10 +39,12 @@ describe('pooled garrison formations in the actual combat engine', () => {
     expect(guard.hp).toBe(49999);
     expect(guard.formation?.troops).toBe(5000);
     expect(guard.attack).toBe(15000);
+    expect(guard.morale).toBe(79);
     const guardTurn = advanceTurn(attacked);
     expect(currentActor(guardTurn)?.id).toBe(guard.id);
     const counter = performAttack(guardTurn, guard.id, 'traveler');
-    expect(counter.lastEvent?.damage).toBe(15000);
+    // One point of damage lowers morale from the default80 to79; base strength remains15000.
+    expect(counter.lastEvent?.damage).toBe(14907);
     expect(counter.units[0].hp).toBe(0);
     expect(before.units[1].hp).toBe(50000);
   });

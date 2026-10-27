@@ -1,6 +1,7 @@
 import { currentActor, isBattleOver, WEAPONS, type CombatState } from './combat';
 import { createTerrain, TERRAIN } from './battlefield';
 import { formationStrength } from './garrisonStrength';
+import { isTroopKind, troopStats, type TroopContingent } from './troopCombat';
 import { martialAt, martialForPerson } from './martialCatalog';
 import type { GameState } from './state';
 export interface BattleSnapshot extends CombatState { checkpointVersion: 1; encounterKey: string }
@@ -56,6 +57,17 @@ export function isBattleSnapshot(value: unknown, state?: GameState): value is Ba
   const combat = value as unknown as CombatState;
   if (isBattleOver(combat) === 'ongoing' && !currentActor(combat)) return false;
   for (const u of units) {
+    if (u.morale !== undefined && !integer(u.morale, 0, 120)) return false;
+    if (u.troop !== undefined) {
+      const t = u.troop;
+      if (!object(t) || u.formation || Object.keys(t).length !== 6 || !isTroopKind(t.kind) || !integer(t.initial, 1, 1000) || !integer(t.count, 0, t.initial) ||
+        !integer(t.baseMaxHp, 1, 10000000) || !integer(t.baseAttack, 0, 3000000) || !integer(t.baseDefense, 0, 1000000)) return false;
+      const expected = troopStats(t as unknown as TroopContingent);
+      if (u.maxHp !== t.baseMaxHp + t.initial * 2 || u.hp > t.baseMaxHp + t.count * 2 || u.attack !== expected.attack || u.defense !== expected.defense ||
+        t.count !== Math.ceil(Math.max(0, u.hp - t.baseMaxHp) / 2)) return false;
+      if (state?.duel) return false;
+      if (state && u.team === 'party' && (state.troopAssignments?.[u.id]?.kind !== t.kind || state.troopAssignments?.[u.id]?.count !== t.initial)) return false;
+    }
     if (!Array.isArray(u.martialIds) || !object(u.martialReady) || !Array.isArray(u.effects)) return false;
     const kind = terrain.find(t => t.x === u.x && t.y === u.y)?.kind ?? 'road';
     if (!Number.isFinite(TERRAIN[kind as keyof typeof TERRAIN].cost)) return false;

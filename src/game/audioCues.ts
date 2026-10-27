@@ -30,7 +30,7 @@ export function audioCuesFor(events: readonly CombatEvent[], units: readonly Com
       if (!fireHeard) add(event.success ? 'fire' : 'miss', at, .8);
       fireHeard = true; continue;
     }
-    if (!['attack', 'dodge', 'martial'].includes(event.kind)) continue;
+    if (!['attack', 'dodge', 'martial', 'troop'].includes(event.kind)) continue;
     const actor = units.find(u => u.id === event.actorId), target = units.find(u => u.id === event.targetId);
     if (event.skillId || event.kind === 'martial') add('martial', at, .7);
     if (event.kind !== 'martial' || event.damage > 0) {

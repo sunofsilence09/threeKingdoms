@@ -37,6 +37,9 @@
 .world-map-route-halo { fill: none; stroke: #f9f6df; stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; }
 .world-map-route { fill: none; stroke: var(--map-route); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
 .world-map-city { cursor: pointer; outline: none; pointer-events: bounding-box; }
+.world-map-city-model { overflow: visible; transition: filter .15s; }
+.world-map-city.is-selected .world-map-city-model { filter: drop-shadow(0 0 3px #b95830); }
+.world-map-city:hover .world-map-city-model, .world-map-city:focus .world-map-city-model { filter: brightness(1.12) drop-shadow(0 2px 2px #36543c55); }
 .world-map-city-hit { fill: transparent; stroke: none; }
 .world-map-city-dot { fill: #4e6b54; stroke: #f4f3df; stroke-width: 1.8; }
 .world-map-city-name { fill: #2c453b; font-weight: 600; font-size: 18px; paint-order: stroke; stroke: #eef0dc; stroke-width: 4px; stroke-linejoin: round; pointer-events: auto; }

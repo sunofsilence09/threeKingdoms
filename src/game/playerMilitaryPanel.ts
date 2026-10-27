@@ -70,6 +70,7 @@ export function showPlayerMilitary(onChange?: () => void): void {
     const stock = state.worldConflict?.cities[state.currentCityId];
     for (const [title, value] of [
       ['随行预备兵', `${status.reserve} / ${PLAYER_MAX_RESERVE} 人`],
+      ['角色所部', `${state.worldConflict?.playerAssigned??0} 人（已从预备兵调出）`],
       ['本城归属', status.currentOwned ? '我方' : stock ? factionAt(stock.factionId).name : '天下局势暂停'],
       ['本城守军', `${status.currentTroops} 人`],
       ['铜钱 / 粮草', `${state.economy.coins} / ${state.supplies}`],
@@ -103,7 +104,7 @@ export function showPlayerMilitary(onChange?: () => void): void {
       const count = Number(recruitValue);
       let reason = !status.canOperate ? status.reason : '';
       if (!reason && (!recruit.input.checkValidity() || !Number.isSafeInteger(count) || count < RECRUIT_UNIT || count % RECRUIT_UNIT !== 0)) reason = `请输入 ${RECRUIT_UNIT} 的正整数倍。`;
-      if (!reason && count > PLAYER_MAX_RESERVE - status.reserve) reason = `预备兵最多 ${PLAYER_MAX_RESERVE} 人，还可招募 ${Math.max(0, PLAYER_MAX_RESERVE - status.reserve)} 人。`;
+      if (!reason && count > PLAYER_MAX_RESERVE - status.reserve - (state.worldConflict?.playerAssigned??0)) reason = `随行兵力（含角色所部）最多 ${PLAYER_MAX_RESERVE} 人，还可招募 ${Math.max(0, PLAYER_MAX_RESERVE - status.reserve - (state.worldConflict?.playerAssigned??0))} 人。`;
       if (!reason && count * COST_PER_SOLDIER > state.economy.coins) reason = '铜钱不足。';
       if (!reason && gameDayNumber(advanceDays(state.date, 1)) - gameDayNumber(state.date) !== 1) reason = '剩余历法天数不足以完成招募。';
       recruitNote.textContent = reason || `招募 ${count} 人，支出 ${count * COST_PER_SOLDIER} 铜钱，消耗 1 日。`;
@@ -115,7 +116,7 @@ export function showPlayerMilitary(onChange?: () => void): void {
       const valid = deploy.input.checkValidity() && Number.isSafeInteger(count) && count > 0;
       deployActions.replaceChildren(); confirmation.replaceChildren(); confirmation.hidden = true;
       if (status.currentOwned) {
-        const availableWithdraw = Math.min(status.availableWithdraw, PLAYER_MAX_RESERVE - status.reserve);
+        const availableWithdraw = Math.min(status.availableWithdraw, PLAYER_MAX_RESERVE - status.reserve - (state.worldConflict?.playerAssigned??0));
         deployNote.textContent = `从预备兵补入本城，或从本城提出预备兵。提兵后至少留守 2000 人；当前最多可提 ${availableWithdraw} 人。调拨不消耗日期。`;
         if (!valid) deployNote.textContent = '请输入大于 0 的整数人数。';
         const reinforce = button('补入本城', () => transact(reinforcePlayerCity, count, deploy.input.id));

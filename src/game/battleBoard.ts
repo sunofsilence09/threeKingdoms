@@ -5,6 +5,7 @@ import { getState } from './runtime';
 import { themeFor, hex } from './theme';
 import { addText } from './text';
 import { drawUnitModel } from './unitModel';
+import { moraleOf, TROOP_TYPES } from './troopCombat';
 
 export const BATTLE_VIEW = { x: 24, y: 118, width: 630, height: 360 };
 const BASE_CELL = 48;
@@ -137,8 +138,23 @@ export class BattleBoard {
       const shape = this.scene.add.ellipse(x, y + 12, 39, 15, color, acted ? 0.15 : 0.35);
       shape.setStrokeStyle(unit.id === currentActor(state)?.id || attackable ? 3 : 1, attackable ? theme.enemy : unit.id === currentActor(state)?.id ? theme.accent : color);
       this.layer.add(shape);
+      if (unit.troop?.count) {
+        const soldiers = this.scene.add.graphics().setAlpha(acted ? .4 : .9);
+        const positions = unit.troop.count > 50 ? [[-16,3],[16,3],[-12,9],[12,9]] : [[-15,6],[15,6]];
+        for (const [dx,dy] of positions) {
+          soldiers.fillStyle(unit.team === 'party' ? 0x536b53 : 0x9b5d4d).fillRect(x+dx-3,y+dy-5,6,9);
+          soldiers.fillStyle(0xe0c29a).fillCircle(x+dx,y+dy-8,3);
+          soldiers.lineStyle(1,0x574c36).lineBetween(x+dx-2,y+dy+4,x+dx-3,y+dy+8).lineBetween(x+dx+2,y+dy+4,x+dx+3,y+dy+8);
+          if (unit.troop.kind === 'infantry') soldiers.fillStyle(0xb7a27a).fillEllipse(x+dx+4,y+dy,5,7);
+          else if (unit.troop.kind === 'cavalry') soldiers.fillStyle(0x79573f).fillEllipse(x+dx,y+dy+4,12,5);
+          else if (unit.troop.kind === 'bow' || unit.troop.kind === 'crossbow') soldiers.lineStyle(2,0xbd9f61).lineBetween(x+dx-5,y+dy-2,x+dx+5,y+dy-2);
+          else soldiers.lineStyle(1,0xb6bcc0).lineBetween(x+dx+4,y+dy+4,x+dx+4,y+dy-14);
+        }
+        this.layer.add(soldiers);
+      }
       const model = drawUnitModel(this.scene, unit, x, y - 1, acted);
       this.layer.add(model);
+      if(unit.troop?.count) this.layer.add(addText(this.scene,x-16,y-14,TROOP_TYPES[unit.troop.kind].name[0],{color:hex(theme.ink),fontSize:'9px',backgroundColor:hex(theme.paper)}).setOrigin(.5));
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const previous = this.previousUnits.get(unit.id);
         const event = state.lastEvent !== this.previousEvent ? state.lastEvent : undefined;
@@ -157,9 +173,11 @@ export class BattleBoard {
         }
       }
       const name = unit.id.startsWith('wolf:') ? '狼' : unit.name.slice(-2);
-      this.layer.add(addText(this.scene, x, y + 27, `${name} ${unit.hp}/${unit.maxHp}`, { color: hex(theme.ink), fontSize: '11px', backgroundColor: hex(theme.paper) }).setOrigin(0.5));
+      this.layer.add(addText(this.scene, x, y + 27, unit.troop ? `${name} ${unit.troop.count}兵` : `${name} ${unit.hp}/${unit.maxHp}`, { color: hex(theme.ink), fontSize: unit.troop ? '10px' : '11px', backgroundColor: hex(theme.paper) }).setOrigin(0.5));
       this.layer.add(this.scene.add.rectangle(x, y + 20, 38, 3, 0x142423));
       this.layer.add(this.scene.add.rectangle(x - 19, y + 20, 38 * unit.hp / unit.maxHp, 3, 0x9dc5a2).setOrigin(0, 0.5));
+      this.layer.add(this.scene.add.rectangle(x-19,y+16,38*moraleOf(unit)/120,2,moraleOf(unit)<10?0xd95345:0xc79d4f).setOrigin(0,.5));
+      if(moraleOf(unit)<10) this.layer.add(addText(this.scene,x,y-16,'溃散',{color:'#b12e20',fontSize:'10px',backgroundColor:'#fff4da'}).setOrigin(.5));
       if (unit.empowered) this.layer.add(this.scene.add.triangle(x - 16, y - 17, 0, 8, 4, 0, 8, 8, 0xffd487));
       if (unit.guarded) this.layer.add(this.scene.add.circle(x + 16, y - 17, 4, 0xd5e7dd));
     }

@@ -6,6 +6,7 @@ import { martialForPerson, martialAt, type MartialSkill } from './martialCatalog
 import { nextRandom, WIND_VECTORS } from './battleEnvironment';
 import { createProgress } from './growth';
 import { heroName } from './heroName';
+import { defensePower, moraleFactor, fortificationFactor } from './troopCombat';
 
 interface Tile { x: number; y: number }
 export function initializeMartialCombat(combat: CombatState, state: GameState): CombatState {
@@ -95,11 +96,11 @@ export function performMartial(combat: CombatState, actorId: string, skillId: st
     dodged = random.roll < target.dodgeRate;
     const multiplier = skill.template === 'break' ? 1.5 : skill.template === 'intimidate' ? 1 : 1.3;
     const debuff = Math.min(.2, Math.max(0, ...(actor.effects ?? []).filter(e => e.kind === 'attack-down').map(e => e.value)));
-    const power = Math.max(1, Math.max(attackPower(actor), actor.attack * multiplier * (1 - debuff)) - target.defense);
+    const power = Math.max(1, Math.max(attackPower(actor), actor.attack * moraleFactor(actor.morale) * multiplier * (1 - debuff)) - defensePower(target));
     const guarded = combat.route === 'liu' && target.team === 'party' ? Math.floor(power / 2) : Math.ceil(power / 2);
     const reduction = Math.min(.5, Math.max(0, ...(target.effects ?? []).filter(e => e.kind === 'reduction').map(e => e.value)));
     const cover = (skill.template === 'shoot' || actor.weapon === 'bow') && terrainAt(combat, x, y) === 'woods' ? 1 : 0;
-    damage = dodged ? 0 : Math.max(1, Math.ceil(Math.min(target.guarded ? guarded : power, power * (1 - reduction)) - cover));
+    damage = dodged ? 0 : Math.max(1, Math.ceil(Math.min(target.guarded ? guarded : power, power * (1 - reduction)) * fortificationFactor(target) - cover));
     next = { ...next, randomSeed: random.seed, units: next.units.map(u => {
       if (u.id === actorId) return { ...u, guarded: false, effects: u.effects?.filter(e => e.kind !== 'attack-up') };
       if (u.id !== target.id || dodged) return u;

@@ -1,9 +1,4 @@
-export interface MusicTrack {id:string;name:string;src:string}
-/** Imported user music; byte-identical files are represented once. */
-export const SPRING_MUSIC:readonly MusicTrack[]=[
-  {
-    "id": "spring-01",
-    "name": "春日",
-    "src": "/assets/music/spring-01.mp3"
-  }
-];
+export type {MusicTrack} from './seasonalMusicData';
+import {SEASONAL_MUSIC} from './seasonalMusicData';
+/** Compatibility view of the spring bank. */
+export const SPRING_MUSIC=SEASONAL_MUSIC.spring;
