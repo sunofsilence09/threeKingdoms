@@ -328,5 +328,5 @@ The first slice's per-action enemy response allowed three enemy actions for each
 ## 2026-10-28 2.2合并复查
 - [x] 确认e9dc6e9基线及codex/social-v2-2工作区范围。
 - [x] 关系/赠礼/存档与属性/新人物独立复核，修复切磋老师六维漏显示羁绊加成。
-- [ ] 最终构建、三尺寸社交离线验证、提交与main合并复验。
-- [ ] 推送main并确认工作区与远端同步。
+- [x] 最终构建、三尺寸社交离线验证、提交与main合并复验（124ab28；683测试通过）。
+- [x] 推送main并确认工作区与远端同步。
