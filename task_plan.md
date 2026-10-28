@@ -318,4 +318,4 @@ The first slice's per-action enemy response allowed three enemy actions for each
 - [x] 确认0a880fd基线及人物关系网改动，建立codex/relationship-network-2.1审查分支。
 - [x] 完成关系推导与嵌套界面独立复查，验证确认问题。
 - [x] 全量测试、构建、本地服务及桌面/触屏离线包验证。
-- [ ] 提交并合并main，复验推送并确认同步。
+- [x] 提交并合并main，复验推送并确认同步（代码dfbc6c3，合并后672测试/构建/本地服务通过）。
