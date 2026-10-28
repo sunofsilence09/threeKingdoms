@@ -15,7 +15,7 @@ export class PrologueScene extends Phaser.Scene {
   create(): void {
     if (requireHeroName(() => this.create())) return;
     clearOverlay();
-    setStatus('乱世行旅 · 2.0.0 城邑与兵战');
+    setStatus('乱世行旅 · 2.1.0 人物关系网');
     this.drawBackdrop();
 
     showPanel({

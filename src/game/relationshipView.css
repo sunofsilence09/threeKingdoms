@@ -1,0 +1,42 @@
+#overlay-root:has(> .relationship-panel) { position: fixed; inset: 0; z-index: 70; padding: 16px; background: #26392e99; }
+.relationship-panel { width: min(1180px, 100%); max-width: 100%; max-height: 96dvh; padding: 22px; background: var(--game-paper); color: var(--game-ink); }
+.relationship-header, .relationship-tools, .relationship-search, .relationship-pager { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.relationship-header { position: sticky; top: -22px; z-index: 4; background: var(--game-paper); justify-content: space-between; border-bottom: 1px solid var(--game-border); padding-block: 10px 12px; }
+.relationship-header > span { letter-spacing: .15em; font-weight: bold; }
+.relationship-panel button, .relationship-panel select, .relationship-panel input { min-height: 44px; max-width: 100%; font: inherit; }
+.relationship-panel button { cursor: pointer; }
+.relationship-panel button:disabled { cursor: default; }
+.relationship-panel :is(button, select, input):focus-visible, .relationship-graph-scroll:focus-visible { outline: 3px solid #886025; outline-offset: 3px; }
+.relationship-intro { font-family: 'KaiTi', 'STKaiti', serif; font-size: 19px; }
+.relationship-search { margin-top: 14px; padding: 12px 0; border-block: 1px solid var(--game-border); }
+.relationship-search select { width: 240px; }
+.relationship-search input { width: 180px; }
+.relationship-search-count, .relationship-source, .relationship-summary { color: var(--game-muted); font-size: 13px; line-height: 1.7; }
+.relationship-heading h1 { font: bold 28px 'KaiTi', 'STKaiti', serif; margin-bottom: 8px; }
+.relationship-heading p { margin: 6px 0; font-size: 14px; line-height: 1.7; }
+.relationship-pager { justify-content: center; padding: 10px 0; }
+.relationship-content { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+.relationship-graph-scroll { overflow: auto; border: 1px solid var(--game-border); background: #edf0df; }
+.relationship-graph { position: relative; width: 780px; background: radial-gradient(ellipse at 50% 50%, #f8f5e7 0 20%, transparent 65%); }
+.relationship-graph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.relationship-line { stroke: #688777; stroke-width: 1.8; }
+.relationship-line.kind-family { stroke: #a06a42; }
+.relationship-line.kind-story { stroke: #87759c; }
+.relationship-line.kind-teaching { stroke: #476d9a; }
+.relationship-line.is-reference { stroke-dasharray: 5 5; }
+.relationship-edge-label { fill: #3e5545; font: 12px 'Microsoft YaHei', sans-serif; paint-order: stroke; stroke: #edf0df; stroke-width: 5px; stroke-linejoin: round; }
+.relationship-panel .relationship-node { position: absolute; transform: translate(-50%, -50%); width: 116px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 1px solid #87977b; background: #fbf8ea; border-radius: 4px; color: #293d35; box-shadow: 0 3px 0 #aab29b44; }
+.relationship-node strong { font-family: 'KaiTi', 'STKaiti', serif; font-size: 19px; }
+.relationship-node span { font-size: 11px; overflow-wrap: anywhere; }
+.relationship-node small { font-size: 10px; }
+.relationship-panel .relationship-node.is-center { width: 132px; min-height: 112px; border: 3px double #876538; border-radius: 50%; background: #e9ddba; opacity: 1; }
+.relationship-panel .relationship-node.is-second { border-style: dashed; background: #e5ecdf; }
+.relationship-list h2 { margin-top: 0; font-size: 19px; }
+.relationship-contact { border-top: 1px solid var(--game-border); padding: 12px 0; }
+.relationship-contact > button { font-weight: bold; }
+.relationship-contact p { margin: 5px 0; line-height: 1.6; overflow-wrap: anywhere; }
+.relationship-contact > p:first-of-type { font-size: 12px; }
+.relationship-relation { font-size: 13px; font-weight: bold; }
+.relationship-entry { margin: 12px 0; min-height: 44px; }
+@media (max-width: 980px) { .relationship-content { grid-template-columns: minmax(0, 1fr); } .relationship-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .relationship-list h2 { grid-column: 1 / -1; } }
+@media (max-width: 540px) { .relationship-panel { padding: 12px; } .relationship-header { top: -12px; } .relationship-list { display: block; } .relationship-search { align-items: stretch; } .relationship-search select { width: 100%; } .relationship-heading h1 { font-size: 25px; } }

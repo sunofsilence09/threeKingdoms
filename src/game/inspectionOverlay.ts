@@ -51,7 +51,7 @@ export function openInspection(panel: HTMLElement, onClose?: () => void): () => 
       event.stopImmediatePropagation();
       close();
     } else if (event.key === 'Tab') {
-      const controls = [...panel.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), a[href]')].filter(control => control.getClientRects().length > 0);
+      const controls = [...panel.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), input:not(:disabled), a[href], [tabindex="0"]')].filter(control => control.getClientRects().length > 0);
       const first = controls[0], last = controls.at(-1);
       if (event.shiftKey && document.activeElement === first && last) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last && first) { event.preventDefault(); first.focus(); }

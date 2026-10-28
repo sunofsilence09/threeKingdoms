@@ -25,7 +25,8 @@ copyFileSync(path.join(root, 'node_modules', 'phaser', 'LICENSE.md'), path.join(
 copyFileSync(path.join(root, 'scripts', 'licenses', 'NODE-LICENSE.txt'), path.join(output, 'NODE-LICENSE.txt'));
 writeFileSync(path.join(output, '启动游戏.cmd'), '@echo off\r\nchcp 65001 >nul\r\ncd /d "%~dp0"\r\ntitle 三国行旅 - 本地版\r\n"%~dp0runtime\\node.exe" "%~dp0server.cjs"\r\nif errorlevel 1 pause\r\n', 'utf8');
 writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
-  '乱世行旅 · 2.0.0 城邑与兵战 · Windows 本地版', '',
+  '乱世行旅 · 2.1.0 人物关系网 · Windows 本地版', '',
+  '2.1新增人物关系网：人物志点击查看关系网，搜索姓名、按类别筛选、切换中心人物、分页或展开二度联系。亲族与故事资料、本局任职、同行、交往、师承分开标注；兼容旧存档。',
   '2.0新增立体城邑图标；队伍中为每名角色从预备兵分配0—1000士兵，选择步/枪/骑/弓/弩兵。军务募兵后再配兵，候补也能带兵；战后及撤退保留真实余兵。',
   '独立部队士气0—120，80为标准，修正攻击、防御和速度。守势恢复10士气；低于10每轮流失当前士兵10%。治疗不能复活士兵。',
   '五类兵战技消耗士气并占攻击行动：坚阵15、突刺20、冲锋25、齐射20、强射20。弩兵强射将本次射程从2—3增加至2—5格；请选择高亮目标。',

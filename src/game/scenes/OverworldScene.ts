@@ -82,7 +82,7 @@ export class OverworldScene extends Phaser.Scene {
     };
     const header = el('header', 'world-header');
     const heading = el('div', 'world-header-title', undefined, header);
-    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 2.0.0 城邑与兵战`, heading);
+    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 2.1.0 人物关系网`, heading);
     el('h1', '', journey ? `${cityNameAt(leg!.from,state.date)} → ${cityNameAt(leg!.to,state.date)}` : `${cityNameAt(city.id,state.date)} · ${city.prefecture}`, heading);
     el('p', 'world-date', dateLabel(state.date), heading);
     const world = state.conflictRecovery ? undefined : state.worldConflict;

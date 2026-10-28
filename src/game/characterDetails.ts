@@ -19,6 +19,8 @@ import { createMartialCard } from './martialPanel';
 import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { lifeStatus } from './personLife';
 import { attachTroops, defensePower, speedPower, troopRange, troopStatus } from './troopCombat';
+import { showRelationshipNetwork } from './relationshipView';
+import { relationshipPersonId } from './relationshipNetwork';
 
 function detailPerson(id: string) {
   const profile = recruitProfile(id);
@@ -131,6 +133,14 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     const empty=!historical&&!['party','enemy','memorial'].includes(category);
     panel.querySelector<HTMLElement>('.character-layout')!.hidden=empty;if(empty)return;
     const characterId = historical?.id ?? selected.id;
+    panel.querySelector('.relationship-entry')?.remove();
+    const relationshipId = relationshipPersonId(characterId);
+    if (relationshipId) {
+    const relationshipButton = document.createElement('button'); relationshipButton.type = 'button';
+    relationshipButton.className = 'relationship-entry'; relationshipButton.textContent = relationshipId === 'bandit' && characterId !== 'bandit' ? '查看关系网（山贼职业代表）' : '查看关系网';
+    relationshipButton.addEventListener('click', () => showRelationshipNetwork(relationshipId));
+    panel.querySelector('.character-bio')!.after(relationshipButton);
+    }
     const memorial=category==='memorial'?state.life?.memorials[characterId]:undefined;
     panel.querySelector('.character-martial')?.remove();
     panel.querySelector('.character-info')!.append(createMartialCard(characterId,Boolean(combat)||Boolean(memorial),()=>{
