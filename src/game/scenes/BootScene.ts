@@ -19,7 +19,7 @@ export class BootScene extends Phaser.Scene {
     if (requireHeroName(() => this.create())) return;
     if(getState().lifeMigration||getState().lifeRecovery){
       const recovery=Boolean(getState().lifeRecovery);
-      showPanel({eyebrow:'2.1.0 人物关系网 · 生命档案',title:recovery?'生命资料已单独恢复':'旧旅程已接入世代更迭',
+      showPanel({eyebrow:'2.2.0 情义赠礼 · 生命档案',title:recovery?'生命资料已单独恢复':'旧旅程已接入世代更迭',
         body:recovery?'部分生命资料无法读取，原记录已单独备份。已尽量保留可用寿命与纪念资料，并补齐所需条目。人物成长、财货、行旅与已学武学保留；离世情况可在地图和同行纪念中查看。':'已为具名人物保存固定生年与本局寿命。新城与原旅程接续，已经离世的同行者转入纪念档案，成长、交情与已学武学保留。史料卒年仅供参考，本局实际离世时间可能前后浮动。',
         actions:[{label:'查看当前旅程',onClick:()=>{setState({...getState(),lifeMigration:undefined,lifeRecovery:undefined});this.create();}}]});return;
     }
@@ -40,7 +40,7 @@ export class BootScene extends Phaser.Scene {
             ? 'Battle'
           : 'Prologue';
 
-    setStatus('乱世行旅 · 2.1.0 人物关系网');
+    setStatus('乱世行旅 · 2.2.0 情义赠礼');
     this.scene.start(firstScene, firstScene === 'Battle' ? { mode: encounter ?? (route ? 'route' : 'ambush') } : undefined);
   }
 }

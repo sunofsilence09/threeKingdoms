@@ -14,11 +14,11 @@ const deathDay = (year: number) => (year - START_YEAR) * 360;
 const uint32 = (value: unknown): value is number => Number.isSafeInteger(value) && (value as number) >= 0 && (value as number) <= 0xffffffff;
 const validPersonLife = (p: LifeBaseline, life: unknown): life is PersonLife => record(life) && life.birthYear === p.birthYear && Number.isSafeInteger(life.deathYear) &&
   (life.deathYear as number) > p.birthYear && (life.deathYear as number) >= p.deathBaseYear - 5 && (life.deathYear as number) <= p.deathBaseYear + 5;
-const validProgress = (p: unknown): p is LifeMemorial['progress'] => record(p) && Number.isSafeInteger(p.level) && (p.level as number) >= 1 && (p.level as number) <= MAX_LEVEL &&
+const validProgress = (p: unknown): p is LifeMemorial['progress'] => record(p) && (p.bondBonus === undefined || Number.isSafeInteger(p.bondBonus) && (p.bondBonus as number) >= 0 && (p.bondBonus as number) <= 10000 && (p.bondBonus as number) % 2 === 0) && Number.isSafeInteger(p.level) && (p.level as number) >= 1 && (p.level as number) <= MAX_LEVEL &&
   Number.isSafeInteger(p.xp) && (p.xp as number) >= 0 && ((p.level as number) === MAX_LEVEL ? p.xp === 0 : (p.xp as number) < experienceToNextLevel(p.level as number)) &&
   Number.isSafeInteger(p.points) && (p.points as number) >= 0 && isAttributes(p.attributes) &&
   ATTRIBUTE_IDS.reduce((sum, id) => sum + (p.attributes as Record<string, number>)[id] - 10, p.points as number) === ((p.level as number) - 1) * POINTS_PER_LEVEL;
-const validRelationship = (r: unknown, lastDay: number): r is NonNullable<LifeMemorial['relationship']> => record(r) && Number.isSafeInteger(r.affinity) &&
+const validRelationship = (r: unknown, lastDay: number): r is NonNullable<LifeMemorial['relationship']> => record(r) && (r.bond === undefined || r.bond === 'marriage' || r.bond === 'sworn') && (r.lastHelpMonth === undefined || Number.isSafeInteger(r.lastHelpMonth) && (r.lastHelpMonth as number) >= 0 && (r.lastHelpMonth as number) <= Math.floor(lastDay/30)) && Number.isSafeInteger(r.affinity) &&
   (r.affinity as number) >= 0 && (r.affinity as number) <= 100 && (r.lastInteraction === undefined || Number.isSafeInteger(r.lastInteraction) && (r.lastInteraction as number) >= 0 && (r.lastInteraction as number) <= lastDay);
 
 export function lifeBaseline(id: string): LifeBaseline | undefined { return baselines.get(id) ?? prefectIdentity(id)?.baseline; }

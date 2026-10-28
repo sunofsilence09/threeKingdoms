@@ -1,3 +1,4 @@
+import { SOCIAL_CAREERS } from './socialCharacters';
 import { GENERATION_CAREERS } from './generationData';
 import { V11_CAREERS } from './v11Data';
 
@@ -21,6 +22,7 @@ const stage = (from: number, to: number, cityId: string, kind: CareerStage['kind
 export const CITY_CAREERS: Readonly<Record<string, readonly CareerStage[]>> = {
   ...GENERATION_CAREERS,
   ...V11_CAREERS,
+  ...SOCIAL_CAREERS,
   'yuan-shu': [
     stage(189, 189, 'henan', 'free', '在朝游历', '洛阳'),
     stage(190, 192, 'nanyang', 'governing', '势力主事', '袁术府署'),

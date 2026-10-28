@@ -336,7 +336,7 @@ export class BattleScene extends Phaser.Scene {
     const summary = (state.battleParty ?? state.deployed).map(id => {
       const before = state.party[id], after = rewarded.party[id] ?? rewarded.life?.memorials[id]?.progress ?? before;
       const attackGain = Math.floor((after.level - 1) / 2) - Math.floor((before.level - 1) / 2);
-      const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, effectiveAttributes(id, before.attributes, this.combat.attributeVersion ?? 1));
+      const earned = rewarded === state ? 0 : victoryExperience(this.mode === 'ambush' ? 30 : 45, effectiveAttributes(id, before.attributes, this.combat.attributeVersion ?? 1,before.bondBonus));
       const troops = this.combat.units.find(u=>u.id===id)?.troop;
       return `${personName(id, state)}：Lv.${before.level}${after.level > before.level ? ` → Lv.${after.level}（升级！体力 +${(after.level - before.level) * 2}${attackGain ? `，攻击 +${attackGain}` : ''}）` : ''}\n经验 +${earned} · 技能点 +${after.points - before.points}（剩余 ${after.points}）${troops ? `\n部队余兵${troops.count} · 损失${troops.initial-troops.count}` : ''}`;
     }).join('\n');

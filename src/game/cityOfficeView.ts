@@ -9,7 +9,7 @@ import { lifeReferenceText } from './lifeView';
 
 function node<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K]{const element=document.createElement(tag);element.textContent=text;element.className=className;return element;}
 /** The roster and recruitment share one career projection; this view never appoints people. */
-export function renderCityOffice(state:GameState,onTalk:(personId:string)=>void):HTMLElement {
+export function renderCityOffice(state:GameState,onTalk:(personId:string)=>void,onChange?:()=>void):HTMLElement {
   const root=node('section','','city-office-roster');
   root.append(node('h2','府署名册'),node('p','士兵长与其他受雇人物需要亲密80才会接受邀请；普通士兵不能邀请。其他普通、主事与待聘人物仍为60。加入同行后解除原任职。','trade-muted'),renderGarrisonSummary(state));
   const services=cityServices(state,state.currentCityId);
@@ -25,7 +25,7 @@ export function renderCityOffice(state:GameState,onTalk:(personId:string)=>void)
       const info=node('div');info.append(node('h3',personName(profile.id,state)),node('p',service.title),node('p',lifeReferenceText(state,profile.id),'trade-muted'),node('p',profile.readOnly?'城市守军整体 · 不能邀请':`亲密 ${state.relationships[profile.id]?.affinity??0}/100 · 邀请门槛 ${getRecruitmentThreshold(state,profile.id)}`));heading.append(image,info);
       card.append(heading,node('p',serviceLabel(service),'office-service-label'));
       const actions=node('div','','trade-actions');
-      for(const [action,text,run] of [['details','人物详情',()=>showCharacterDetails(profile.id)],['talk','交谈与邀请',()=>onTalk(profile.id)]] as const){
+      for(const [action,text,run] of [['details','人物详情',()=>showCharacterDetails(profile.id,undefined,onChange)],['talk','交谈与邀请',()=>onTalk(profile.id)]] as const){
         if(profile.readOnly&&action==='talk')continue;
         const button=node('button',text,'trade-button is-quiet');button.type='button';button.id=`office-${action}-${profile.id}`;button.addEventListener('click',run);actions.append(button);
       }

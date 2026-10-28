@@ -1,3 +1,4 @@
+import { bondLabel } from './social';
 import type { GameState } from './state';
 import { allRecruitProfiles, recruitProfile } from './recruitmentCatalog';
 import { personName } from './heroName';
@@ -7,7 +8,7 @@ import { leaderForFaction } from './worldConflictData';
 import { martialAt } from './martialCatalog';
 import { REFERENCE_RELATIONSHIPS, STORY_RELATIONSHIPS } from './relationshipData';
 
-export const RELATIONSHIP_KINDS = { family: '亲族', story: '故事关系', service: '任职', company: '同行', affinity: '交往', teaching: '师承' } as const;
+export const RELATIONSHIP_KINDS = { bond: '本局羁绊', family: '亲族', story: '故事关系', service: '任职', company: '同行', affinity: '交往', teaching: '师承' } as const;
 export type RelationshipKind = keyof typeof RELATIONSHIP_KINDS;
 export type RelationshipFilter = RelationshipKind | 'all';
 export interface NetworkPerson { id: string; name: string; role: string; portrait: string; life: string; status: string; posting: string }
@@ -42,7 +43,9 @@ export function buildRelationshipNetwork(state: GameState): RelationshipNetwork 
     add('traveler', memorial.id, 'company', '曾经同行', '曾经同行', '本局 · 同行纪念档案', false);
     if (memorial.relationship) add('traveler', memorial.id, 'affinity', `亲密 ${memorial.relationship.affinity}/100`, `亲密 ${memorial.relationship.affinity}/100`, '本局 · 离世时保存的交往记录', false);
   }
+  for (const memorial of Object.values(state.life?.memorials ?? {})) if (memorial.relationship?.bond) add('traveler',memorial.id,'bond',bondLabel(memorial.relationship.bond),bondLabel(memorial.relationship.bond),'本局 · 已缔结羁绊 · 双方六维永久各+2',false);
   for (const [id, r] of Object.entries(state.relationships)) {
+    if(r.bond) add('traveler',id,'bond',bondLabel(r.bond),bondLabel(r.bond),'本局 · 已缔结羁绊 · 双方六维永久各+2',active(id));
     if (lifeStatus(state, id) === 'unborn') continue;
     add('traveler', id, 'affinity', `亲密 ${r.affinity}/100`, `亲密 ${r.affinity}/100`, '本局 · 与主角交往记录', active(id));
   }

@@ -14,7 +14,7 @@ const at = (year: number, cityId = 'dongjun', month = 6): GameState => ({
 
 describe('derived city appointments', () => {
   it('assigns each new person at most one appointment and the same city as the encounter for every month', () => {
-    expect(Object.keys(CITY_CAREERS)).toHaveLength(76);
+    expect(Object.keys(CITY_CAREERS)).toHaveLength(83);
     for (let year = 184; year <= 226; year++) for (let month = 1; month <= 12; month++) {
       const state = at(year, 'dongjun', month);
       const roster = cityServices(state);

@@ -1,3 +1,4 @@
+import { canHelpPerson, helpMonth, type Bond } from './social';
 import { createProgress } from './growth';
 import { advanceDays } from './history';
 import { canMeetPerson, recruitProfile } from './recruitmentCatalog';
@@ -8,7 +9,7 @@ import { isAliveAt } from './personLife';
 
 export const AFFINITY_REQUIRED = 60;
 export const MAX_DEPLOYED = 5;
-export interface Relationship { affinity: number; lastInteraction?: number }
+export interface Relationship { affinity: number; lastInteraction?: number; lastHelpMonth?: number; bond?: Bond }
 export function gameDayNumber(date: GameState['date']): number {
   return ((date.year - 184) * 12 + date.month - 1) * 30 + (date.day ?? 1) - 1;
 }
@@ -23,15 +24,19 @@ export function canInteractPerson(state: GameState, id: string): boolean {
   return isAliveAt(state.life, id, state.date, true) && canManageParty(state) && !state.journey && id !== 'traveler' && !!profile && !profile.readOnly &&
     (Object.hasOwn(state.party, id) || canMeetPerson(id, state.currentCityId, state.date, state));
 }
+export function interactionFlags(state: GameState, id: string): GameState['flags'] {
+  const route = ({ 'cao-cao': 'cao', 'liu-bei': 'liu', 'sun-jian': 'sun', 'sun-ce': 'sun', 'sun-quan': 'sun' } as Record<string, RouteId>)[id];
+  return route ? {...state.flags,[`met:${route}`]:true} : state.flags;
+}
 export function interactPerson(state: GameState, id: string, kind: 'talk' | 'meal' | 'help'): GameState {
-  if (!canInteractPerson(state, id) || !['talk', 'meal', 'help'].includes(kind) || state.relationships[id]?.lastInteraction === gameDayNumber(state.date) || kind === 'meal' && state.supplies < 1) return state;
+  if (!canInteractPerson(state, id) || !['talk', 'meal', 'help'].includes(kind) || state.relationships[id]?.lastInteraction === gameDayNumber(state.date) || kind === 'meal' && state.supplies < 1 || kind === 'help' && !canHelpPerson(state,id)) return state;
   const date = advanceDays(state.date, 1);
   if (gameDayNumber(date) === gameDayNumber(state.date)) return state;
   const affinity = Math.min(100, (state.relationships[id]?.affinity ?? 0) + { talk: 8, meal: 12, help: 10 }[kind]);
-  const route = ({ 'cao-cao': 'cao', 'liu-bei': 'liu', 'sun-jian': 'sun', 'sun-ce': 'sun', 'sun-quan': 'sun' } as Record<string, RouteId>)[id];
+
   return withWorldDate({ ...state, supplies: state.supplies - (kind === 'meal' ? 1 : 0),
-    relationships: { ...state.relationships, [id]: { affinity, lastInteraction: gameDayNumber(date) } },
-    flags: route ? { ...state.flags, [`met:${route}`]: true } : state.flags,
+    relationships: { ...state.relationships, [id]: { ...state.relationships[id], affinity, lastInteraction: gameDayNumber(date), ...(kind === 'help' ? {lastHelpMonth: helpMonth(state)} : {}) } },
+    flags: interactionFlags(state,id),
     travelNotice: `与${recruitProfile(id)!.name}${kind === 'talk' ? '交谈' : kind === 'meal' ? '分享粮食' : '帮忙共事'}，亲密度 ${affinity}/100；停留1日。` }, date);
 }
 export function invitePerson(state: GameState, id: string): GameState {
@@ -44,7 +49,7 @@ export function invitePerson(state: GameState, id: string): GameState {
       const { governorId: _formerGovernor, ...vacant } = city;
       return [cityId, vacant];
     })) } : world;
-  const recruited={ ...state, ...(worldConflict ? { worldConflict } : {}), party: { ...state.party, [id]: createProgress() }, travelNotice: `${name}接受邀请，加入同行候补。可在队伍中安排上阵。` };
+  const recruited={ ...state, ...(worldConflict ? { worldConflict } : {}), party: { ...state.party, [id]: { ...createProgress(), ...(state.relationships[id]?.bond ? {bondBonus: 2} : {}) } }, travelNotice: `${name}接受邀请，加入同行候补。可在队伍中安排上阵。` };
   return worldConflict?withWorldDate(recruited,state.date):recruited;
 }
 export function isDeployment(value: unknown, party: GameState['party']): value is string[] {
@@ -57,10 +62,13 @@ export function setDeployment(state: GameState, ids: string[]): GameState {
 }
 export function isRelationships(value: unknown, date: GameState['date']): value is Record<string, Relationship> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  if (Object.values(value).filter(r => (r as Relationship)?.bond === 'marriage').length > 1) return false;
   return Object.entries(value).every(([id, entry]) => {
     if (!recruitProfile(id) || !entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
     const r = entry as Relationship;
-    return Number.isSafeInteger(r.affinity) && r.affinity >= 0 && r.affinity <= 100 &&
+    return (r.bond === undefined || id !== 'traveler' && ['marriage','sworn'].includes(r.bond)) &&
+      (r.lastHelpMonth === undefined || Number.isSafeInteger(r.lastHelpMonth) && r.lastHelpMonth >= 0 && r.lastHelpMonth <= (date.year-184)*12+date.month-1) &&
+      Number.isSafeInteger(r.affinity) && r.affinity >= 0 && r.affinity <= 100 &&
       (r.lastInteraction === undefined || Number.isSafeInteger(r.lastInteraction) && r.lastInteraction >= 0 && r.lastInteraction <= gameDayNumber(date));
   });
 }

@@ -102,7 +102,7 @@ describe('persistent original prefect lives',()=>{
     oldPeople['cao-cao']={birthYear:155,deathYear:225};
     const old={...saved,people:oldPeople,handledIds:saved.handledIds.filter(id=>oldIds.includes(id))};
     const next=ensureLifePeople(old,[id]);
-    expect(Object.keys(next.people)).toHaveLength(106);
+    expect(Object.keys(next.people)).toHaveLength(113);
     for(const [key,person] of Object.entries(oldPeople)) expect(next.people[key]).toEqual(person);
     expect(next.seed).toBe(old.seed);
     expect(next.notices).toEqual(old.notices);

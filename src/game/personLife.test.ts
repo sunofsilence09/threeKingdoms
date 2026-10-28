@@ -7,9 +7,9 @@ import { createProgress } from './growth';
 const date = (year: number) => ({ year, month: 1, day: 1 });
 
 describe('persistent person lifespans', () => {
-  it('covers exactly the 105 historical/story people and preserves uncertain historical dates', () => {
-    expect(PERSON_LIFE_BASELINES).toHaveLength(105);
-    expect(new Set(PERSON_LIFE_BASELINES.map(p => p.id)).size).toBe(105);
+  it('covers exactly the 112 historical/story people and preserves uncertain historical dates', () => {
+    expect(PERSON_LIFE_BASELINES).toHaveLength(112);
+    expect(new Set(PERSON_LIFE_BASELINES.map(p => p.id)).size).toBe(112);
     expect(lifeBaseline('han-dang')?.deathBaseYear).toBe(226);
     expect(lifeBaseline('sun-jian')?.deathBaseYear).toBe(191);
     expect(lifeBaseline('lu-bu')?.deathBaseYear).toBe(199);

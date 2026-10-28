@@ -150,8 +150,8 @@ export function finishTravelBattle(state: GameState, won: boolean): GameState {
   const wolves = state.journey.event.kind === 'wolves';
   const party = { ...state.party };
   const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
-  if (won) for (const id of fighters) party[id] = grantExperience(party[id], victoryExperience(30,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)));
-  const bonus = won ? fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)).supplies, 0) : 0;
+  if (won) for (const id of fighters) party[id] = grantExperience(party[id], victoryExperience(30,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2,party[id].bondBonus)));
+  const bonus = won ? fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2,party[id].bondBonus)).supplies, 0) : 0;
   return withWorldDate({ ...state,activeBattle:undefined, phase: 'overworld', encounter: undefined, battleParty: undefined, party,
     economy: won && wolves ? { ...state.economy, coins: Math.min(Number.MAX_SAFE_INTEGER, state.economy.coins + 20) } : state.economy,
     supplies: state.supplies + bonus, morale: Math.max(0, state.morale + (won ? 1 : -1)),

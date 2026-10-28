@@ -171,6 +171,7 @@ export function createDuelCombat(base: CombatState, state: GameState): CombatSta
   if (!duel || duel.status !== 'active') throw new Error('No active duel');
   const teacherProgress = createProgress(Math.min(10, Math.max(3, state.party.traveler.level + 2, state.party[duel.teacherId]?.level ?? 1)));
   teacherProgress.attributes = {...(state.party[duel.teacherId]?.attributes ?? teacherProgress.attributes)};
+  teacherProgress.bondBonus = state.party[duel.teacherId]?.bondBonus ?? (state.relationships[duel.teacherId]?.bond ? 2 : 0);
   const teacher = makePartyUnit(duel.teacherId, teacherProgress, null, 'route', 7, 4);
   const hero = makePartyUnit('traveler', state.party.traveler, state.route, state.route ? 'route' : 'ambush', 3, 4);
   return advanceTurn(initializeMartialCombat({ ...base, attributeVersion: 2, units: [hero, { ...teacher, id: `enemy:${teacher.id}`, team: 'enemy' }],

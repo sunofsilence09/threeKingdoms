@@ -9,8 +9,8 @@ import { V11_GOVERNORS, V11_GOVERNOR_EVIDENCE } from './v11Data';
 const ids = 'dian-wei xu-chu zhang-he xu-huang yue-jin yu-jin guo-jia jia-xu cheng-yu chen-qun ma-chao huang-zhong wei-yan pang-tong fa-zheng lu-su lv-meng gan-ning taishi-ci huang-gai kong-rong tao-qian wang-lang shi-xie liu-yao huang-zu gongsun-du han-fu zhang-yang hua-xin zhao-yu liu-chong'.split(' ');
 describe('1.1 researched roster', () => {
   it('adds exactly 32 independently authored historical identities and life records', () => {
-    expect(HISTORICAL_CHARACTERS).toHaveLength(95);
-    expect(PERSON_LIFE_BASELINES).toHaveLength(105);
+    expect(HISTORICAL_CHARACTERS).toHaveLength(102);
+    expect(PERSON_LIFE_BASELINES).toHaveLength(112);
     for (const id of ids) {
       const person = HISTORICAL_CHARACTERS.find(p => p.id === id)!;
       expect(person.appearance.portrait).toBe(`/assets/characters/${id}-v1.png`);
@@ -56,7 +56,7 @@ describe('1.1 researched roster', () => {
   it('adds a sourced individual native art for every new identity using executable templates', () => {
     const arts = ids.map(id => MARTIAL_CATALOG.find(s => s.personId === id)!);
     expect(arts.every(Boolean)).toBe(true);
-    expect(new Set(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect').map(s => s.personId)).size).toBe(105);
+    expect(new Set(MARTIAL_CATALOG.filter(s => s.personId !== 'original-prefect').map(s => s.personId)).size).toBe(112);
     expect(new Set(MARTIAL_CATALOG.map(s => s.name)).size).toBe(MARTIAL_CATALOG.length);
     expect(new Set(MARTIAL_CATALOG.map(s => s.template)).size).toBe(11);
     for (const art of arts) { expect(art.source).toBeTruthy(); expect(art.basis).toContain('游戏'); }

@@ -1,3 +1,4 @@
+import { SOCIAL_CHARACTERS } from './socialCharacters';
 import type { CharacterAppearance, ModelWeapon } from './characters';
 import type { RouteId } from './state';
 import { GENERATION_CHARACTERS } from './generationData';
@@ -278,6 +279,7 @@ export const HISTORICAL_CHARACTERS: readonly HistoricalCharacter[] = [
   },
   ...GENERATION_CHARACTERS,
   ...V11_CHARACTERS,
+  ...SOCIAL_CHARACTERS,
 ];
 
 export function getHistoricalCharacter(id: string): HistoricalCharacter | undefined {

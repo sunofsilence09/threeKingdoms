@@ -17,17 +17,17 @@ export function baseAttributes(id:string):Attributes {
   return createAttributes();
 }
 /** The stored 10…30 fields remain an earned-cultivation ledger; talents never spend points. */
-export function effectiveAttributes(id:string,cultivation:Attributes,version:AttributeVersion=2):Attributes {
+export function effectiveAttributes(id:string,cultivation:Attributes,version:AttributeVersion=2,bondBonus=0):Attributes {
   if(version===1)return {...cultivation};
   const base=baseAttributes(id);
-  return Object.fromEntries(ATTRIBUTE_IDS.map(key=>[key,base[key]+cultivation[key]-10])) as Attributes;
+  return Object.fromEntries(ATTRIBUTE_IDS.map(key=>[key,base[key]+cultivation[key]-10+bondBonus])) as Attributes;
 }
 /** An absent marker belongs to a 1.0 encounter and must retain its recorded combat values. */
 export function combatAttributeVersion(combat:{attributeVersion?:AttributeVersion}):AttributeVersion {return combat.attributeVersion??1;}
 export const LEGACY_ATTRIBUTE_NOTE='本场沿用1.0属性与奖励，结束后下一场启用人物天赋。';
 
 /** Shared text also serves memorial records: deriving this never modifies their saved growth. */
-export function attributeDescription(id:string,cultivation:Attributes,key:AttributeId,version:AttributeVersion=2):string {
-  const base=baseAttributes(id)[key],trained=cultivation[key]-10,current=effectiveAttributes(id,cultivation,version)[key];
-  return `${ATTRIBUTE_LABELS[key]} ${current}（${version===1?'本场旧制；':''}天赋${base} + 培养${trained}/20；${version===1?`下场${base+trained}，`:''}上限${base+20}）`;
+export function attributeDescription(id:string,cultivation:Attributes,key:AttributeId,version:AttributeVersion=2,bondBonus=0):string {
+  const base=baseAttributes(id)[key],trained=cultivation[key]-10,current=effectiveAttributes(id,cultivation,version,bondBonus)[key];
+  return `${ATTRIBUTE_LABELS[key]} ${current}（${version===1?'本场旧制；':''}天赋${base} + 培养${trained}/20${bondBonus?` + 羁绊${bondBonus}`:''}；${version===1?`下场${base+trained+bondBonus}，`:''}上限${base+20+bondBonus}）`;
 }

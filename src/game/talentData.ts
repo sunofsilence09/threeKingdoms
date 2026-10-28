@@ -1,6 +1,8 @@
 /** Authored gameplay talents, not historical scores. Order: command, strength, intellect, politics, charisma, courage. */
 export type TalentScores = readonly [number, number, number, number, number, number];
 export const TALENT_SCORES: Readonly<Record<string, TalentScores>> = {
+  'cai-mao':[15,13,13,13,12,13], 'cai-fu-ren':[10,10,15,14,16,13], 'zhang-yun':[14,14,12,11,11,14],
+  'bian-fu-ren':[10,10,14,16,17,13], 'bu-lian-shi':[10,10,14,14,18,12], 'sun-lu-ban':[12,10,16,15,14,15], 'sun-lu-yu':[10,10,13,13,16,12],
   traveler:[10,10,10,10,11,10], aman:[10,10,11,10,10,10], 'chen-da':[11,11,10,10,10,11],
   'bandit-leader':[11,12,10,10,10,12], bandit:[10,11,10,10,10,10],
   'sun-jian':[17,17,13,12,15,18], 'sun-ce':[18,17,14,12,17,18],

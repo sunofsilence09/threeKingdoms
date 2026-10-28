@@ -1,3 +1,4 @@
+import { GIFTS, buyGift } from './social';
 import './tradeUi.css';
 import { getState, setState } from './runtime';
 import { openInspection } from './inspectionOverlay';
@@ -27,7 +28,7 @@ export function showCityPanel(onClose?:()=>void):void {
   const exit=button('出城 · 返回地图',()=>close());header.append(heading,exit);
   const body=el('div','','city-body');panel.append(header,body);
   const close=openInspection(panel,onClose);
-  let tab:'market'|'cargo'|'office'='market',feedback='';
+  let tab:'market'|'cargo'|'office'|'gifts'='market',feedback='';
   function render():void {
     const state=getState(),economy=state.economy,city=cityAt(state.currentCityId),day=gameDayNumber(state.date);
     const owner=state.conflictRecovery?undefined:state.worldConflict?.cities[city.id];
@@ -37,9 +38,18 @@ export function showCityPanel(onClose?:()=>void):void {
     const banner=el('img','','city-banner');banner.src='/assets/events/event-merchant-v1.png';banner.alt='汉末城邑市集与货担';banner.loading='lazy';banner.addEventListener('error',()=>banner.hidden=true);body.append(banner);
     const tools=el('div','','city-tools');tools.append(button('寻访人物',()=>showRecruitmentPanel(render),false,true),button('地方官员',showLocalOfficials,false,true),button('军务 / 攻城',()=>showPlayerMilitary(render),!!state.conflictRecovery,true),button('天下局势',()=>showConflictPanel(render),!!state.conflictRecovery,true));body.append(tools);
     const nav=el('nav','','trade-tabs');nav.setAttribute('aria-label','城市事务');
-    for(const [id,label] of [['market','市集买卖'],['cargo','行囊与账本'],['office','府署名册']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}body.append(nav);
+    for(const [id,label] of [['market','市集买卖'],['gifts','礼品铺'],['cargo','行囊与账本'],['office','府署名册']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}body.append(nav);
+    if(tab==='gifts'){
+      body.append(el('p','各城礼品铺均有售。礼品存入礼物行囊，购买不消耗日期；前往人物详情或寻访人物赠送。','trade-muted'));
+      const grid=el('div','','trade-grid');body.append(grid);
+      for(const gift of GIFTS){
+        const card=el('article','','trade-card');card.append(el('h3',gift.name),el('p',`${gift.price} 铜钱 · 亲密+${gift.affinity} · 持有 ${state.gifts?.[gift.id]??0}`));
+        card.append(button(`购买${gift.name}`,()=>{const next=buyGift(getState(),gift.id);if(next!==getState())setState(next);render();},state.economy.coins<gift.price||(state.gifts?.[gift.id]??0)>=9999));grid.append(card);
+      }
+      return;
+    }
     if(tab==='office'){
-      body.append(renderCityOffice(state,id=>showRecruitmentPanel(render,undefined,{initialPersonId:id})));return;
+      body.append(renderCityOffice(state,id=>showRecruitmentPanel(render,undefined,{initialPersonId:id}),render));return;
     }
     body.append(el('p',`市集每7日换一批货。买卖不消耗日期；货物每份占1格。累计已实现收益 ${economy.profit>=0?'+':''}${economy.profit} 铜钱。`,'trade-muted'));
     const notice=el('p',feedback,'trade-feedback');notice.setAttribute('role','status');body.append(notice);

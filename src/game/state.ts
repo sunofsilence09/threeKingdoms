@@ -1,3 +1,4 @@
+import { isGiftInventory, type GiftInventory } from './social';
 import { effectiveAttributes } from './characterTalents';
 import type { TroopAssignment } from './troopCombat';
 import { validAssignments, assignedCount, reconcileTroops } from './troopManagement';
@@ -25,6 +26,7 @@ export type RouteId = 'cao' | 'sun' | 'liu';
 export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | 'ending';
 
 export interface GameState {
+  gifts?: GiftInventory;
   troopAssignments?: Record<string, TroopAssignment>;
   heroName?: string;
   life?: LifeState;
@@ -229,7 +231,7 @@ export function loadState(): GameState | null {
   }
 }
 
-function isGameState(value: unknown): value is GameState {
+export function isGameState(value: unknown): value is GameState {
   if (!value || typeof value !== 'object') {
     return false;
   }
@@ -262,6 +264,7 @@ function isGameState(value: unknown): value is GameState {
     (candidate.party === undefined || migratePartyProgress(candidate.party) !== null && Object.keys(candidate.party).every(id => !!recruitProfile(id) && !recruitProfile(id)!.readOnly)) &&
     (candidate.deployed === undefined || isDeployment(candidate.deployed, party)) &&
     (candidate.relationships === undefined || isRelationships(candidate.relationships, date)) &&
+    (candidate.gifts === undefined || isGiftInventory(candidate.gifts)) &&
     (candidate.economy === undefined || migrateEconomy(candidate.economy) !== null) &&
     (candidate.travelDays === undefined || Number.isSafeInteger(candidate.travelDays) && candidate.travelDays >= 1 && candidate.travelDays <= 30) &&
     (candidate.conflictRecovery === undefined || typeof candidate.conflictRecovery === 'boolean') &&
@@ -294,9 +297,9 @@ export function rewardVictory(state: GameState, encounter: 'ambush' | 'route' | 
   const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
   for (const id of fighters) {
     const base = encounter === 'ambush' ? 30 : 45;
-    party[id] = grantExperience(party[id], victoryExperience(base,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)));
+    party[id] = grantExperience(party[id], victoryExperience(base,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2,party[id].bondBonus)));
   }
-  const supplies = state.supplies + fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2)).supplies, 0);
+  const supplies = state.supplies + fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2,party[id].bondBonus)).supplies, 0);
   return { ...state, party, supplies, flags: { ...state.flags, [key]: true } };
 }
 

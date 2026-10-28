@@ -127,7 +127,7 @@ describe('current personnel projection', () => {
     expect(canMeetPerson('cai-yan', 'chenliu', state.date, state)).toBe(true);
     expect(canMeetPerson('cai-yan', 'xuxian', state.date, state)).toBe(true);
     expect(personPosting({ ...state, date: { year: 184, month: 6 } }, 'sun-ce')).toBeUndefined();
-    expect(RECRUIT_PROFILES).toHaveLength(230);
-    expect(new Set(RECRUIT_PROFILES.map(person => person.id)).size).toBe(230);
+    expect(RECRUIT_PROFILES).toHaveLength(237);
+    expect(new Set(RECRUIT_PROFILES.map(person => person.id)).size).toBe(237);
   });
 });

@@ -1,3 +1,5 @@
+import { socialControls } from './socialView';
+import { canHelpPerson } from './social';
 import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS } from './attributes';
 import { combatAttributeVersion, effectiveAttributes, LEGACY_ATTRIBUTE_NOTE } from './characterTalents';
 import { displayText, heroName, personName } from './heroName';
@@ -106,7 +108,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
         info.append(element('p', `攻 ${Number(attackPower(unit).toFixed(1))} · 防 ${Number(defensePower(unit).toFixed(1))} · 体力 ${unit.hp}/${unit.maxHp}`, 'company-note'));
         info.append(createTroopControls(id,unit,Boolean(combat),render));
         const version = combat && combat.units.some(u => u.id === id) ? combatAttributeVersion(combat) : 2;
-        info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(id, progress.attributes, version)[key]}`).join(' · '), 'company-note'));
+        info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(id, progress.attributes, version,progress.bondBonus)[key]}`).join(' · '), 'company-note'));
         info.append(element('p',lifeReferenceText(state,id),'company-life'));
         const actions = element('div', '', 'party-actions');
         actions.append(button('详情', () => showCharacterDetails(id, combat?.units.some(u => u.team === 'party' && u.id === id) ? combat : undefined,render)), button('成长', () => showCharacterPanel(render, combat, id)));
@@ -131,7 +133,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
       const card=element('article','','company-card memorial-card');card.dataset.memorial=record.id;
       const info=element('div','','company-card-info');
       info.append(element('h3',`${nameOf(record.id)} · Lv.${record.progress.level}`),element('p',`本局于${record.deathYear}年离世 · 享年约${record.age}岁（按年计）`),element('p',`经验 ${record.progress.xp} · 技能点 ${record.progress.points} · 亲密 ${record.relationship?.affinity??0}/100`,'company-note'),button('查看纪念详情',()=>showCharacterDetails(record.id,undefined,render)));
-      info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(record.id, record.progress.attributes)[key]}`).join(' · '), 'company-note'));
+      info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(record.id, record.progress.attributes,2,record.progress.bondBonus)[key]}`).join(' · '), 'company-note'));
       card.append(portrait(recruitProfile(record.id),nameOf(record.id)),info);archive.append(card);
     }
     if(!memorials.length)archive.append(element('p','尚无已故同行者。','company-note'));
@@ -176,7 +178,7 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
     const state = getState(); body.replaceChildren();
     body.append(element('p', `${dateLabel(state.date)} · ${state.journey ? '行进途中' : cityName(state.currentCityId)} · 军需 ${state.supplies}`, 'company-summary'));
     body.append(element('p', `普通人物亲密度达到 ${AFFINITY_REQUIRED} 可免费邀请至候补，士兵长及其他受雇人物需达到80。普通士兵属于城市守军，不能邀请。邀请长期同行为架空支线；主君同行不自动选择阵营。`, 'company-note'));
-    body.append(element('p', '每人每日一次；交谈、分享粮食、帮忙均耗时1日。同人再次交流须先休整、帮工或赶路至次日。', 'company-note'));
+    body.append(element('p', '每人每日一次；交谈、分享粮食、帮忙、赠礼均耗时1日；帮忙每人每自然月限一次。同人再次交流须先休整、帮工或赶路至次日。', 'company-note'));
     body.append(element('p', '当前行踪随天下局势变化；历史参考窗口单独保留，依据历史活动区域编排，不代表当前任职。', 'company-note'));
     body.append(element('p','生年固定；年龄按年计。尚未出生、未满16岁与已故人物仅供资料查看。史料卒年是参考，本局寿命另有浮动；未到离世时不公开本局卒年。','company-note'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
@@ -217,10 +219,11 @@ export function showRecruitmentPanel(onChange?: () => void, combat?: CombatState
       if (!profile.readOnly) {
         actions.append(button('交谈 +8 · 免费 · 1日', () => mutate(state => interactPerson(state, profile.id, 'talk')), !available || today || affinity >= 100));
         actions.append(button('分享粮食 +12 · 军需−1 · 1日', () => mutate(state => interactPerson(state, profile.id, 'meal')), !available || today || affinity >= 100 || state.supplies < 1));
-        actions.append(button('帮忙 +10 · 免费 · 1日', () => mutate(state => interactPerson(state, profile.id, 'help')), !available || today || affinity >= 100));
+        actions.append(button(canHelpPerson(state,profile.id) ? '帮忙 +10 · 每月一次 · 1日' : '帮忙 · 本月已帮忙', () => mutate(state => interactPerson(state, profile.id, 'help')), !available || today || affinity >= 100 || !canHelpPerson(state,profile.id)));
       }
       if (!profile.readOnly && !joined) actions.append(button('邀请同行', () => mutate(state => invitePerson(state, profile.id)), !available || affinity < threshold));
       actions.append(button('查看详情', () => showCharacterDetails(profile.id, combat?.units.some(unit => unit.team === 'party' && unit.id === profile.id) ? combat : undefined,render)));
+      if (!profile.readOnly) info.append(socialControls(state,profile.id,mutate));
       info.append(actions); card.append(portrait(profile, personName(profile.id, state)), info); grid.append(card);
     }
     if (!profiles.length) grid.append(element('p', '此时此地暂无可寻访人物，可查看所有人物行踪。', 'company-note'));

@@ -3,7 +3,7 @@ import { ATTRIBUTE_IDS, createAttributes, isAttributes, type Attributes } from '
 export const PARTY_IDS = ['traveler', 'aman', 'chen-da'] as const;
 /** The tuple is only the legacy starting party; recruited members use their catalog IDs. */
 export type PartyId = string;
-export interface Progress { level: number; xp: number; points: number; attributes: Attributes }
+export interface Progress { level: number; xp: number; points: number; attributes: Attributes; bondBonus?: number }
 export type PartyProgress = Record<PartyId, Progress>;
 export const MAX_LEVEL = 10;
 export const POINTS_PER_LEVEL = 3;
@@ -34,7 +34,7 @@ export function migratePartyProgress(value: unknown): PartyProgress | null {
   for (const id of Object.keys(value)) {
     if (!/^(?:[a-z][a-z0-9-]*|garrison:[a-z][a-z0-9-]*:(?:soldier|captain))$/.test(id)) return null;
     const entry = (value as PartyProgress)[id];
-    if (!entry || !Number.isSafeInteger(entry.level) || entry.level < 1 || entry.level > MAX_LEVEL ||
+    if (!entry || (entry.bondBonus !== undefined && (!Number.isSafeInteger(entry.bondBonus) || entry.bondBonus < 0 || entry.bondBonus > 10000 || entry.bondBonus % 2 !== 0)) || !Number.isSafeInteger(entry.level) || entry.level < 1 || entry.level > MAX_LEVEL ||
       !Number.isSafeInteger(entry.xp) || entry.xp < 0 ||
       (entry.level === MAX_LEVEL ? entry.xp !== 0 : entry.xp >= experienceToNextLevel(entry.level))) return null;
     if (entry.points === undefined && entry.attributes === undefined) party[id] = createProgress(entry.level, entry.xp);

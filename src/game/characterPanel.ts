@@ -78,8 +78,8 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState, i
     if (active && version === 1) panel.querySelector('.training-note')!.textContent += ` · ${LEGACY_ATTRIBUTE_NOTE}`;
     panel.querySelector('.training-points')!.textContent = `剩余技能点 ${progress.points - cost(selected)}`;
     for (const [id, row] of rows) {
-      row.score.textContent = `${effectiveAttributes(selected, progress.attributes, version)[id]}${attrs[id] !== progress.attributes[id] ? ` → ${effectiveAttributes(selected, attrs, version)[id]}` : ''}`;
-      row.detail.textContent = `天赋${baseAttributes(selected)[id]} + 培养${attrs[id]-10}/20 · ${version === 1 ? `下场${effectiveAttributes(selected, attrs)[id]} · ` : ''}上限${baseAttributes(selected)[id]+20}`;
+      row.score.textContent = `${effectiveAttributes(selected, progress.attributes, version,progress.bondBonus)[id]}${attrs[id] !== progress.attributes[id] ? ` → ${effectiveAttributes(selected, attrs, version,progress.bondBonus)[id]}` : ''}`;
+      row.detail.textContent = `天赋${baseAttributes(selected)[id]} + 培养${attrs[id]-10}/20 + 羁绊${progress.bondBonus??0} · ${version === 1 ? `下场${effectiveAttributes(selected, attrs,2,progress.bondBonus)[id]} · ` : ''}上限${baseAttributes(selected)[id]+20+(progress.bondBonus??0)}`;
       row.minus.disabled = readOnly || !(drafts[selected][id] ?? 0);
       row.plus.disabled = readOnly || cost(selected) >= progress.points || attrs[id] >= 30;
     }
@@ -87,7 +87,7 @@ export function showCharacterPanel(onClose?: () => void, combat?: CombatState, i
     const mode = original.route ? 'route' : 'ambush';
     const before = active ?? makePartyUnit(selected, progress, original.route, mode, 0, 0, version);
     const after = readOnly ? before : makePartyUnit(selected, { ...progress, attributes: attrs }, original.route, mode, 0, 0, version);
-    const beforeAttrs = effectiveAttributes(selected, progress.attributes, version), afterAttrs = effectiveAttributes(selected, attrs, version);
+    const beforeAttrs = effectiveAttributes(selected, progress.attributes, version,progress.bondBonus), afterAttrs = effectiveAttributes(selected, attrs, version,progress.bondBonus);
     const values: Array<[string, number, number, string]> = [
       ['攻击', before.attack, after.attack, ''], ['防御', before.defense, after.defense, ''],
       ['闪避', Math.round(before.dodgeRate * 100), Math.round(after.dodgeRate * 100), '%'],

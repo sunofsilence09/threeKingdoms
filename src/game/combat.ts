@@ -66,7 +66,7 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
     : { traveler: 'cleaver', aman: 'fists', 'chen-da': 'fists' };
   const weapon = initialEquipment[id] ?? profile.weapon;
   const { level, xp, attributes } = progress;
-  const bonus = attributeBonuses(effectiveAttributes(id, attributes, attributeVersion));
+  const bonus = attributeBonuses(effectiveAttributes(id, attributes, attributeVersion, progress.bondBonus));
   const maxHp = WEAPONS[weapon].hp + (level - 1) * 2 + bonus.hp + (route === 'liu' ? 1 : 0);
   return { id, name: profile.name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp, speed: profile.speed, morale: 80,
     attack: WEAPONS[weapon].attack + Math.floor((level - 1) / 2) + bonus.attack + (route === 'cao' && id === 'traveler' ? 1 : 0), guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
