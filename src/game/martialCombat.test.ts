@@ -255,12 +255,12 @@ describe('martial combat actions', () => {
     expect(next.units[1].effects).toEqual([]);
   });
 
-  it('protect heals a wounded formation without exceeding its original troop capacity', () => {
+  it('protect heals a wounded formation without resurrecting fallen soldiers', () => {
     const { combat, id } = supportFixture('zhao-yun');
-    const formation = { ...updateUnitHp(makeGarrisonUnit('zhuo', 10, 3, 2), 88), team: 'party' as const };
+    const formation = { ...updateUnitHp(makeGarrisonUnit('zhuo', 10, 3, 2), 17), team: 'party' as const };
     combat.units[1] = formation;
     const next = performMartial(combat, id, martialForPerson(id)!.id, 3, 2);
-    expect(next.units[1]).toMatchObject({ hp: 100, attack: 30, defense: 10, formation: { hp: 100, troops: 10, initialTroops: 10 } });
+    expect(next.units[1]).toMatchObject({ hp: 18, maxHp: 20, attack: 1, defense: 1, formation: { hp: 18, troops: 9, initialTroops: 10 } });
     expect(next.units[1].effects).toContainEqual(expect.objectContaining({ kind: 'reduction', value: .2 }));
     const dead = { ...combat, units: combat.units.map((u, i) => i === 1 ? updateUnitHp(u, 0) : u) };
     expect(performMartial(dead, id, martialForPerson(id)!.id, 3, 2)).toBe(dead);
@@ -282,13 +282,13 @@ describe('martial combat actions', () => {
 
   it('soothe heals all nearby living allies and synchronizes recovered formation strength', () => {
     const { combat, id } = supportFixture('liu-bei');
-    combat.units[1] = { ...updateUnitHp(makeGarrisonUnit('zhuo', 10, 3, 2), 68), team: 'party' };
+    combat.units[1] = { ...updateUnitHp(makeGarrisonUnit('zhuo', 10, 3, 2), 13), team: 'party' };
     const outside = { ...combat.units[0], id: 'outside', x: 2, y: 5, speed: 1 };
     const dead = { ...combat.units[0], id: 'fallen', x: 1, hp: 0 };
     combat.units.push(outside, dead);
     const next = performMartial(combat, id, martialForPerson(id)!.id, 2, 2);
     expect(next.units[0].hp).toBe(60);
-    expect(next.units[1]).toMatchObject({ hp: 78, attack: 24, defense: 8, formation: { hp: 78, troops: 8 } });
+    expect(next.units[1]).toMatchObject({ hp: 14, maxHp: 20, attack: 1, defense: 1, formation: { hp: 14, troops: 7 } });
     expect(next.units[2].hp).toBe(100);
     expect(next.units[3].hp).toBe(50);
     expect(next.units[4].hp).toBe(0);
@@ -322,14 +322,14 @@ describe('martial combat actions', () => {
     const duel = createDuelCombat(base, state);
     expect(duel.units.map(u => [u.id, u.team])).toEqual([['traveler', 'party'], ['enemy:zhou-yu', 'enemy']]);
     expect(duel.units[0]).toMatchObject({ name: '阿朔', level: 6, martialIds: skills });
-    expect(duel.units[0]).toMatchObject({ weapon: 'knife', attack: 10, hp: 25, maxHp: 25 });
+    expect(duel.units[0]).toMatchObject({ weapon: 'knife', attack: 6, hp: 21, maxHp: 21 });
     expect(duel.units[1]).toMatchObject({ level: 9, weapon: 'sword', martialIds: ['martial-zhou-yu'] });
     expect(duel.environment).toEqual(base.environment);
     expect(state.party).toEqual(before);
     expect(duel.units[1].martialReady).toEqual({});
     const trainedTeacher = {...state.party['zhou-yu'], attributes: {...state.party['zhou-yu'].attributes, strength: 14, courage: 12}};
     const trained = createDuelCombat(base, {...state, party: {...state.party, 'zhou-yu': trainedTeacher}});
-    expect(trained.units[1].attack).toBe(duel.units[1].attack + 4);
-    expect(trained.units[1].maxHp).toBe(duel.units[1].maxHp + 4);
+    expect(trained.units[1].attack).toBe(duel.units[1].attack);
+    expect(trained.units[1].maxHp).toBe(duel.units[1].maxHp);
   });
 });

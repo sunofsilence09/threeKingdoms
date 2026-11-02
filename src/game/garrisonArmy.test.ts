@@ -11,7 +11,7 @@ describe('independent city garrisons', () => {
     const state = { ...createInitialState(() => 0), worldConflict: undefined };
     const armies = WORLD_CITIES.map(city => cityGarrison(state, city.id));
     expect(armies).toHaveLength(60); expect(new Set(armies.map(army => army.captainId)).size).toBe(60);
-    for (const army of armies) { expect(army.troops).toBe(5000); expect(army.strength.hp).toBe(50000); expect(army.captainPresent).toBe(true); }
+    for (const army of armies) { expect(army.troops).toBe(5000); expect(army.strength.hp).toBe(10000); expect(army.strength.attack).toBe(500); expect(army.strength.defense).toBe(125); expect(army.captainPresent).toBe(true); }
   });
   it('shows joint management and a vacant captain position after he joins without taking the army away', () => {
     const state = { ...createInitialState(() => 0), worldConflict: undefined }; state.currentCityId = 'xiangyang'; state.date = { year: 190, month: 1 };

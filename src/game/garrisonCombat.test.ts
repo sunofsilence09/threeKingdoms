@@ -2,18 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { activateUltimate, advanceTurn, createCombatState, currentActor, makePartyUnit, movementRange, performAttack, type CombatState } from './combat';
 import { createPartyProgress, createProgress } from './growth';
 import { getUnitAppearance } from './characters';
-import { makeGarrisonUnit } from './garrisonCombat';
+import { makeGarrisonUnit as makeCurrentGarrisonUnit } from './garrisonCombat';
+import { formationStrength } from './garrisonStrength';
 import { WORLD_CITIES } from './world';
 
+// Saved 2.2 formations keep their original scale; new 2.3 adapters are tested in troopRulesV23.
+function makeGarrisonUnit(cityId: string, troops: number, x = 0, y = 0) {
+  const unit = makeCurrentGarrisonUnit(cityId,troops,x,y), formation = formationStrength(troops,undefined,2,1);
+  return { ...unit,formation,hp:formation.hp,maxHp:formation.maxHp,attack:formation.attack,defense:formation.defense };
+}
 function encounter(troops = 5000, playerAttack = 3): CombatState {
   const base = createCombatState(null);
-  return advanceTurn({ ...base, terrain: [], units: [
+  return advanceTurn({ ...base, troopRuleVersion: undefined, terrain: [], units: [
     { ...makePartyUnit('traveler', createProgress(), null, 'ambush', 1, 1), attack: playerAttack },
     makeGarrisonUnit('zhuo', troops, 2, 1),
   ], actedIds: [], movedIds: [] });
 }
 
-describe('pooled garrison formations in the actual combat engine', () => {
+describe('legacy pooled garrison formations in the actual combat engine', () => {
   it('rejects read-only people as a forged direct party deployment', () => {
     for (const id of ['himiko', 'garrison:zhuo:soldier']) {
       expect(() => createCombatState(null, { ...createPartyProgress(), [id]: createProgress() }, 'ambush', ['traveler', id])).toThrow('Invalid battle deployment');

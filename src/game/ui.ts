@@ -1,3 +1,4 @@
+import { imageAssetUrl } from './assetUrl';
 import { showCharacterPanel } from './characterPanel';
 import { showCharacterDetails } from './characterDetails';
 import { getRouteLeader } from './historicalCharacters';
@@ -103,7 +104,7 @@ export function showRouteChoice<T extends { id: RouteId; symbol: string; title: 
     card.disabled = locked;
     card.setAttribute('aria-label', `${leaderName} · ${locked ? '尚未相遇' : '可投奔'}`);
     card.style.setProperty('--route-color', route.colorHex);
-    card.innerHTML = `<span class="route-leader">${hasPortrait ? `<span class="route-leader-portrait"><img src="${leader.appearance.portrait}" alt="${leaderName}头像"></span>` : ''}<span><span class="route-symbol">${route.symbol}</span><span class="route-leader-name">${leaderName}</span></span></span><span class="route-title">${route.title}</span><span class="route-tone">${locked ? '尚未相遇 · 200年起开放' : route.tone}</span><span class="route-offer">${route.offer}</span><span class="route-advantage">${route.advantage}</span>`;
+    card.innerHTML = `<span class="route-leader">${hasPortrait ? `<span class="route-leader-portrait"><img src="${imageAssetUrl(leader.appearance.portrait)}" alt="${leaderName}头像"></span>` : ''}<span><span class="route-symbol">${route.symbol}</span><span class="route-leader-name">${leaderName}</span></span></span><span class="route-title">${route.title}</span><span class="route-tone">${locked ? '尚未相遇 · 200年起开放' : route.tone}</span><span class="route-offer">${route.offer}</span><span class="route-advantage">${route.advantage}</span>`;
     card.addEventListener('click', () => {
       if (locked) return;
       selected = route;

@@ -1,3 +1,4 @@
+import {migrateHistory,type HistoryProgress} from './historicalEvents';
 import { isGiftInventory, type GiftInventory } from './social';
 import { effectiveAttributes } from './characterTalents';
 import type { TroopAssignment } from './troopCombat';
@@ -26,6 +27,7 @@ export type RouteId = 'cao' | 'sun' | 'liu';
 export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | 'ending';
 
 export interface GameState {
+  history?: HistoryProgress;
   gifts?: GiftInventory;
   troopAssignments?: Record<string, TroopAssignment>;
   heroName?: string;
@@ -75,6 +77,7 @@ export function createInitialState(random: () => number = Math.random): GameStat
   const worldConflict=createWorldConflict(date,PARTY_IDS,undefined,life);
   return {
     life:ensureLifePeople(life,Object.values(worldConflict.cities).flatMap(c=>c.governorId?[c.governorId]:[])),
+    history: {version:1,entries:[{id:"yellow",read:false,legacy:false},{id:"peachNovel",read:false,legacy:false}]},
     martial: createMartialProgress(),
     date: { year: 184, month: 3, day: 1 },
     originId: origin.id,
@@ -174,6 +177,7 @@ export function loadState(): GameState | null {
     if (parsed.activeBattle !== undefined && !isBattleSnapshot(parsed.activeBattle, restored)) {
       backup('active-battle', parsed.activeBattle); delete restored.activeBattle; restored.battleRecovery = true;
     }
+    restored.history=migrateHistory(parsed.history,restored.date);
     const migratedWorld=parsed.worldConflict===undefined ? undefined : migrateWorldConflict(parsed.worldConflict,restored.date,Object.keys(restored.party),restored.life);
     if (parsed.conflictRecovery) {restored.worldConflict=undefined;restored.conflictRecovery=true;}
     else if (parsed.worldConflict !== undefined && !migratedWorld) {
@@ -297,9 +301,9 @@ export function rewardVictory(state: GameState, encounter: 'ambush' | 'route' | 
   const fighters = (state.battleParty ?? state.deployed).filter(id=>Object.hasOwn(party,id)&&isAliveAt(state.life,id,state.date,true));
   for (const id of fighters) {
     const base = encounter === 'ambush' ? 30 : 45;
-    party[id] = grantExperience(party[id], victoryExperience(base,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2,party[id].bondBonus)));
+    party[id] = grantExperience(party[id], victoryExperience(base,effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:3,party[id].bondBonus),state.activeBattle?state.activeBattle.attributeVersion??1:3));
   }
-  const supplies = state.supplies + fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:2,party[id].bondBonus)).supplies, 0);
+  const supplies = state.supplies + fighters.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id,party[id].attributes,state.activeBattle?state.activeBattle.attributeVersion??1:3,party[id].bondBonus),state.activeBattle?state.activeBattle.attributeVersion??1:3).supplies, 0);
   return { ...state, party, supplies, flags: { ...state.flags, [key]: true } };
 }
 
@@ -322,6 +326,7 @@ export function spendSkillPoints(state: GameState, id: PartyId, allocation: Part
   let cost = 0;
   for (const [key, value] of Object.entries(allocation)) {
     if (!ATTRIBUTE_IDS.includes(key as AttributeId) || !Number.isSafeInteger(value) || value! < 0 || attrs[key as AttributeId] + value! > 30) return state;
+    if (value! > 0 && effectiveAttributes(id, current.attributes, 3, current.bondBonus)[key as AttributeId] + value! > 100) return state;
     cost += value!;
     attrs[key as AttributeId] += value!;
   }

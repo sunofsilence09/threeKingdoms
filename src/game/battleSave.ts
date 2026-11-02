@@ -19,8 +19,9 @@ export function checkpointBattle(combat: CombatState, state: GameState): BattleS
 
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const integer = (v: unknown, min: number, max: number): v is number => Number.isSafeInteger(v) && (v as number) >= min && (v as number) <= max;
+const bounded = (v: unknown, min: number, max: number): v is number => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
 const unique = (v: unknown[]): boolean => new Set(v).size === v.length;
-const validAttributeVersion = (value: unknown): value is 1 | 2 | undefined => value === undefined || value === 1 || value === 2;
+const validAttributeVersion = (value: unknown): value is 1 | 2 | 3 | undefined => value === undefined || value === 1 || value === 2 || value === 3;
 /** Formation fields are validated recursively; JSON object insertion order has no meaning. */
 function sameFields(actual: unknown, expected: unknown): boolean {
   if (!object(expected)) return Object.is(actual, expected);
@@ -31,7 +32,7 @@ function sameFields(actual: unknown, expected: unknown): boolean {
 
 /** New checkpoint errors are recoverable without throwing away the RPG save. */
 export function isBattleSnapshot(value: unknown, state?: GameState): value is BattleSnapshot {
-  if (!object(value) || !validAttributeVersion(value.attributeVersion) || value.checkpointVersion !== 1 || typeof value.encounterKey !== 'string' ||
+  if (!object(value) || !validAttributeVersion(value.attributeVersion) || !(value.troopRuleVersion === undefined || value.troopRuleVersion === 1 || value.troopRuleVersion === 2) || value.checkpointVersion !== 1 || typeof value.encounterKey !== 'string' ||
       value.width !== 16 || value.height !== 10 || !integer(value.round, 1, 100000) ||
       !integer(value.randomSeed, 0, 0xffffffff) || !['party', 'enemy'].includes(value.turn as string) ||
       ![null, 'cao', 'sun', 'liu'].includes(value.route as null) || !Array.isArray(value.units) || value.units.length < 2 || value.units.length > 32 ||
@@ -44,8 +45,8 @@ export function isBattleSnapshot(value: unknown, state?: GameState): value is Ba
   const units = value.units;
   if (!units.every(u => object(u) && tile(u) && typeof u.id === 'string' && /^[a-z][a-z0-9:-]*$/.test(u.id) &&
       typeof u.name === 'string' && [...u.name].length <= 40 && ['party', 'enemy'].includes(u.team as string) &&
-      integer(u.maxHp, 1, 10000000) && integer(u.hp, 0, u.maxHp) && integer(u.attack, 0, 3000000) &&
-      integer(u.speed, 1, 10000) && integer(u.defense, 0, 1000000) && integer(u.level, 1, 10) && integer(u.xp, 0, 1000) &&
+      integer(u.maxHp, 1, 10000000) && integer(u.hp, 0, u.maxHp) && bounded(u.attack, 0, 3000000) &&
+      integer(u.speed, 1, 10000) && bounded(u.defense, 0, 1000000) && integer(u.level, 1, 10) && integer(u.xp, 0, 1000) &&
       typeof u.dodgeRate === 'number' && Number.isFinite(u.dodgeRate) && u.dodgeRate >= 0 && u.dodgeRate <= .4 &&
       typeof u.guarded === 'boolean' && typeof u.empowered === 'boolean' && typeof u.ultimateUsed === 'boolean' &&
       ['survival', 'desperation'].includes(u.ultimate as string) && typeof u.weapon === 'string' && Object.hasOwn(WEAPONS, u.weapon))) return false;
@@ -60,21 +61,27 @@ export function isBattleSnapshot(value: unknown, state?: GameState): value is Ba
     if (u.morale !== undefined && !integer(u.morale, 0, 120)) return false;
     if (u.troop !== undefined) {
       const t = u.troop;
-      if (!object(t) || u.formation || Object.keys(t).length !== 6 || !isTroopKind(t.kind) || !integer(t.initial, 1, 1000) || !integer(t.count, 0, t.initial) ||
+      if (!object(t) || u.formation || !isTroopKind(t.kind) || !integer(t.initial, 1, 1000) || !integer(t.count, 0, t.initial) ||
         !integer(t.baseMaxHp, 1, 10000000) || !integer(t.baseAttack, 0, 3000000) || !integer(t.baseDefense, 0, 1000000)) return false;
+      if (t.ruleVersion === 2) {
+        if (value.troopRuleVersion !== 2 || Object.keys(t).length !== (t.attributeVersion === undefined ? 9 : 10) || (t.attributeVersion !== undefined && t.attributeVersion !== 3) || !integer(t.command, 1, 10000) || !integer(t.strength, 1, 10000)) return false;
+      } else if (t.ruleVersion !== undefined || Object.keys(t).length !== 6 || value.troopRuleVersion === 2) return false;
       const expected = troopStats(t as unknown as TroopContingent);
       if (u.maxHp !== t.baseMaxHp + t.initial * 2 || u.hp > t.baseMaxHp + t.count * 2 || u.attack !== expected.attack || u.defense !== expected.defense ||
         t.count !== Math.ceil(Math.max(0, u.hp - t.baseMaxHp) / 2)) return false;
       if (state?.duel) return false;
       if (state && u.team === 'party' && (state.troopAssignments?.[u.id]?.kind !== t.kind || state.troopAssignments?.[u.id]?.count !== t.initial)) return false;
     }
+    if (!u.troop && (!integer(u.attack, 0, 3000000) || !integer(u.defense, 0, 1000000))) return false;
     if (!Array.isArray(u.martialIds) || !object(u.martialReady) || !Array.isArray(u.effects)) return false;
     const kind = terrain.find(t => t.x === u.x && t.y === u.y)?.kind ?? 'road';
     if (!Number.isFinite(TERRAIN[kind as keyof typeof TERRAIN].cost)) return false;
     if (u.formation !== undefined) {
-      if (!object(u.formation) || !validAttributeVersion(u.formation.attributeVersion) || !integer(u.formation.initialTroops, 1, 1000000)) return false;
+      if (!object(u.formation) || !validAttributeVersion(u.formation.attributeVersion) ||
+          (u.formation.troopRuleVersion !== undefined && u.formation.troopRuleVersion !== 2) ||
+          (u.formation.troopRuleVersion === 2) !== (value.troopRuleVersion === 2) || !integer(u.formation.initialTroops, 1, 1000000)) return false;
       const attributeVersion = u.formation.attributeVersion ?? 1;
-      const expected = formationStrength(u.formation.initialTroops, u.hp, attributeVersion);
+      const expected = formationStrength(u.formation.initialTroops, u.hp, attributeVersion, u.formation.troopRuleVersion === 2 ? 2 : 1);
       if (!sameFields({ ...u.formation, attributeVersion }, expected) || u.maxHp !== expected.maxHp || u.attack !== expected.attack || u.defense !== expected.defense) return false;
     }
     if (u.martialIds !== undefined && (!Array.isArray(u.martialIds) || !unique(u.martialIds) || u.martialIds.length > 3 || !u.martialIds.every((id: unknown) => typeof id === 'string' && !!martialAt(id) && !martialAt(id)!.readOnly))) return false;

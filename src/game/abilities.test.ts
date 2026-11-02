@@ -63,7 +63,8 @@ describe('character ultimates and real dodge', () => {
 
   it('applies trained strength, command, intellect and courage to combat attributes', () => {
     const party = createPartyProgress();
-    Object.assign(party.traveler.attributes, { command: 11, strength: 11, intellect: 12, courage: 11 });
+    // Five percentage-score cultivation points equal one legacy contribution.
+    Object.assign(party.traveler.attributes, { command: 15, strength: 15, intellect: 20, courage: 15 });
     const initial = createCombatState(null);
     const trained = createCombatState(null, party);
     expect(trained.units[0].attack).toBe(initial.units[0].attack + 1);

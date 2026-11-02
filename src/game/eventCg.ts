@@ -1,3 +1,4 @@
+import { imageAssetUrl } from './assetUrl';
 import './tradeUi.css';
 import { getState, setState } from './runtime';
 import { openInspection } from './inspectionOverlay';
@@ -13,7 +14,7 @@ export function showEventCg(onContinue: () => void): void {
   const panel = document.createElement('section'); panel.className = 'overlay-panel event-cg';
   panel.setAttribute('role','dialog'); panel.setAttribute('aria-modal','true'); panel.setAttribute('aria-label',title);
   panel.dataset.event = kind;
-  const img = document.createElement('img'); img.src = image; img.alt = title; img.className = 'event-cg-image';
+  const img = document.createElement('img'); img.src = imageAssetUrl(image); img.alt = title; img.className = 'event-cg-image';
   const content = document.createElement('div'); content.className = 'event-cg-content';
   const eyebrow = document.createElement('p'); eyebrow.className = 'trade-eyebrow'; eyebrow.textContent = '商旅见闻 · 途中事件';
   const heading = document.createElement('h1'); heading.textContent = title;

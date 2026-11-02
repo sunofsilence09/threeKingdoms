@@ -1,3 +1,4 @@
+import { V24_LIFE_BASELINES } from './v24Characters';
 import { ATTRIBUTE_IDS, isAttributes } from './attributes';
 import { experienceToNextLevel, MAX_LEVEL, POINTS_PER_LEVEL } from './growth';
 import { START_YEAR, END_YEAR, type GameDate } from './history';
@@ -106,6 +107,15 @@ export function isLifeState(value: unknown, date?: GameDate): value is LifeState
 export function repairLifeState(value: unknown, date: GameDate): { life: LifeState; repaired: boolean } | undefined {
   if (isLifeState(value, date)) return { life: value, repaired: false };
   if (!record(value) || value.version !== 1 || value.catalogVersion !== 1) return undefined;
+  // 2.2 has the same schema but predates these three identities. Extend only
+  // that known catalog delta; missing older entries still take backed-up repair.
+  if (record(value.people) && Array.isArray(value.handledIds) && uint32(value.seed)) {
+    const missing = PERSON_LIFE_BASELINES.filter(p => !Object.hasOwn(value.people as object, p.id));
+    if (missing.length && missing.every(p => ['dong-bai','lu-zhi','huangfu-song', ...V24_LIFE_BASELINES.map(person => person.id)].includes(p.id))) {
+      const expanded = ensureLifePeople(value as unknown as LifeState, []);
+      if (isLifeState(expanded, date)) return { life: expanded, repaired: false };
+    }
+  }
   const savedPeople = record(value.people) ? value.people : {}, savedMemorials = record(value.memorials) ? value.memorials : {};
   const catalog = knownBaselines([...Object.keys(savedPeople), ...Object.keys(savedMemorials)]);
   const recoverable = new Map<string,PersonLife>();

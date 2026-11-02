@@ -2,7 +2,7 @@ import { socialControls } from './socialView';
 import { displayText, heroName, personName } from './heroName';
 import { postingLabel } from './personPosting';
 import { openInspection } from './inspectionOverlay';
-import { attributeDescription, combatAttributeVersion, LEGACY_ATTRIBUTE_NOTE } from './characterTalents';
+import { attributeDescription, combatAttributeVersion, effectiveAttributes, LEGACY_ATTRIBUTE_NOTE } from './characterTalents';
 import { ATTRIBUTE_IDS, ATTRIBUTE_LABELS, createAttributes } from './attributes';
 import { getUnitAppearance } from './characters';
 import { attackPower, createCombatState, makePartyUnit, movementRange, ULTIMATES, WEAPONS, type CombatState } from './combat';
@@ -19,7 +19,8 @@ import { renderGarrisonSummary } from './garrisonView';
 import { createMartialCard } from './martialPanel';
 import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { lifeStatus } from './personLife';
-import { attachTroops, defensePower, speedPower, troopRange, troopStatus } from './troopCombat';
+import { attachTroops, defensePower, speedPower, troopContribution, troopRange, troopStatus } from './troopCombat';
+import { createTroopControls } from './troopControls';
 import { showRelationshipNetwork } from './relationshipView';
 import { relationshipPersonId } from './relationshipNetwork';
 
@@ -43,7 +44,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   const encounter = combat ?? createCombatState(state.route, state.party, state.route ? 'route' : 'ambush', state.deployed);
   const units = combat ? encounter.units : Object.entries(state.party).map(([key, progress]) => {
     const unit = makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'), t = state.troopAssignments?.[key];
-    return t ? attachTroops(unit,t.kind,t.count) : unit;
+    return t ? attachTroops(unit,t.kind,t.count,effectiveAttributes(key,progress.attributes,3,progress.bondBonus)) : unit;
   });
   const memorialUnits=Object.values(state.life?.memorials??{}).map(record=>makePartyUnit(record.id,record.progress,state.route,state.route?'route':'ambush'));
   let selected = units.find(u => u.id === id) ?? memorialUnits.find(u=>u.id===id) ?? units[0];
@@ -130,6 +131,8 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
     panel.querySelector('figcaption')!.textContent = '立绘暂未加载，请重新打开详情。';
   });
   function render(): void {
+    panel.querySelector('.troop-assignment')?.remove();
+    panel.querySelector('.troop-contribution')?.remove();
     for (const group of categories.querySelectorAll<HTMLButtonElement>('button')) group.setAttribute('aria-pressed', String(group.dataset.group === category));
     const empty=!historical&&!['party','enemy','memorial'].includes(category);
     panel.querySelector<HTMLElement>('.character-layout')!.hidden=empty;if(empty)return;
@@ -191,7 +194,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
       panel.querySelector('.character-level')!.textContent = access?'资料查看':historical.readOnly ? '资料查看' : '尚未同行';
       panel.querySelector('.character-battle-status')!.textContent = access||'人物志 · 尚未加入同行队伍';
       attributes.replaceChildren();
-      for (const attr of ATTRIBUTE_IDS) { const item = document.createElement('span'); item.textContent = attributeDescription(characterId, createAttributes(), attr,2,state.relationships[characterId]?.bond?2:0); attributes.append(item); }
+      for (const attr of ATTRIBUTE_IDS) { const item = document.createElement('span'); item.textContent = attributeDescription(characterId, createAttributes(), attr,3,state.relationships[characterId]?.bond?2:0); attributes.append(item); }
       const previewUnit = makePartyUnit(characterId, {...createProgress(),bondBonus:state.relationships[characterId]?.bond?2:0}, state.route, state.route ? 'route' : 'ambush');
       renderStats([['身份', historical.role], ['擅长', historical.specialty], ['随身', historical.equipment], ['速度', `${historical.speed}`], ['预览攻击', `${previewUnit.attack}`], ['预览体力', `${previewUnit.maxHp}`], ['预览防御', `${previewUnit.defense}`], ['预览闪避', `${Math.round(previewUnit.dodgeRate * 100)}%`]]);
       panel.querySelector('.character-battle-status')!.textContent += ' · 天赋为游戏数值';
@@ -212,22 +215,28 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
       ['经验', selected.team === 'enemy' ? '—' : threshold ? `${selected.xp} / ${threshold}` : '等级已满'],
     ];
     renderStats(stats);
+    if (!memorial && selected.team === 'party') {
+      const note = document.createElement('p'); note.className = 'troop-contribution'; note.textContent = troopContribution(selected);
+      panel.querySelector('.character-info')!.append(note,createTroopControls(selected.id,selected,Boolean(combat),()=>{
+        close();showCharacterDetails(selected.id,combat,onClose);
+      }));
+    }
     const attrs = panel.querySelector('.character-attributes')!;
     attrs.replaceChildren();
     const progress=state.party[selected.id]??memorial?.progress;
     if (selected.team === 'party' && progress) {
       for (const attr of ATTRIBUTE_IDS) {
         const item = document.createElement('span');
-        item.textContent = attributeDescription(selected.id, progress.attributes, attr, combat && !memorial ? combatAttributeVersion(combat) : 2,progress.bondBonus);
+        item.textContent = attributeDescription(selected.id, progress.attributes, attr, combat && !memorial ? combatAttributeVersion(combat) : 3,progress.bondBonus);
         attrs.append(item);
       }
     } else {
       const teacherId = state.duel?.teacherId === selected.id.replace(/^enemy:/, '') ? state.duel.teacherId : undefined;
       const teacherProgress = teacherId ? state.party[teacherId] : undefined;
       const teacherBondBonus = teacherId ? teacherProgress?.bondBonus ?? (state.relationships[teacherId]?.bond ? 2 : 0) : 0;
-      for (const attr of ATTRIBUTE_IDS) { const item = document.createElement('span'); item.textContent = selected.formation ? `合计${ATTRIBUTE_LABELS[attr]} ${selected.formation.attributes[attr]}` : attributeDescription(selected.id, teacherProgress?.attributes ?? createAttributes(), attr, combat ? combatAttributeVersion(combat) : 2, teacherBondBonus); attrs.append(item); }
+      for (const attr of ATTRIBUTE_IDS) { const item = document.createElement('span'); item.textContent = selected.formation ? `合计${ATTRIBUTE_LABELS[attr]} ${selected.formation.attributes[attr]}` : attributeDescription(selected.id, teacherProgress?.attributes ?? createAttributes(), attr, combat ? combatAttributeVersion(combat) : 3, teacherBondBonus); attrs.append(item); }
     }
-    if (combat && !memorial && combatAttributeVersion(combat) === 1) panel.querySelector('.character-battle-status')!.textContent += ` · ${LEGACY_ATTRIBUTE_NOTE}`;
+    if (combat && !memorial && combatAttributeVersion(combat) !== 3) panel.querySelector('.character-battle-status')!.textContent += ` · ${LEGACY_ATTRIBUTE_NOTE}`;
     panel.querySelector('.character-ultimate h2')!.textContent = `绝招 · ${ULTIMATES[selected.ultimate].name}`;
     panel.querySelector('.character-ultimate p')!.textContent = `${ULTIMATES[selected.ultimate].description} 强化在下次攻击或本回合结束后消失。`;
     panel.querySelector('.character-equipment-note')!.textContent = memorial?`纪念装备：${weapon.name}。成长、六维与亲密记录保留于此；仅供查看。`:`当前装备：${weapon.name}。立绘与棋盘随等级和当前装备变化。外观图鉴仅供查看。`;

@@ -83,7 +83,7 @@ describe('persistent recruited roster and combat rewards', () => {
     expect(interactPerson(restored, 'guan-yu', 'talk')).toBe(restored);
     expect(interactPerson({ ...restored, date: advanceDays(restored.date, 1) }, 'guan-yu', 'talk').relationships['guan-yu'].affinity).toBe(16);
     const recruited = invitePerson({ ...restored, relationships: { 'guan-yu': { affinity: 60 } } }, 'guan-yu');
-    saveState(recruited);
+      saveState(recruited);
     expect(loadState()?.party['guan-yu']).toEqual(createProgress());
   });
   it('rebuilds appointments on reload without persistent jobs or overwriting old and recruited growth', () => {
@@ -103,7 +103,7 @@ describe('persistent recruited roster and combat rewards', () => {
     expect(reloaded.party['gao-shun']).toEqual(createProgress(2, 7));
     expect(serviceForPerson(reloaded, 'gao-shun')).toBeUndefined();
     const services = cityServices({ ...reloaded, worldConflict: undefined, date: { year: 198, month: 12, day: 30 } }, 'xiapi');
-    expect(services.filter(person => !prefectIdentity(person.personId)).map(person => person.personId)).toEqual(['chen-gong', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
+    expect(services.filter(person => !prefectIdentity(person.personId)).map(person => person.personId)).toEqual(['chen-gong', 'chen-deng', 'garrison:xiapi:soldier', 'garrison:xiapi:captain']);
     // Both the former Han officer and the replacement after the fixture's conquest retain their identities.
     const retired = services.filter(person => prefectIdentity(person.personId));
     expect(retired).toHaveLength(2);

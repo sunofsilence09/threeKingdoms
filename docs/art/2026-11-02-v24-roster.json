@@ -1,0 +1,298 @@
+[
+  {
+    "id": "cao-hong",
+    "name": "曹洪",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/cao-hong-v1.png"
+  },
+  {
+    "id": "cao-zhen",
+    "name": "曹真",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/cao-zhen-v1.png"
+  },
+  {
+    "id": "cao-zhang",
+    "name": "曹彰",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/cao-zhang-v1.png"
+  },
+  {
+    "id": "cao-zhi",
+    "name": "曹植",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/cao-zhi-v1.png"
+  },
+  {
+    "id": "cao-chong",
+    "name": "曹冲",
+    "group": "wei",
+    "gender": "male",
+    "child": true,
+    "portrait": "/assets/characters/cao-chong-v1.png"
+  },
+  {
+    "id": "cao-ang",
+    "name": "曹昂",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/cao-ang-v1.png"
+  },
+  {
+    "id": "cao-shuang",
+    "name": "曹爽",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/cao-shuang-v1.png"
+  },
+  {
+    "id": "man-chong",
+    "name": "满宠",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/man-chong-v1.png"
+  },
+  {
+    "id": "li-dian",
+    "name": "李典",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/li-dian-v1.png"
+  },
+  {
+    "id": "wen-pin",
+    "name": "文聘",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/wen-pin-v1.png"
+  },
+  {
+    "id": "zang-ba",
+    "name": "臧霸",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/zang-ba-v1.png"
+  },
+  {
+    "id": "hao-zhao",
+    "name": "郝昭",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/hao-zhao-v1.png"
+  },
+  {
+    "id": "chen-tai",
+    "name": "陈泰",
+    "group": "wei",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/chen-tai-v1.png"
+  },
+  {
+    "id": "wang-yi",
+    "name": "王异",
+    "group": "wei",
+    "gender": "female",
+    "child": false,
+    "portrait": "/assets/characters/wang-yi-v1.png"
+  },
+  {
+    "id": "guan-ping",
+    "name": "关平",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/guan-ping-v1.png"
+  },
+  {
+    "id": "guan-xing",
+    "name": "关兴",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/guan-xing-v1.png"
+  },
+  {
+    "id": "zhang-bao",
+    "name": "张苞",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/zhang-bao-v1.png"
+  },
+  {
+    "id": "ma-dai",
+    "name": "马岱",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/ma-dai-v1.png"
+  },
+  {
+    "id": "liao-hua",
+    "name": "廖化",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/liao-hua-v1.png"
+  },
+  {
+    "id": "wang-ping",
+    "name": "王平",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/wang-ping-v1.png"
+  },
+  {
+    "id": "ma-liang",
+    "name": "马良",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/ma-liang-v1.png"
+  },
+  {
+    "id": "ma-su",
+    "name": "马谡",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/ma-su-v1.png"
+  },
+  {
+    "id": "jian-yong",
+    "name": "简雍",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/jian-yong-v1.png"
+  },
+  {
+    "id": "mi-zhu",
+    "name": "糜竺",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/mi-zhu-v1.png"
+  },
+  {
+    "id": "jiang-wan",
+    "name": "蒋琬",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/jiang-wan-v1.png"
+  },
+  {
+    "id": "fei-yi",
+    "name": "费祎",
+    "group": "shu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/fei-yi-v1.png"
+  },
+  {
+    "id": "zhuge-jin",
+    "name": "诸葛瑾",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/zhuge-jin-v1.png"
+  },
+  {
+    "id": "ding-feng",
+    "name": "丁奉",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/ding-feng-v1.png"
+  },
+  {
+    "id": "xu-sheng",
+    "name": "徐盛",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/xu-sheng-v1.png"
+  },
+  {
+    "id": "ling-tong",
+    "name": "凌统",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/ling-tong-v1.png"
+  },
+  {
+    "id": "jiang-qin",
+    "name": "蒋钦",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/jiang-qin-v1.png"
+  },
+  {
+    "id": "zhu-ran",
+    "name": "朱然",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/zhu-ran-v1.png"
+  },
+  {
+    "id": "zhu-huan",
+    "name": "朱桓",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/zhu-huan-v1.png"
+  },
+  {
+    "id": "sun-deng",
+    "name": "孙登",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/sun-deng-v1.png"
+  },
+  {
+    "id": "pan-zhang",
+    "name": "潘璋",
+    "group": "wu",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/pan-zhang-v1.png"
+  },
+  {
+    "id": "zhang-xiu",
+    "name": "张绣",
+    "group": "other",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/zhang-xiu-v1.png"
+  },
+  {
+    "id": "chen-deng",
+    "name": "陈登",
+    "group": "other",
+    "gender": "male",
+    "child": false,
+    "portrait": "/assets/characters/chen-deng-v1.png"
+  }
+]

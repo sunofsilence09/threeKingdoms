@@ -71,7 +71,7 @@ export function createHeroHud(route: RouteId | null, onSelect?: () => void, part
       meter.max = hero.maxHp;
       meter.value = Math.max(0, hero.hp);
       stats.textContent = `${WEAPONS[hero.weapon].name} · 攻 ${Number(attackPower(hero).toFixed(1))} · 速 ${speedPower(hero)} · 移 ${movementRange(combat, hero)}`;
-      stats.setAttribute('title', `${combatAttributeVersion(combat) === 1 ? LEGACY_ATTRIBUTE_NOTE : '能力已计入人物天赋与培养'} · ${troopStatus(hero)}`);
+      stats.setAttribute('title', `${combatAttributeVersion(combat) !== 3 ? LEGACY_ATTRIBUTE_NOTE : '能力已计入人物天赋与培养'} · ${troopStatus(hero)}`);
       action.textContent = hero.hp <= 0 ? '无法行动' : hero.empowered ? '攻击强化' : hero.guarded ? '守势中' : combat.actedIds.includes(hero.id) ? '已行动' : combat.movedIds.includes(hero.id) ? '已移动' : currentActor(combat)?.id === hero.id ? '当前行动' : '等待顺序';
       panel.classList.toggle('is-unavailable', currentActor(combat)?.id !== hero.id);
       const button = panel.querySelector<HTMLButtonElement>('button.hero-portrait');

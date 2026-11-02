@@ -1,3 +1,5 @@
+import { V24_MARTIAL_ENTRIES } from './v24Characters';
+import { V23_MARTIAL_ENTRIES } from './v23Characters';
 import { SOCIAL_MARTIAL_ENTRIES } from './socialCharacters';
 import { V11_MARTIAL_ENTRIES } from './v11MartialData';
 import { prefectIdentity } from './prefectIdentity';
@@ -97,10 +99,11 @@ const entries: Entry[] = [
   ['wang-jun','楼船','dash','《晋书》卷42·王濬传','取材舟师顺流疾进；现有战棋中为合法路径机动，不召船、不跨不可通行水域。'],
   ...V11_MARTIAL_ENTRIES,
   ...SOCIAL_MARTIAL_ENTRIES,
+  ...V24_MARTIAL_ENTRIES, ...V23_MARTIAL_ENTRIES,
   ['original-prefect','安郡','rally','本局原创地方官 · 游戏创作','以地方官整备部伍为玩法设定；非史载人物或真实秘籍。'],
 ];
 export const MARTIAL_CATALOG: readonly MartialSkill[] = entries.map(([personId,name,template,source,basis,story = false]) => ({
-  id: `martial-${personId}`, personId, name, template, source, basis, story, readOnly: personId === 'himiko', cooldown: 3,
+  id: `martial-${personId}`, personId, name, template, source, basis, story, readOnly: personId === 'himiko' || personId === 'cao-chong', cooldown: 3,
   description: MARTIAL_EFFECTS[template],
 }));
 export function martialAt(id: string): MartialSkill | undefined { return MARTIAL_CATALOG.find(skill => skill.id === id); }

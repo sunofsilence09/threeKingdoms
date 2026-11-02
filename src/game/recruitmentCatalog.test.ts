@@ -8,10 +8,10 @@ import { createLifeState, isAliveAt } from './personLife';
 import { createInitialState } from './state';
 
 describe('all-person recruitment catalog', () => {
-  it('contains exactly 237 unique identities covering every existing identity', () => {
+  it('contains exactly 277 unique identities covering every existing identity', () => {
     const ids = RECRUIT_PROFILES.map(p => p.id);
-    expect(ids).toHaveLength(237);
-    expect(new Set(ids).size).toBe(237);
+    expect(ids).toHaveLength(277);
+    expect(new Set(ids).size).toBe(277);
     expect(ids).toEqual(expect.arrayContaining([
       'traveler', 'aman', 'chen-da', 'bandit', 'bandit-leader', 'sun-jian', 'sun-ce',
       ...HISTORICAL_CHARACTERS.map(p => p.id), ...LOCAL_OFFICIALS.map(p => p.id),
@@ -95,7 +95,7 @@ describe('all-person recruitment catalog', () => {
       expect(profile.speed).toBeGreaterThan(0);
       expect(profile.appearance.portrait).toBe(profile.portrait);
       expect(existsSync(`public${profile.portrait}`), profile.id).toBe(true);
-      if (profile.id === 'himiko') expect(profile.windows).toEqual([]);
+      if ((profile.id === 'himiko' || profile.id === 'cao-chong')) expect(profile.windows).toEqual([]);
       else expect(profile.windows.length).toBeGreaterThan(0);
       expect(JSON.stringify(profile)).not.toMatch(/清代|清朝|旗装|马蹄袖|辫子/);
       for (const window of profile.windows) {

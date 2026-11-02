@@ -13,6 +13,19 @@ import { acknowledgeTravelCg, resolveTravelEvent, startTravel } from './travel';
 const storage=new Map<string,string>();
 beforeEach(()=>{ storage.clear(); vi.stubGlobal('localStorage',{getItem:(key:string)=>storage.get(key)??null,setItem:(key:string,value:string)=>storage.set(key,value)}); });
 describe('1.0 complete-save upgrade',()=>{
+  it('silently extends an intact 2.2 life catalog without reporting corruption or redrawing existing lives',()=>{
+    const state=createInitialState(()=>0);state.heroName='旧档旅人';
+    const old=structuredClone(state), added=new Set(['dong-bai','lu-zhi','huangfu-song']);
+    for(const id of added)delete old.life!.people[id];
+    old.life!.handledIds=old.life!.handledIds.filter(id=>!added.has(id));
+    storage.set(STORAGE_KEY,JSON.stringify(old));
+    const next=loadState()!;
+    expect(next.lifeRecovery).not.toBe(true);
+    expect(storage.has(`${STORAGE_KEY}:life-backup`)).toBe(false);
+    for(const [id,life] of Object.entries(old.life!.people))expect(next.life!.people[id]).toEqual(life);
+    expect(isLifeState(next.life,next.date)).toBe(true);
+    expect(next.party).toEqual(old.party);expect(next.economy).toEqual(old.economy);
+  });
   it('backs up and upgrades a genuine old36city journey without altering resources or route progress',()=>{
     const old=oldSaves.journey; const raw=JSON.stringify(old); storage.set(STORAGE_KEY,raw);
     const next=loadState()!;

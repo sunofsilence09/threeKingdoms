@@ -49,7 +49,7 @@ describe('social bonds and gifts',()=>{
   const s={...at(),date:{year:184,month:3,day:1},currentCityId:'zhuo'};delete s.party['guan-yu'];
   const bonded=formBond(s,'guan-yu','sworn');expect(bonded.party['guan-yu']).toBeUndefined();
   const joined=invitePerson(bonded,'guan-yu');expect(joined.party['guan-yu'].bondBonus).toBe(2);
-  const baseline=makePartyUnit('guan-yu',createProgress(),null,'ambush'), boosted=makePartyUnit('guan-yu',joined.party['guan-yu'],null,'ambush');
+  const baseline=makePartyUnit('guan-yu',createProgress(),null,'ambush',0,0,2), boosted=makePartyUnit('guan-yu',joined.party['guan-yu'],null,'ambush',0,0,2);
   expect(boosted.attack).toBeGreaterThan(baseline.attack);expect(boosted.maxHp).toBeGreaterThan(baseline.maxHp);
   const values=new Map<string,string>();vi.stubGlobal('localStorage',{getItem:(k:string)=>values.get(k)??null,setItem:(k:string,v:string)=>values.set(k,v)});
   saveState(joined);const loaded=loadState()!;expect(loaded.party['guan-yu'].bondBonus).toBe(2);expect(loaded.relationships['guan-yu'].bond).toBe('sworn');

@@ -11,17 +11,17 @@ function fixture() {
 }
 function formationSnapshot(version:1|2=2) {
   const {state,snapshot}=fixture();const guard=makeGarrisonUnit('zhuo',4,7,4);
-  const formation=formationStrength(4,29,version);
+  const formation=formationStrength(4,29,version,1);
   Object.assign(guard,{formation,hp:29,maxHp:40,attack:formation.attack,defense:formation.defense});
-  return checkpointBattle({...snapshot,attributeVersion:version,selectedId:snapshot.units[0].id,units:[snapshot.units[0],guard]},state);
+  return checkpointBattle({...snapshot,attributeVersion:version,troopRuleVersion:undefined,selectedId:snapshot.units[0].id,units:[snapshot.units[0],guard]},state);
 }
 const reordered=(value:unknown):unknown=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).reverse().map(([k,v])=>[k,reordered(v)])):value;
 
 describe('versioned talent checkpoint compatibility',()=>{
   it('rejects unrecognized combat markers while accepting both explicit versions and missing 1.0 markers',()=>{
     const {state,snapshot}=fixture();
-    for(const marker of [0,3,-1,1.5,'2',null,{},false])expect(isBattleSnapshot({...snapshot,attributeVersion:marker},state),String(marker)).toBe(false);
-    for(const marker of [undefined,1,2])expect(isBattleSnapshot({...snapshot,attributeVersion:marker},state)).toBe(true);
+    for(const marker of [0,4,-1,1.5,'2',null,{},false])expect(isBattleSnapshot({...snapshot,attributeVersion:marker},state),String(marker)).toBe(false);
+    for(const marker of [undefined,1,2,3])expect(isBattleSnapshot({...snapshot,attributeVersion:marker},state)).toBe(true);
   });
   it('accepts original version1 saved battles without touching recorded health, stats, RNG or cultivation',()=>{
     const {state,snapshot}=fixture();delete snapshot.attributeVersion;
@@ -46,7 +46,7 @@ describe('versioned talent checkpoint compatibility',()=>{
     const wounded=updateUnitHp(snapshot.units[1],19);
     expect(wounded.formation?.attributes.command).toBe(20);
     expect(isBattleSnapshot({...snapshot,units:[snapshot.units[0],wounded]})).toBe(true);
-    const forged={...snapshot.units[1],formation:{...snapshot.units[1].formation,attributes:formationStrength(4,29,2).attributes}};
+    const forged={...snapshot.units[1],formation:{...snapshot.units[1].formation,attributes:formationStrength(4,29,2,1).attributes}};
     expect(isBattleSnapshot({...snapshot,units:[snapshot.units[0],forged]})).toBe(false);
   });
   it('rejects malformed formation versions even when its numerical stats otherwise match',()=>{

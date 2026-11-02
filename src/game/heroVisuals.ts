@@ -1,4 +1,5 @@
 import type { WeaponId } from './combat';
+import { imageAssetUrl } from './assetUrl';
 
 export const HERO_WEAPONS = ['fists', 'cleaver', 'knife', 'spear', 'bow'] as const satisfies readonly WeaponId[];
 export type HeroWeapon = typeof HERO_WEAPONS[number];
@@ -13,7 +14,7 @@ export function getHeroStage(level = 1) {
 }
 export function getHeroVisual(level: number = 1, weapon: HeroWeapon = 'cleaver') {
   const stage = getHeroStage(level);
-  return { stage, weapon, outfit: stage.outfit, portrait: stage.id === 'refugee' && weapon === 'cleaver'
+  return { stage, weapon, outfit: stage.outfit, portrait: imageAssetUrl(stage.id === 'refugee' && weapon === 'cleaver'
     ? '/assets/characters/jiang-yuan-refugee-v1.png'
-    : `/assets/characters/hero/jiang-yuan-${stage.id}-${weapon}-v1.png` };
+    : `/assets/characters/hero/jiang-yuan-${stage.id}-${weapon}-v1.png`) };
 }

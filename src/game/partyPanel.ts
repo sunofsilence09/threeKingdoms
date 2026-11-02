@@ -80,7 +80,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
     body.append(element('p', `出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length} 人 · ${heroName(state)}固定上阵`, 'company-summary'));
     body.append(element('p', '候补保留成长与装备，仅本场出战成员获得战斗经验。', 'company-note'));
     body.append(element('p', `预备兵 ${state.worldConflict?.playerReserve??0} · 已配兵 ${state.worldConflict?.playerAssigned??0}。先在军务募兵，再为角色分配；士气80为标准，低于10每轮流失10%士兵。`, 'company-note'));
-    if (combat && combatAttributeVersion(combat) === 1) body.append(element('p', LEGACY_ATTRIBUTE_NOTE, 'company-notice'));
+    if (combat && combatAttributeVersion(combat) !== 3) body.append(element('p', LEGACY_ATTRIBUTE_NOTE, 'company-notice'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
     const tools = element('div', '', 'party-actions');
     tools.append(button('角色成长', () => showCharacterPanel(render, combat)), button('寻访人物', () => showRecruitmentPanel(render, combat)), button('主角武学',() => showMartialPanel(render,Boolean(combat))));
@@ -101,13 +101,13 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
         const profile = recruitProfile(id), progress = state.party[id];
         const baseUnit = makePartyUnit(id, progress, state.route, state.route ? 'route' : 'ambush');
         const assigned = state.troopAssignments?.[id];
-        const unit = combat?.units.find(u => u.team === 'party' && u.id === id) ?? (assigned ? attachTroops(baseUnit,assigned.kind,assigned.count) : baseUnit);
+        const unit = combat?.units.find(u => u.team === 'party' && u.id === id) ?? (assigned ? attachTroops(baseUnit,assigned.kind,assigned.count,effectiveAttributes(id,progress.attributes,3,progress.bondBonus)) : baseUnit);
         const card = element('article', '', 'company-card'); card.dataset.member = id;
         const info = element('div', '', 'company-card-info');
         info.append(element('h3', `${nameOf(id)} · Lv.${progress.level}`), element('p', `${profile?.role ?? '同行伙伴'} · ${WEAPONS[unit.weapon].name}`), element('p', `亲密 ${state.relationships[id]?.affinity ?? 0}/100 · 技能点 ${progress.points}`));
         info.append(element('p', `攻 ${Number(attackPower(unit).toFixed(1))} · 防 ${Number(defensePower(unit).toFixed(1))} · 体力 ${unit.hp}/${unit.maxHp}`, 'company-note'));
         info.append(createTroopControls(id,unit,Boolean(combat),render));
-        const version = combat && combat.units.some(u => u.id === id) ? combatAttributeVersion(combat) : 2;
+        const version = combat && combat.units.some(u => u.id === id) ? combatAttributeVersion(combat) : 3;
         info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(id, progress.attributes, version,progress.bondBonus)[key]}`).join(' · '), 'company-note'));
         info.append(element('p',lifeReferenceText(state,id),'company-life'));
         const actions = element('div', '', 'party-actions');
@@ -133,7 +133,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
       const card=element('article','','company-card memorial-card');card.dataset.memorial=record.id;
       const info=element('div','','company-card-info');
       info.append(element('h3',`${nameOf(record.id)} · Lv.${record.progress.level}`),element('p',`本局于${record.deathYear}年离世 · 享年约${record.age}岁（按年计）`),element('p',`经验 ${record.progress.xp} · 技能点 ${record.progress.points} · 亲密 ${record.relationship?.affinity??0}/100`,'company-note'),button('查看纪念详情',()=>showCharacterDetails(record.id,undefined,render)));
-      info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(record.id, record.progress.attributes,2,record.progress.bondBonus)[key]}`).join(' · '), 'company-note'));
+      info.append(element('p', ATTRIBUTE_IDS.map(key => `${ATTRIBUTE_LABELS[key]} ${effectiveAttributes(record.id, record.progress.attributes,3,record.progress.bondBonus)[key]}`).join(' · '), 'company-note'));
       card.append(portrait(recruitProfile(record.id),nameOf(record.id)),info);archive.append(card);
     }
     if(!memorials.length)archive.append(element('p','尚无已故同行者。','company-note'));

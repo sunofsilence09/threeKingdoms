@@ -1,3 +1,5 @@
+import { V24_CHARACTERS } from './v24Characters';
+import { V23_CHARACTERS } from './v23Characters';
 import { SOCIAL_CHARACTERS } from './socialCharacters';
 import type { CharacterAppearance, ModelWeapon } from './characters';
 import type { RouteId } from './state';
@@ -280,6 +282,7 @@ export const HISTORICAL_CHARACTERS: readonly HistoricalCharacter[] = [
   ...GENERATION_CHARACTERS,
   ...V11_CHARACTERS,
   ...SOCIAL_CHARACTERS,
+  ...V24_CHARACTERS, ...V23_CHARACTERS,
 ];
 
 export function getHistoricalCharacter(id: string): HistoricalCharacter | undefined {

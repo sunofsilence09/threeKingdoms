@@ -1,7 +1,8 @@
-import { cpSync, copyFileSync, mkdirSync, writeFileSync, existsSync, openSync, closeSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, writeFileSync, existsSync, openSync, closeSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { syncPackageAssets } from './local-package-assets.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputArg = process.argv.indexOf('--output-dir');
@@ -18,14 +19,20 @@ if (existsSync(runtime) && replaceRuntime) {
   catch { throw new Error('请先关闭本地版启动窗口，再重新打包。'); }
 }
 mkdirSync(path.join(output, 'runtime'), { recursive: true });
-cpSync(path.join(root, 'dist'), path.join(output, 'www'), { recursive: true });
+syncPackageAssets(path.join(root, 'dist'), output);
 if (replaceRuntime) copyFileSync(process.execPath, runtime);
 copyFileSync(path.join(root, 'scripts', 'local-server.cjs'), path.join(output, 'server.cjs'));
 copyFileSync(path.join(root, 'node_modules', 'phaser', 'LICENSE.md'), path.join(output, 'PHASER-LICENSE.txt'));
 copyFileSync(path.join(root, 'scripts', 'licenses', 'NODE-LICENSE.txt'), path.join(output, 'NODE-LICENSE.txt'));
 writeFileSync(path.join(output, '启动游戏.cmd'), '@echo off\r\nchcp 65001 >nul\r\ncd /d "%~dp0"\r\ntitle 三国行旅 - 本地版\r\n"%~dp0runtime\\node.exe" "%~dp0server.cjs"\r\nif errorlevel 1 pause\r\n', 'utf8');
 writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
-  '乱世行旅 · 2.2.0 情义赠礼 · Windows 本地版', '',
+  '乱世行旅 · 2.4.0 群英百维 · Windows 本地版', '',
+  '2.4新增37位人物与37张全身透明立绘，人物目录共170张，主角另14张换装图。新人物接入人物志、生涯、天赋、武学和生命系统；曹冲为幼年只读资料人物，不能邀请或切磋。',
+  '2.4采用真实百分制六维：普通基础约50，人物天赋约50—90；培养与羁绊后最高100。原技能点、培养账目、羁绊+2保留，达到100不能继续消耗培养点；每5分对应旧制1分效果。旧战斗继续旧属性和奖励，下一场才使用新规则。',
+  '2.4发行图片统一为高质量WebP，保留原尺寸及完整透明通道；PNG原稿在开发仓库保留。本包只携带优化图，不重复放入PNG，不删除音乐或游戏功能。可完全离线双击启动，无需Python或另外安装运行环境。',
+  '2.3完善主角与同行领兵：每人0—1000兵，统率、武力、存活兵数与士气共同影响攻防。角色详情可配兵并预览贡献，军务与队伍可互相前往。新兵战使用比例减伤，城市棋盘守军统一数值尺度；旧战斗原规则续战，战略攻城规则保留。',
+  '2.3新增按日期记录的历史大事、未读队列与回顾，史实及演义分别注明来源与日期精度；讨董、官渡、赤壁、夷陵有自选军需支线。历史记录不强制改写本局城池。旧档补齐为只读回顾，不追发奖励。',
+  '2.3补董白、卢植、皇甫嵩三名人物与全身透明立绘；已有张辽、高顺、徐晃跳过。未知生卒为明确标记的游戏估年，董白成年形象和长期同行属于架空支线。',
   '2.2新增婚姻、结义与送礼：亲密100且成年后缔结，双方六维永久+2；结婚仅异性且限一位配偶，结义不限性别。各城礼品铺购礼、人物详情赠礼；帮忙每人每自然月一次。新增七名人物与七张立绘，刘表已有图跳过。',
   '2.1新增人物关系网：人物志点击查看关系网，搜索姓名、按类别筛选、切换中心人物、分页或展开二度联系。亲族与故事资料、本局任职、同行、交往、师承分开标注；兼容旧存档。',
   '2.0新增立体城邑图标；队伍中为每名角色从预备兵分配0—1000士兵，选择步/枪/骑/弓/弩兵。军务募兵后再配兵，候补也能带兵；战后及撤退保留真实余兵。',
@@ -45,14 +52,14 @@ writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
   '每次打开先选择“继续游戏”或“重新开始”；继续恢复旧进度/战斗，重新开始会重建旅程并重新命名。无有效存档时继续不可选。',
   '新增24城，世界现有60城、92条通路；包含建业/建邺、柴桑、南皮及西南、辽东通路，可搜索别名和筛选区域。',
   '新增曹丕、刘禅、司马氏、邓艾、姜维、钟氏、荀氏、孙休孙亮、刘谌等26人及26张独立立绘。',
-  '105位具名人物生年固定，卒年在史料或游戏基准±5年内每局生成一次；刷新不重抽。未知生卒明确标记估年。',
+  '152位具名人物生年固定，卒年在史料或游戏基准±5年内每局生成一次；刷新不重抽。未知生卒明确标记估年。',
   '到本局卒年1月1日离世：移出队伍、解除任职与统军，培养记录留在队伍纪念档案，已学武学保留。',
   '未出生、未满16岁、已故人物不能招募、传授、切磋或出战；日历延续到310年。',
   '旧版36城世界首次升级前完整备份，保留财货、兵力、随机状态、成长和旧道路进度；只补新城与市场。',
   '新版：首次进入手动输入主角姓名；旧档补录一次，原有进度保留。',
   '所有人类战斗角色都可放火；森林较易点燃，火势随风蔓延，雨雪更易熄灭，也会伤到己方。',
   '战斗下方指令栏可放火、选择武学、查看目标成功率、当前火格与战斗记录；手机可用目标格选择框施展。',
-  '105位具名人物各有专属秘籍；原创地方官另有通用“安郡”。人物依史事或故事人设设计，并标注取材；卑弥呼保持只读资料。',
+  '152位具名人物各有专属能力设计；原创地方官另有通用“安郡”。人物依史事或故事人设设计，并标注取材；卑弥呼、曹冲保持只读资料。',
   '亲密80可请教，成功率30%至50%；人物切磋为1对1，胜后40%概率传授，切磋不发普通战斗经验。',
   '学到的武学永久保留，在队伍的“主角武学”中最多装配3种，每种主动武学冷却3轮。',
   '新版：NPC按年代登场后自主出征，真实扣兵，沿道路行军、围城；胜者占领、败者沿路撤退。',
@@ -63,7 +70,7 @@ writeFileSync(path.join(output, '使用说明.txt'), '\ufeff' + [
   '旧档从当前年月接入天下局势，保留人物、财货、关系和行程，不追溯此前战争。',
   '损坏天下数据会备份并暂停战争；可点击“重建天下局势（保留人物与行旅）”恢复。',
   '每城基础5000守军，由当地长官与士兵长共同管理；每月补员50人，上限20000，减员来自实际出征与战斗。',
-  '普通士兵的生命与属性按人数相加，伤亡后战力降低；速度、移动和射程保持兵种水平。兵力数值为游戏参数。',
+  '棋盘守军每兵2体力，攻击为存活人数÷10向上取整、防御为人数÷40向上取整；伤亡后战力降低，合计六维是全军统计。速度、移动和射程保持兵种水平。兵力数值为游戏参数。',
   '普通士兵不能邀请，只有士兵长可培养关系后邀请；入队后守军仍留原城，指挥岗位显示缺任。',
   '新增夏侯惇、夏侯渊、曹仁、曹休、刘表、刘璋、张鲁、马腾、卑弥呼、公孙瓒、袁绍、刘虞、张燕。',
   '共16张新立绘；夏侯惇194年前后外观不同。卑弥呼仅人物志，暂不开放相遇。人物列表支持姓名/城市和类别筛选。',

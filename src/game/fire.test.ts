@@ -104,7 +104,8 @@ describe('round fire snapshots and burn movement', () => {
     const state = arena(); state.units[1] = { ...makeGarrisonUnit('zhuo', 10, 4, 2), speed: 10 };
     state.fires = [{ x: 4, y: 2, level: 3, remainingRounds: 2, sourceId: 'traveler' }];
     const next = resolveRoundEnd({ ...state, randomSeed: seedFor(n => n > .1) });
-    expect(next.units[1]).toMatchObject({ hp: 88, attack: 27, defense: 9, formation: { troops: 9 } });
+    // Level3 burns12% of20 pooled HP (ceil3), leaving9 living soldiers.
+    expect(next.units[1]).toMatchObject({ hp: 17, attack: 1, defense: 1, formation: { troops: 9 } });
     const lethal = { ...arena(), units: arena().units.map(u => ({ ...u, hp: 1 })), randomSeed: 10000 };
     lethal.fires = lethal.units.map(u => ({ x: u.x, y: u.y, level: 3, remainingRounds: 1, sourceId: 'traveler' }));
     const ended = finish(lethal); expect(ended.units.every(u => !u.hp)).toBe(true); expect(ended.round).toBe(1);

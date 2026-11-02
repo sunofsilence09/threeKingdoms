@@ -1,3 +1,5 @@
+import {HISTORY_EVENTS} from '../historicalEvents';
+import {showHistoryPanel} from '../historyPanel';
 import Phaser from 'phaser';
 import { createHeroHud } from '../heroHud';
 import { getState, setState } from '../runtime';
@@ -82,7 +84,7 @@ export class OverworldScene extends Phaser.Scene {
     };
     const header = el('header', 'world-header');
     const heading = el('div', 'world-header-title', undefined, header);
-    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 2.2.0 情义赠礼`, heading);
+    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 2.4.0 群英百维`, heading);
     el('h1', '', journey ? `${cityNameAt(leg!.from,state.date)} → ${cityNameAt(leg!.to,state.date)}` : `${cityNameAt(city.id,state.date)} · ${city.prefecture}`, heading);
     el('p', 'world-date', dateLabel(state.date), heading);
     const world = state.conflictRecovery ? undefined : state.worldConflict;
@@ -172,6 +174,7 @@ export class OverworldScene extends Phaser.Scene {
     const local=el('section','world-card',undefined,side); el('h2','',`城中事务${journey ? ' · 抵达后开放' : ''}`,local);
     const localActions=el('div','world-action-grid',undefined,local);
     button('进入城池',()=>showCityPanel(()=>this.render('enter-city')),localActions,false,!!journey,'enter-city');
+    button(`历史大事 · 未读${state.history?.entries.filter(e=>!e.read).length??0} · ${HISTORY_EVENTS.find(e=>e.id===state.history?.entries.at(-1)?.id)?.title??''}`,()=>showHistoryPanel(()=>this.render('world-history')),localActions,true,false,'world-history');
     button('军务 · 募兵 / 攻城',()=>showPlayerMilitary(()=>this.render('world-military')),localActions,true,!!journey||!!state.conflictRecovery,'world-military');
     button('地方官员',showLocalOfficials,localActions,true,!!journey);
     button('寻访人物',()=>showRecruitmentPanel(()=>this.render('world-recruitment')),localActions,true,!!journey,'world-recruitment');

@@ -27,7 +27,7 @@ describe('immutable individual talents over the preserved cultivation ledger', (
   it('keeps all earned points and attributes valid and adds exactly the same cultivation increments', () => {
     const progress=createProgress(10);progress.attributes.charisma=30;progress.points-=20;
     const party={...createPartyProgress(),'liu-bei':progress};const before=JSON.stringify(party);
-    const effective=talents.effectiveAttributes('liu-bei',progress.attributes);
+    const effective=talents.effectiveAttributes('liu-bei',progress.attributes,2);
     expect(effective.charisma).toBe(base('liu-bei').charisma+20);
     expect(effective.charisma).toBeLessThanOrEqual(38);
     expect(isAttributes(progress.attributes)).toBe(true);
@@ -46,7 +46,7 @@ describe('immutable individual talents over the preserved cultivation ledger', (
   it('uses the same talents in real spawns and previews while legacy snapshots retain their exact stats', () => {
     const party={...createPartyProgress(),'guan-yu':createProgress()};
     const battle=createCombatState(null,party,'ambush',['traveler','guan-yu']);
-    expect(battle.attributeVersion).toBe(2);
+    expect(battle.attributeVersion).toBe(3);
     expect(battle.units[1]).toEqual({...makePartyUnit('guan-yu',party['guan-yu'],null,'ambush',3,5)});
     expect(battle.units[1].attack).toBeGreaterThan(makePartyUnit('guan-yu',party['guan-yu'],null,'ambush',3,5,1).attack);
     const legacy={...battle,attributeVersion:undefined,terrain:[],randomSeed:1, units:[
@@ -60,8 +60,8 @@ describe('immutable individual talents over the preserved cultivation ledger', (
   });
   it('sums the same soldier talents and preserves legacy formation strength on taking damage', () => {
     const group=formationStrength(4);
-    for(const key of ATTRIBUTE_IDS)expect(group.attributes[key]).toBe(base('garrison:zhuo:soldier')[key]*4);
-    const old=formationStrength(4,40,1);const {attributeVersion:_,...snapshot}=old;
+    for(const key of ATTRIBUTE_IDS)expect(group.attributes[key]).toBe(base('garrison:zhuo:soldier')[key]*5*4);
+    const old=formationStrength(4,40,1,1);const {attributeVersion:_,...snapshot}=old;
     const unit={...createCombatState(null).units[0],hp:40,maxHp:40,attack:12,defense:4,formation:snapshot};
     expect(updateUnitHp(unit,29).formation?.attributes.command).toBe(30);
     expect(updateUnitHp(unit,29).attack).toBe(9);

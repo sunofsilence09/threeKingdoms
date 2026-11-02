@@ -1,0 +1,56 @@
+[
+  {
+    "id": "dong-bai",
+    "prompt": "Create one tall full-body Eastern Han Three Kingdoms game character portrait, matching reference's refined semi-realistic painterly rendering, richly detailed textiles, realistic anatomy, restrained antique colors, head-to-toe centered standing figure with feet fully visible, small margins, 2:3 portrait. Actual transparent background, no scenery, no glow/backdrop, no text or watermark. Reference for style only, new distinct person. Dong Bai 董白, clearly adult woman age 25, elegant proud Chinese noblewoman, elaborate but tasteful dark hair updo with gold pins, luxurious muted crimson and ivory Eastern Han silk hanfu with dark plum embroidered trim, dignified composed expression, holding closed silk fan at waist, fully clothed.",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a09-d3e7-79c2-9b0e-fdd4406bd1e4\\exec-76d3e4be-7f0b-41f3-9f2e-a78cc6cfd6a2.png",
+    "output": "public/assets/characters/dong-bai-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "9be646fa7e058ee7cf90cb46f9a7593001d4e6c9c82361eb09e0fce1e171997a",
+    "generator": "built-in image_gen",
+    "transparent_background": true
+  },
+  {
+    "id": "lu-zhi",
+    "prompt": "Create one tall full-body Eastern Han Three Kingdoms game character portrait, matching reference's refined semi-realistic painterly rendering, richly detailed textiles, realistic anatomy, restrained antique colors, head-to-toe centered standing figure with feet fully visible, small margins, 2:3 portrait. Actual transparent background, no scenery, no glow/backdrop, no text or watermark. Reference for style only, new distinct person. Lu Zhi 卢植, mature Chinese scholar-general age 60, stern thoughtful long narrow face, long grey-black beard, sober dark blue Han scholar robes over subtle practical lamellar armor, formal black scholar cap, holding bamboo scroll, upright scholarly military dignity.",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a09-d3e7-79c2-9b0e-fdd4406bd1e4\\exec-9dfd3a48-2479-4598-9768-3db3c2fdceaf.png",
+    "output": "public/assets/characters/lu-zhi-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "a8daf1395e62e1b7bd4e925001ffe814d0d88e99e9eb4ac8478510d3a71c6f1c",
+    "generator": "built-in image_gen",
+    "transparent_background": true
+  },
+  {
+    "id": "huangfu-song",
+    "prompt": "Create one tall full-body Eastern Han Three Kingdoms game character portrait, matching reference's refined semi-realistic painterly rendering, richly detailed textiles, realistic anatomy, restrained antique colors, head-to-toe centered standing figure with feet fully visible, small margins, 2:3 portrait. Actual transparent background, no scenery, no glow/backdrop, no text or watermark. Reference for style only, new distinct person. Huangfu Song 皇甫嵩, veteran Chinese imperial general age 60, weathered broad face, greying beard and moustache, bronze and charcoal Eastern Han lamellar armor with restrained red cloak, period military helmet, sheathed straight sword held at belt, commanding and disciplined stance.",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a09-d3e7-79c2-9b0e-fdd4406bd1e4\\exec-8fae0913-a314-49fb-a68b-2f09470cada9.png",
+    "output": "public/assets/characters/huangfu-song-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "11c2abed5ce49da3e452558ba281735779a7960c0d439cee7088636728f615fc",
+    "generator": "built-in image_gen",
+    "transparent_background": true
+  }
+]

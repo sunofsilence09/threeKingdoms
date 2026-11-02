@@ -1,3 +1,5 @@
+import { V24_LIFE_BASELINES } from './v24Characters';
+import { V23_LIFE_BASELINES } from './v23Characters';
 import { SOCIAL_LIFE_BASELINES } from './socialCharacters';
 import type { LifeBaseline } from './lifeTypes';
 import { GENERATION_LIFE_BASELINES } from './generationLifeData';
@@ -74,4 +76,4 @@ export const EXISTING_LIFE_BASELINES: readonly LifeBaseline[] = [
   known('qin-jie', null, 186, 184, `${h('08')}、${h('71')}`, '中平三年被赵慈杀，184相遇窗口不是卒年。'),
 ];
 
-export const PERSON_LIFE_BASELINES: readonly LifeBaseline[] = [...EXISTING_LIFE_BASELINES, ...GENERATION_LIFE_BASELINES, ...V11_LIFE_BASELINES, ...SOCIAL_LIFE_BASELINES];
+export const PERSON_LIFE_BASELINES: readonly LifeBaseline[] = [...EXISTING_LIFE_BASELINES, ...GENERATION_LIFE_BASELINES, ...V11_LIFE_BASELINES, ...SOCIAL_LIFE_BASELINES, ...V24_LIFE_BASELINES, ...V23_LIFE_BASELINES];

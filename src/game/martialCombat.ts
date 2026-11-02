@@ -6,7 +6,7 @@ import { martialForPerson, martialAt, type MartialSkill } from './martialCatalog
 import { nextRandom, WIND_VECTORS } from './battleEnvironment';
 import { createProgress } from './growth';
 import { heroName } from './heroName';
-import { defensePower, moraleFactor, fortificationFactor } from './troopCombat';
+import { damageAfterDefense, moraleFactor, fortificationFactor } from './troopCombat';
 
 interface Tile { x: number; y: number }
 export function initializeMartialCombat(combat: CombatState, state: GameState): CombatState {
@@ -96,7 +96,7 @@ export function performMartial(combat: CombatState, actorId: string, skillId: st
     dodged = random.roll < target.dodgeRate;
     const multiplier = skill.template === 'break' ? 1.5 : skill.template === 'intimidate' ? 1 : 1.3;
     const debuff = Math.min(.2, Math.max(0, ...(actor.effects ?? []).filter(e => e.kind === 'attack-down').map(e => e.value)));
-    const power = Math.max(1, Math.max(attackPower(actor), actor.attack * moraleFactor(actor.morale) * multiplier * (1 - debuff)) - defensePower(target));
+    const power = damageAfterDefense(combat, actor, target, Math.max(attackPower(actor), actor.attack * moraleFactor(actor.morale) * multiplier * (1 - debuff)));
     const guarded = combat.route === 'liu' && target.team === 'party' ? Math.floor(power / 2) : Math.ceil(power / 2);
     const reduction = Math.min(.5, Math.max(0, ...(target.effects ?? []).filter(e => e.kind === 'reduction').map(e => e.value)));
     const cover = (skill.template === 'shoot' || actor.weapon === 'bow') && terrainAt(combat, x, y) === 'woods' ? 1 : 0;
@@ -135,7 +135,7 @@ export function performMartial(combat: CombatState, actorId: string, skillId: st
 export function resolveMartialAI(combat: CombatState, actor: CombatUnit = currentActor(combat)!): CombatState {
   if (!actor || actor.team !== 'enemy') return combat;
   const enemies = combat.units.filter(u => u.hp > 0 && u.team !== actor.team);
-  const killingAttack = enemies.some(u => canAttack(combat, actor, u) && u.hp <= Math.max(1, attackPower(actor) - u.defense));
+  const killingAttack = enemies.some(u => canAttack(combat, actor, u) && u.hp <= damageAfterDefense(combat, actor, u));
   if (killingAttack) return combat;
   for (const skill of availableMartials(combat, actor.id)) {
     const targets = martialTargets(combat, actor.id, skill.id);
@@ -174,6 +174,6 @@ export function createDuelCombat(base: CombatState, state: GameState): CombatSta
   teacherProgress.bondBonus = state.party[duel.teacherId]?.bondBonus ?? (state.relationships[duel.teacherId]?.bond ? 2 : 0);
   const teacher = makePartyUnit(duel.teacherId, teacherProgress, null, 'route', 7, 4);
   const hero = makePartyUnit('traveler', state.party.traveler, state.route, state.route ? 'route' : 'ambush', 3, 4);
-  return advanceTurn(initializeMartialCombat({ ...base, attributeVersion: 2, units: [hero, { ...teacher, id: `enemy:${teacher.id}`, team: 'enemy' }],
+  return advanceTurn(initializeMartialCombat({ ...base, attributeVersion: 3, units: [hero, { ...teacher, id: `enemy:${teacher.id}`, team: 'enemy' }],
     selectedId: null, actedIds: [], movedIds: [], turn: 'party' }, state));
 }

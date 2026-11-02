@@ -7,3 +7,4 @@ artifacts/
 output/playwright/
 __pycache__/
 release/
+.generated/

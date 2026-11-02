@@ -12,11 +12,11 @@ export function renderGarrisonSummary(state: GameState, cityId = state.currentCi
   const heading = document.createElement('h3'); heading.textContent = `${cityNameAt(cityId,state.date)}守军 · ${army.troops.toLocaleString('zh-CN')} 人${army.factionName ? ` · ${army.factionName}` : ''}`;
   const management = document.createElement('p'); management.textContent = `共同管理：${army.prefectLabel} · ${army.captainPresent?personName(army.captainId,state):army.captainLabel}`;
   const stats = document.createElement('dl'); stats.className = 'garrison-totals';
-  const values: [string, string][] = [['部队总生命', String(army.strength.hp)], ['合计攻击', String(army.strength.attack)], ['合计防御', String(army.strength.defense)]];
+  const values: [string, string][] = [['棋盘部队体力', String(army.strength.hp)], ['棋盘攻击', String(army.strength.attack)], ['棋盘防御', String(army.strength.defense)]];
   if (attributes) for (const id of ATTRIBUTE_IDS) values.push([`合计${ATTRIBUTE_LABELS[id]}`, String(army.strength.attributes[id])]);
   for (const [label, value] of values) { const cell = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = label; dd.textContent = value; cell.append(dt, dd); stats.append(cell); }
   const note = document.createElement('p'); note.className = 'trade-muted';
-  note.textContent = `单兵生命10、攻击3、防御1；部队生命与属性按有效兵数相加，伤亡后降低。速度11、移动3格、射程1—2格保持兵种水平。基础${army.baseTroops}人，每月补员${GARRISON_MONTHLY_RECRUITS}人，上限${GARRISON_CAP}人；${army.dynamic?'当前人数为已扣除出征与战争伤亡的城内实际存量，不含在外军队。':'尚未接入动态战局，人数按当前年月的历史情景推算。'}普通士兵不能邀请，士兵长同行不会带走整支守军。`;
+  note.textContent = `棋盘战每兵2体力，攻击为存活人数÷10向上取整，防御为人数÷40向上取整，战损实时降低攻防；合计六维为全军统计，不是将领个人属性。速度11、移动3格、射程1—2格。战略围城另按天下军势规则结算。基础${army.baseTroops}人，每月补员${GARRISON_MONTHLY_RECRUITS}人，上限${GARRISON_CAP}人；${army.dynamic?'当前人数为已扣除出征与战争伤亡的城内实际存量，不含在外军队。':'尚未接入动态战局，人数按当前年月的历史情景推算。'}普通士兵不能邀请，士兵长同行不会带走整支守军。`;
   section.append(heading, management, stats, note);
   if (army.dynamic) {
     const activity = document.createElement('p'); activity.className = 'trade-feedback'; activity.dataset.garrisonConflictStatus = '';

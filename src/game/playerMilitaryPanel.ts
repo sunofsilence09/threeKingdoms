@@ -7,6 +7,7 @@ import { advanceDays, dateLabel } from './history';
 import { gameDayNumber } from './recruitment';
 import { cityNameAt } from './world';
 import { factionAt } from './worldConflictData';
+import { showPartyPanel } from './partyPanel';
 import {
   COST_PER_SOLDIER, PLAYER_MAX_RESERVE, RECRUIT_UNIT,
   playerMilitaryStatus, playerSiegePreview, recruitPlayerTroops,
@@ -77,7 +78,7 @@ export function showPlayerMilitary(onChange?: () => void): void {
     ]) {
       const item = element('div'); item.append(element('dt', title), element('dd', value)); totals.append(item);
     }
-    summary.append(totals, element('p', '预备兵随主角行旅；城内驻军独立守城。攻城与天下战争会产生实际兵力损失。', 'trade-muted'));
+    summary.append(totals, element('p', '预备兵随主角行旅。主角与同行可在「我的队伍」各配属0—1000兵，进入棋盘战；攻防受存活兵数、统率、武力与士气影响。战略攻城由预备兵另行出征，按天下围城规则自动结算。', 'trade-muted'),button('为主角与同行配兵',()=>showPartyPanel(render),true));
     body.append(summary);
     const notice = element('p', feedback, 'trade-feedback'); notice.setAttribute('role', 'status'); notice.setAttribute('aria-live', 'polite'); body.append(notice);
     if (!status.canOperate) body.append(element('p', status.reason, 'military-lock'));

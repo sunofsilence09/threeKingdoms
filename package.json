@@ -1,13 +1,15 @@
 {
   "name": "three-kingdoms-h5-demo",
   "private": true,
-  "version": "2.2.0",
+  "version": "2.4.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "prepare:assets": "python scripts/prepare-assets.py",
+    "dev": "npm run prepare:assets && vite",
+    "build": "npm run prepare:assets && tsc -b && vite build",
     "test": "vitest run",
-    "test:local": "node --test scripts/verify-local-server.cjs",
+    "test:local": "node --test scripts/verify-local-server.cjs scripts/local-package-assets.test.mjs",
+    "test:assets": "python scripts/test-prepare-assets.py",
     "build:local": "npm run build && node scripts/package-local.mjs"
   },
   "dependencies": {

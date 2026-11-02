@@ -1,3 +1,4 @@
+import {advanceHistory} from './historicalEvents';
 import type { GameState } from './state';
 import type { GameDate } from './history';
 import { advanceWorldConflict, conflictDay, createWorldConflict } from './worldConflict';
@@ -19,5 +20,6 @@ export function withWorldDate(state: GameState, date: GameDate): GameState {
     const life=ensureLifePeople(living.life!,worldConflict?.prefectIds??[]);
     if(living!==next || life!==living.life || worldConflict!==next.worldConflict || conflictDay(next.date)!==conflictDay(at)) next={...living,life,date:at,worldConflict};
   }
-  return next;
+  const history=advanceHistory(state,date);
+  return history===next.history?next:{...next,history};
 }

@@ -1,5 +1,7 @@
+import { createAttributes } from './attributes';
 import type { GameState } from './state';
 import type { CombatState } from './combat';
+import { combatAttributeVersion, effectiveAttributes } from './characterTalents';
 import { playerMilitaryStatus } from './playerMilitary';
 import { attachTroops, isTroopKind, type TroopAssignment, type TroopKind } from './troopCombat';
 
@@ -20,10 +22,12 @@ export function initializeTroopCombat(combat: CombatState, state: GameState): Co
   if (state.duel) return combat;
   const total = combat.units.filter(u=>u.team==='party').reduce((n,u)=>n+(state.troopAssignments?.[u.id]?.count??0),0);
   const enemyCount = Math.min(1000,Math.ceil(total / Math.max(1,combat.units.filter(u=>u.team==='party').length)));
-  return { ...combat, units: combat.units.map(u=>{
+  return { ...combat, troopRuleVersion: 2, units: combat.units.map(u=>{
     const assignment = state.troopAssignments?.[u.id];
-    if (u.team === 'party') return assignment ? attachTroops(u,assignment.kind,assignment.count) : u;
-    return u.weapon !== 'claws' && enemyCount ? attachTroops(u,u.weapon==='bow'?'crossbow':'spear',enemyCount) : u;
+    const progress = state.party[u.id];
+    if (u.team === 'party') return assignment && progress ? attachTroops(u,assignment.kind,assignment.count,
+      effectiveAttributes(u.id, progress.attributes, combatAttributeVersion(combat), progress.bondBonus), combatAttributeVersion(combat)) : u;
+    return u.weapon !== 'claws' && enemyCount ? attachTroops(u,u.weapon==='bow'?'crossbow':'spear',enemyCount,effectiveAttributes(u.id,createAttributes(),combatAttributeVersion(combat)),combatAttributeVersion(combat)) : u;
   }) };
 }
 /** Counts only decrease, making repeated settlement safe across results and retreats. */

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applyFormationDamage, formationStrength } from './garrisonStrength';
+import { applyFormationDamage, formationStrength as versionedFormationStrength } from './garrisonStrength';
+// Preserve the original recorded 2.2 formation contract through casualties and healing.
+const formationStrength = (troops: number, hp?: number) => versionedFormationStrength(troops,hp,2,1);
 
-describe('ordinary soldiers as a combined formation', () => {
+describe('legacy ordinary soldiers as a combined formation', () => {
   it('adds each soldier life and attributes while retaining ordinary movement and speed', () => {
     const single = formationStrength(1), city = formationStrength(5000);
     expect(city.hp).toBe(single.hp * 5000);

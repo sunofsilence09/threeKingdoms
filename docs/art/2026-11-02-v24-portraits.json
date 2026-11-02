@@ -1,0 +1,668 @@
+[
+  {
+    "id": "cao-ang",
+    "name": "曹昂",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 曹昂, Three Kingdoms China. noble young adult commander, silver armor and navy cloak. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-d5df272e-263f-40a5-b2ca-9eb288d1147f.png",
+    "output": "public/assets/characters/cao-ang-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "a87410e7002380681b5ebf612dab309a93c95635c7a64b3fdfbc77ccad556a51"
+  },
+  {
+    "id": "cao-chong",
+    "name": "曹冲",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 曹冲, Three Kingdoms China. 10-12 year old Chinese boy scholar prince, child face and proportions, fully clothed pale blue robes, bamboo tablet, NEVER adult. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-c48bb2b9-820a-46fa-b499-b6c6a4bdd8ef.png",
+    "output": "public/assets/characters/cao-chong-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "1a1205237c577224a2e9a3ad79a7f84c4669488e0e25b924fd1d0a24abbd9279"
+  },
+  {
+    "id": "cao-hong",
+    "name": "曹洪",
+    "prompt": "Cao Hong mature stocky Wei general, square weathered face, iron lamellar armor over navy robes, burgundy cape, broad dao, semi-realistic painterly full body transparent PNG",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-475f89b7-691f-4542-a208-6e88add0dc79.png",
+    "output": "public/assets/characters/cao-hong-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "31509eeddc0ca18c632e0c958f3bb51aa4a2b975681446db1678474b0f00ebc9"
+  },
+  {
+    "id": "cao-shuang",
+    "name": "曹爽",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 曹爽, Three Kingdoms China. heavyset aristocratic commander in rich dark blue robe and armor. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-c5fc793c-bbac-4abf-b9d4-77e8d7f16716.png",
+    "output": "public/assets/characters/cao-shuang-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "fc1e2bad20f67acd1705fb7083a67b2129205cf6421ebb52cc910fb36b4c19c5"
+  },
+  {
+    "id": "cao-zhang",
+    "name": "曹彰",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 曹彰, Three Kingdoms China. young adult muscular warrior, tawny hair and bronze armor with halberd. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-71343d8a-b975-4a3b-943c-b21fa8db4f03.png",
+    "output": "public/assets/characters/cao-zhang-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "b467e7d9b96404e67162ffe44af56592f10b758ab076f067a33b37663da75776"
+  },
+  {
+    "id": "cao-zhen",
+    "name": "曹真",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 曹真, Three Kingdoms China. broad stern veteran, ornate black armor and command sword. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-c8390c93-f4f8-46e0-abfd-cb660199c1bc.png",
+    "output": "public/assets/characters/cao-zhen-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "c17c9b28e7fe1bf6e5bcf7224a0ef4851d1a2470055fe7ebd19ac9d36acb92a7"
+  },
+  {
+    "id": "cao-zhi",
+    "name": "曹植",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 曹植, Three Kingdoms China. slender elegant poet prince, indigo silk robes, scroll. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-84c2c9ad-0074-441f-a750-53fc0545fafb.png",
+    "output": "public/assets/characters/cao-zhi-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "98eca4db11f12bacea7ce603bed753c7a091a706ad83ecf74d3e2d5d4bab331e"
+  },
+  {
+    "id": "chen-deng",
+    "name": "陈登",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 陈登, Three Kingdoms China. perceptive mature administrator, charcoal teal robes and black cap, bamboo tablet. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-15229d3e-ddc8-4818-bcbd-672e2182fb6d.png",
+    "output": "public/assets/characters/chen-deng-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "841a5e39e6880ae128107e6383719a2769100313d41c8767db324f523d320cfa"
+  },
+  {
+    "id": "chen-tai",
+    "name": "陈泰",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 陈泰, Three Kingdoms China. refined mature commander, navy robe with light armor, command baton. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-6fc0a9fe-4a3a-4990-bee0-cb45bf459b40.png",
+    "output": "public/assets/characters/chen-tai-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "f8d109baa584544fe6c4caafd5cae91d60150173b2dc9a827bbcee2f808900eb"
+  },
+  {
+    "id": "ding-feng",
+    "name": "丁奉",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 丁奉, Three Kingdoms China. older scarred warrior, gray beard, crimson and steel armor, short spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-9af49d3d-2b20-4b97-ad38-2fcff75fee68.png",
+    "output": "public/assets/characters/ding-feng-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "f28832c1821a87606caf6edbbd7a0b5bb82143b9faeec69fbc41f35d8ac6c00a"
+  },
+  {
+    "id": "fei-yi",
+    "name": "费祎",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 费祎, Three Kingdoms China. slender refined mature diplomat, pale green robes, folded fan. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-0d90bc2f-4a2a-4302-a807-ed380ee4b4e7.png",
+    "output": "public/assets/characters/fei-yi-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "4d7a7d3b1496f1da5c468bacdd39a6e6c967e0a1a7f5879abc4f3417a166480b"
+  },
+  {
+    "id": "guan-ping",
+    "name": "关平",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 关平, Three Kingdoms China. young adult sturdy warrior, green and bronze armor, glaive. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-87bbb0fc-ea25-47e1-964b-a6c1cc0741d1.png",
+    "output": "public/assets/characters/guan-ping-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "6e07961d984e2530b036d3034db65d822f34e84669858fa4397a27227ae032c9"
+  },
+  {
+    "id": "guan-xing",
+    "name": "关兴",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 关兴, Three Kingdoms China. young adult athletic officer, jade green armor, spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-fa470d6f-fc77-4dfa-a4d7-03b04188df05.png",
+    "output": "public/assets/characters/guan-xing-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "6df0b76f1fda1d90baded17997106069efea1ca7b52f406c06ebed083c6175dc"
+  },
+  {
+    "id": "hao-zhao",
+    "name": "郝昭",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 郝昭, Three Kingdoms China. stoic fortress commander, battered iron armor, crossbow held down. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-30aff2a8-7f26-4026-ab4d-8c384df3c6ea.png",
+    "output": "public/assets/characters/hao-zhao-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "9e41a259017ab00a1ae88ea35fc4c9f6ab589019059f237868daf7517f009a95"
+  },
+  {
+    "id": "jian-yong",
+    "name": "简雍",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 简雍, Three Kingdoms China. relaxed mature diplomat, loose warm green robes, fan. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-4c781ab9-9171-4d5b-a1ca-893fa593884c.png",
+    "output": "public/assets/characters/jian-yong-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "7e32dca3ba188ed00bf1c26e185a31548e775b9d13f53c91a33c3e31bd72f650"
+  },
+  {
+    "id": "jiang-qin",
+    "name": "蒋钦",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 蒋钦, Three Kingdoms China. rugged middle-aged naval officer, leather and red armor, bow. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-7030acad-d86d-430d-b891-5339fab57198.png",
+    "output": "public/assets/characters/jiang-qin-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "0b081be2138440c2f349c161a7a4fc01d9a014f61192021f21fa37c15d85ae1f"
+  },
+  {
+    "id": "jiang-wan",
+    "name": "蒋琬",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 蒋琬, Three Kingdoms China. dignified middle-aged administrator, forest green robes, tall scholar cap, scroll. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-de9e1a14-1435-47e1-aecd-3db3374e178b.png",
+    "output": "public/assets/characters/jiang-wan-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "520717f3b20c5f3cc9fe7604b63b3712141f3a17c5f75bd10527c82dd379d7e7"
+  },
+  {
+    "id": "li-dian",
+    "name": "李典",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 李典, Three Kingdoms China. thoughtful middle-aged officer, neat beard, navy lamellar armor, spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-36140773-9eb8-4939-b1df-00d6ae117be5.png",
+    "output": "public/assets/characters/li-dian-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "a02bbfa071edf2c08d1825de826e8eb41518657df74463c14ed55c4c3d4b23e3"
+  },
+  {
+    "id": "liao-hua",
+    "name": "廖化",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 廖化, Three Kingdoms China. elderly weathered veteran, gray beard, worn green armor, spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-50a464de-ca81-4224-9172-a2a787f8b109.png",
+    "output": "public/assets/characters/liao-hua-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "09c36581ad092efe3b2b159a9a4d3804b55ecceeafa3350ef8ab4eb50cd25902"
+  },
+  {
+    "id": "ling-tong",
+    "name": "凌统",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 凌统, Three Kingdoms China. athletic young adult warrior, red headband and armor, twin short weapons lowered. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-c8bc4267-7f37-4596-bccd-3dc6144852f0.png",
+    "output": "public/assets/characters/ling-tong-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "380556f84ee08902bb937d29017c5cfe4205547992ff233e154eee32d6f2e442"
+  },
+  {
+    "id": "ma-dai",
+    "name": "马岱",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 马岱, Three Kingdoms China. western cavalry officer, bronze helmet, cream and green layers, curved saber. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-da641377-516a-448d-b26a-06d264b5c543.png",
+    "output": "public/assets/characters/ma-dai-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "c8ee1183ab254aa90392ea5b055a9fd9812a759f3b9d0ff549cf1702b89de6c1"
+  },
+  {
+    "id": "ma-liang",
+    "name": "马良",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 马良, Three Kingdoms China. white eyebrows, mature scholar, ivory and green robe, bamboo scroll. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-da51fd93-ac5e-48c6-9568-6df3c239dc98.png",
+    "output": "public/assets/characters/ma-liang-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "74512a81ddfe138f4a0cbf3c3c9cfc83b58f2778e12cef6b17e3ea471224ed5f"
+  },
+  {
+    "id": "ma-su",
+    "name": "马谡",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 马谡, Three Kingdoms China. confident young adult strategist, green robe with light armor, military scroll. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-17faf47f-e876-4ebe-84d2-276f9a91c1c9.png",
+    "output": "public/assets/characters/ma-su-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "2bcb0ba15e95c7afccde8e5534eb109dd017697fcae664d0e04bf977444df30c"
+  },
+  {
+    "id": "man-chong",
+    "name": "满宠",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 满宠, Three Kingdoms China. lean severe magistrate general, black official cap and armored dark robe, tablets. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-e726fbfc-a733-42ad-9698-ef071a5fc4df.png",
+    "output": "public/assets/characters/man-chong-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "ec43ec68fb67d4f54f1a7e4b05482e595ffed3d1e63d8cd96cd18e7da3b7386a"
+  },
+  {
+    "id": "mi-zhu",
+    "name": "糜竺",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 糜竺, Three Kingdoms China. wealthy mature merchant statesman, olive and gold silk robe, jade belt and tablet. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-a932832b-8a11-4803-868d-86fea070a22e.png",
+    "output": "public/assets/characters/mi-zhu-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "ff856bf3ff7cc3ab8e53790b462c3ee9a63bed23d49a26f3a97a840d4cdf95e2"
+  },
+  {
+    "id": "pan-zhang",
+    "name": "潘璋",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 潘璋, Three Kingdoms China. rough fierce middle-aged warrior, dark red armor, heavy polearm. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-b99903f0-e09a-4fe3-b7c0-6b373bd56d83.png",
+    "output": "public/assets/characters/pan-zhang-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "69e2820c0b00e7f5e31ab1ac05abd5fa7fecae36146ce2e03a7293bcfbae97fe"
+  },
+  {
+    "id": "sun-deng",
+    "name": "孙登",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 孙登, Three Kingdoms China. young adult noble prince, elegant vermilion robes, jade belt and scroll. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-014114d6-8b49-41f4-b2a7-1d8b48dd814b.png",
+    "output": "public/assets/characters/sun-deng-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "adf453768b4ad3648acb39fa87c104be9bcd67ca7dd543c0d33f5d3f09bb0829"
+  },
+  {
+    "id": "wang-ping",
+    "name": "王平",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 王平, Three Kingdoms China. solid mountain infantry commander, practical green leather armor and sword. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-26d19fdd-aae9-4b02-983e-feee93e34d27.png",
+    "output": "public/assets/characters/wang-ping-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "9a678ed09dce5f2db57ea44e30d5d3c8fc0626e7e40c8715d0548740bedfecfa"
+  },
+  {
+    "id": "wang-yi",
+    "name": "王异",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 王异, Three Kingdoms China. adult Chinese woman warrior Wang Yi, dignified determined face, fully covered practical lamellar armor over long navy and plum robes, sword. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-c2131d08-6e11-444a-9e4f-c8ce92fe2131.png",
+    "output": "public/assets/characters/wang-yi-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "5d180252f599b73c70af5fa36cfb8112cb8a165f7d58919c1d6b0f96438019af"
+  },
+  {
+    "id": "wen-pin",
+    "name": "文聘",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 文聘, Three Kingdoms China. tall rugged veteran, iron armor and deep blue cape, long spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-3360babb-7861-4430-8d47-4400386b06b4.png",
+    "output": "public/assets/characters/wen-pin-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "028d8c7493b73de4698cdc32596d9712031e58426dda0d2907169bc8b87ca739"
+  },
+  {
+    "id": "xu-sheng",
+    "name": "徐盛",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 徐盛, Three Kingdoms China. strong mature naval commander, crimson lamellar armor, broad dao. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-b3b2882b-68b0-4213-87dc-b4e8b8db23b1.png",
+    "output": "public/assets/characters/xu-sheng-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "6120899b1b0ca69295b88f6a3671673fd526c1c394738548ed82867013d22bf5"
+  },
+  {
+    "id": "zang-ba",
+    "name": "臧霸",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 臧霸, Three Kingdoms China. rugged mountain veteran, dark leather and iron armor, large sword. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-1b3a93cc-741c-4032-a0e3-020c4bc45bb7.png",
+    "output": "public/assets/characters/zang-ba-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "33f77926afe936e25f2f971f2e015aef739a6ddb8f7c7f01e5c309ad3fa3db60"
+  },
+  {
+    "id": "zhang-bao",
+    "name": "张苞",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 张苞, Three Kingdoms China. young adult broad fierce warrior, dark iron armor, serpent spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-42a9838b-217e-441e-a4ed-00f3456ad2a1.png",
+    "output": "public/assets/characters/zhang-bao-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "109c51f1e4413424dd55cfa4055197310b83bc207cb8f50aabc109de4b3a9735"
+  },
+  {
+    "id": "zhang-xiu",
+    "name": "张绣",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 张绣, Three Kingdoms China. western cavalry warlord, bronze armor and purple cloak, long spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-f1f09d6e-080c-4591-8d33-af458b6307e2.png",
+    "output": "public/assets/characters/zhang-xiu-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "bbab8d17fcc4395b7f8d47c7a1e35ac38dd86c7e998f2b908a541cceb4137cab"
+  },
+  {
+    "id": "zhu-huan",
+    "name": "朱桓",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 朱桓, Three Kingdoms China. powerful proud general, red and black lamellar armor, spear. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-0d5ca763-15aa-4b97-9b98-a6163b22d825.png",
+    "output": "public/assets/characters/zhu-huan-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "7cecc8defb1b63f2933736fd9a2dadd7850ea7d846522f05de421610b216208f"
+  },
+  {
+    "id": "zhu-ran",
+    "name": "朱然",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 朱然, Three Kingdoms China. stern mature commander, scarlet and bronze armor, sword. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-18aafb1f-7790-4acc-b6d5-b1de8b38721f.png",
+    "output": "public/assets/characters/zhu-ran-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "0100c9b7b043800e3b30c5a182552feaa7daef524df17c453917f936c2a12fe1"
+  },
+  {
+    "id": "zhuge-jin",
+    "name": "诸葛瑾",
+    "prompt": "One 1024x1536 transparent PNG game character portrait cutout of 诸葛瑾, Three Kingdoms China. long narrow face, middle-aged diplomat, burgundy robes, tall cap and tablet. Semi-realistic richly detailed painterly historical illustration, realistic face, silk embroidery and metal textures. Unique single person, standing full body with entire head and BOTH feet visible, generous clear margins. Genuine transparent background, NO scenery, no ground plane, no text, watermark or other people.",
+    "generator": "built-in image_gen",
+    "source": "C:\\Users\\silence\\.codex\\generated_images\\01a19a2f-1718-7a42-baf0-e891b4df89e6\\exec-5b5b7e48-aedd-4b70-8f5a-fe8581c4681c.png",
+    "output": "public/assets/characters/zhuge-jin-v1.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "sha256": "e40aa22f500b3437f15f705f00eb1feafce1955a5516f807e3b9008ecb820386"
+  }
+]

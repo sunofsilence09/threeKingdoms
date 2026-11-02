@@ -1,3 +1,4 @@
+import { imageAssetUrl } from './assetUrl';
 import { dateLabel } from './history';
 import { openInspection } from './inspectionOverlay';
 import { LOCAL_OFFICIALS, localCityOfficeRecords, officialStatus, type LocalOfficial } from './localOfficials';
@@ -84,7 +85,7 @@ export function showLocalOfficials(): void {
     art.hidden = info.hidden = !selected;
     if (!selected) return;
     const portrait = art.querySelector('img')!;
-    portrait.src = selected.portrait; portrait.alt = `${selected.name}全身立绘`;
+    portrait.src = imageAssetUrl(selected.portrait); portrait.alt = `${selected.name}全身立绘`;
     info.querySelector('.official-role')!.textContent = `${selected.place} · 历史身份：${selected.role}`;
     info.querySelector('h2')!.textContent = selected.name;
     const r = selected.record;

@@ -3,6 +3,7 @@ import { getHeroVisual, HERO_WEAPONS } from './heroVisuals';
 import { getHistoricalCharacter } from './historicalCharacters';
 import { recruitProfile } from './recruitmentCatalog';
 import type { GameDate } from './history';
+import { imageAssetUrl } from './assetUrl';
 
 export type ModelWeapon = WeaponId;
 
@@ -52,14 +53,19 @@ const CHARACTERS: Record<string, CharacterAppearance> = {
     robe: 0x8b7150, headband: 0xb69a61, skin: 0xbe9674, sash: 0x594a35, stocky: false, beard: false, pack: false, pose: 'skulker',
   },
 };
+const optimizedAppearances = new WeakMap<CharacterAppearance, CharacterAppearance>();
 
 export function getCharacterAppearance(id: string, date?: GameDate): CharacterAppearance {
-  if (id.startsWith('wolf:')) return { identity: '山野 · 狼群', portrait: '/assets/events/event-wolves-v1.png', bio: '山林间结群出没的野兽。四足奔袭，以爪牙攻击靠近的行旅人。', robe: 0x737c75, headband: null, skin: 0x8a938a, sash: 0x444e49, stocky: false, beard: false, pack: false, pose: 'skulker' };
+  if (id.startsWith('wolf:')) return { identity: '山野 · 狼群', portrait: imageAssetUrl('/assets/events/event-wolves-v1.png'), bio: '山林间结群出没的野兽。四足奔袭，以爪牙攻击靠近的行旅人。', robe: 0x737c75, headband: null, skin: 0x8a938a, sash: 0x444e49, stocky: false, beard: false, pack: false, pose: 'skulker' };
   const base = CHARACTERS[id] ?? getHistoricalCharacter(id)?.appearance ?? recruitProfile(id)?.appearance ?? CHARACTERS.bandit;
   if (id === 'xiahou-dun' && date) return { ...base,
-    portrait: date.year < 194 ? '/assets/characters/xiahou-dun-uninjured-v1.png' : '/assets/characters/xiahou-dun-v1.png',
+    portrait: imageAssetUrl(date.year < 194 ? '/assets/characters/xiahou-dun-uninjured-v1.png' : '/assets/characters/xiahou-dun-v1.png'),
     leftEyeCovered: date.year >= 194 };
-  return base;
+  const portrait = imageAssetUrl(base.portrait);
+  if (portrait === base.portrait) return base;
+  let mapped = optimizedAppearances.get(base);
+  if (!mapped) { mapped = { ...base, portrait }; optimizedAppearances.set(base,mapped); }
+  return mapped;
 }
 
 /** Equipment is live battle data; the portrait supplies identity and clothing. */

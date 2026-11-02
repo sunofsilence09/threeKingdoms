@@ -148,7 +148,7 @@ export const RECRUIT_PROFILES: readonly RecruitProfile[] = [
   ...HISTORICAL_CHARACTERS.map(person => ({ id: person.id, name: person.name, role: person.role,
     bio: person.appearance.bio, portrait: person.appearance.portrait, appearance: person.appearance,
     weapon: person.weapon, speed: person.speed, category: 'historical' as const,
-    ...(person.id === 'himiko' ? { readOnly: true } : {}),
+    ...((person.id === 'himiko' || person.id === 'cao-chong') ? { readOnly: true } : {}),
     windows: CITY_CAREERS[person.id]?.map(stage => ({ from: stage.from, to: stage.to, cityIds: [stage.cityId] })) ?? historicalWindows[person.id] ?? [] })),
   ...LOCAL_OFFICIALS.map(person => {
     const clothing = officialClothing[person.id];

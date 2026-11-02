@@ -15,14 +15,14 @@ describe('six attributes and earned skill points', () => {
 
   it('derives a real ability change from each of the six attributes', () => {
     const attrs = createAttributes();
-    expect(attributeBonuses(attrs)).toEqual({ attack: 0, defense: 0, dodge: 0, hp: 0, supplies: 0, experience: 0 });
-    expect(attributeBonuses({ ...attrs, command: 11 }).defense).toBe(1);
-    expect(attributeBonuses({ ...attrs, strength: 11 }).attack).toBe(1);
-    expect(attributeBonuses({ ...attrs, intellect: 11 }).dodge).toBeCloseTo(0.02);
-    expect(attributeBonuses({ ...attrs, politics: 11 }).supplies).toBe(1);
-    expect(attributeBonuses({ ...attrs, charisma: 11 }).experience).toBeCloseTo(0.05);
-    expect(attributeBonuses({ ...attrs, courage: 11 }).hp).toBe(2);
-    expect(attributeBonuses({ ...attrs, intellect: 30 }).dodge).toBe(0.4);
+    expect(attributeBonuses(attrs,2)).toEqual({ attack: 0, defense: 0, dodge: 0, hp: 0, supplies: 0, experience: 0 });
+    expect(attributeBonuses({ ...attrs, command: 11 },2).defense).toBe(1);
+    expect(attributeBonuses({ ...attrs, strength: 11 },2).attack).toBe(1);
+    expect(attributeBonuses({ ...attrs, intellect: 11 },2).dodge).toBeCloseTo(0.02);
+    expect(attributeBonuses({ ...attrs, politics: 11 },2).supplies).toBe(1);
+    expect(attributeBonuses({ ...attrs, charisma: 11 },2).experience).toBeCloseTo(0.05);
+    expect(attributeBonuses({ ...attrs, courage: 11 },2).hp).toBe(2);
+    expect(attributeBonuses({ ...attrs, intellect: 30 },2).dodge).toBe(0.4);
   });
 
   it('spends only earned points for one character without mutating the original state', () => {
@@ -54,7 +54,8 @@ describe('six attributes and earned skill points', () => {
       const attrs = effectiveAttributes(id, trained.party[id].attributes);
       expect(next.party[id]).toEqual(grantExperience(trained.party[id], victoryExperience(45, attrs)));
     }
-    expect(next.party.traveler).toMatchObject({ level: 3, xp: 32, points: 3 });
+    // 57 charisma contributes one complete five-point step above50 (47 route XP).
+    expect(next.party.traveler).toMatchObject({ level: 3, xp: 28, points: 3 });
     const supplies = trained.deployed.reduce((sum, id) => sum + attributeBonuses(effectiveAttributes(id, trained.party[id].attributes)).supplies, 0);
     expect(next.supplies).toBe(trained.supplies + supplies);
     expect(rewardVictory(next, 'route')).toBe(next);
@@ -65,9 +66,9 @@ describe('six attributes and earned skill points', () => {
     const trained = spendSkillPoints(initial, 'traveler', { charisma: 8 });
     const rewarded = rewardVictory(trained, 'route');
     const xp = victoryExperience(45, effectiveAttributes('traveler', trained.party.traveler.attributes));
-    expect(xp).toBe(65);
+    expect(xp).toBe(49);
     expect(rewarded.party.traveler).toEqual(grantExperience(trained.party.traveler, xp));
-    expect(rewarded.party.traveler).toMatchObject({ level: 5, xp: 15, points: 4 });
+    expect(rewarded.party.traveler).toMatchObject({ level: 4, xp: 49, points: 1 });
   });
 
 });

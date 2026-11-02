@@ -1,6 +1,8 @@
+import { V24_TALENTS } from './v24Characters';
 /** Authored gameplay talents, not historical scores. Order: command, strength, intellect, politics, charisma, courage. */
 export type TalentScores = readonly [number, number, number, number, number, number];
 export const TALENT_SCORES: Readonly<Record<string, TalentScores>> = {
+  ...V24_TALENTS,
   'cai-mao':[15,13,13,13,12,13], 'cai-fu-ren':[10,10,15,14,16,13], 'zhang-yun':[14,14,12,11,11,14],
   'bian-fu-ren':[10,10,14,16,17,13], 'bu-lian-shi':[10,10,14,14,18,12], 'sun-lu-ban':[12,10,16,15,14,15], 'sun-lu-yu':[10,10,13,13,16,12],
   traveler:[10,10,10,10,11,10], aman:[10,10,11,10,10,10], 'chen-da':[11,11,10,10,10,11],
@@ -10,6 +12,7 @@ export const TALENT_SCORES: Readonly<Record<string, TalentScores>> = {
   'sun-shangxiang':[13,16,12,10,15,17], 'diao-chan':[10,10,15,12,18,14], 'cai-yan':[10,10,17,14,16,12],
   'dong-zhuo':[15,15,12,11,10,17], 'lu-bu':[14,18,10,10,13,18], 'hua-xiong':[13,16,10,10,11,16],
   'zhen-ji':[10,10,14,13,18,12], 'zhang-liao':[17,16,14,12,14,17], 'guan-yu':[17,18,13,12,16,18],
+  'dong-bai':[10,10,13,12,14,13], 'lu-zhi':[17,12,18,16,17,16], 'huangfu-song':[18,16,16,14,15,17],
   'zhang-fei':[16,18,11,10,13,18], 'zhao-yun':[16,17,14,12,15,18], 'mi-fu-ren':[10,10,13,12,16,16],
   'zhang-xingcai':[14,15,12,10,14,16], 'zhuge-liang':[17,10,18,18,16,15], 'zhou-yu':[18,14,18,15,17,16],
   'yuan-shu':[13,11,12,13,12,14], 'chen-gong':[13,10,17,14,13,14], 'zhang-miao':[12,11,13,15,15,13],

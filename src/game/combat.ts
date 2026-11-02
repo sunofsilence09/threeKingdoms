@@ -1,6 +1,6 @@
-import { attributeBonuses } from './attributes';
-import { moraleFactor, moraleOf, defensePower, speedPower, fortificationFactor, troopStats, troopRange, TROOP_TYPES, resolveTroopAI, type TroopContingent } from './troopCombat';
-import { baseAttributes, effectiveAttributes, type AttributeVersion } from './characterTalents';
+import { attributeBonuses, createAttributes } from './attributes';
+import { moraleFactor, moraleOf, damageAfterDefense, speedPower, fortificationFactor, troopStats, troopRange, TROOP_TYPES, resolveTroopAI, type TroopContingent } from './troopCombat';
+import { effectiveAttributes, type AttributeVersion } from './characterTalents';
 import type { RouteId } from './state';
 import { createPartyProgress, PARTY_IDS, type Progress, type PartyProgress } from './growth';
 import { recruitProfile } from './recruitmentCatalog';
@@ -47,6 +47,7 @@ export interface CombatUnit {
 }
 export interface CombatState {
   attributeVersion?: AttributeVersion;
+  troopRuleVersion?: 1 | 2;
   width: number; height: number; terrain: TerrainTile[]; units: CombatUnit[];
   selectedId: string | null; turn: CombatTeam; route: RouteId | null;
   round: number; movedIds: string[]; actedIds: string[]; randomSeed: number; lastEvent?: CombatEvent; turnEvents?: CombatEvent[];
@@ -58,7 +59,7 @@ interface Tile { x: number; y: number }
 interface PathTile extends Tile { cost: number; path: Tile[] }
 
 /** Candidate previews and battle spawns share the same earned attributes and equipment. */
-export function makePartyUnit(id: string, progress: Progress, route: RouteId | null, mode: BattleMode, x = 0, y = 0, attributeVersion: AttributeVersion = 2): CombatUnit {
+export function makePartyUnit(id: string, progress: Progress, route: RouteId | null, mode: BattleMode, x = 0, y = 0, attributeVersion: AttributeVersion = 3): CombatUnit {
   const profile = recruitProfile(id);
   if (!profile) throw new Error(`Unknown party member: ${id}`);
   const initialEquipment: Record<string, WeaponId> = mode === 'route'
@@ -66,7 +67,7 @@ export function makePartyUnit(id: string, progress: Progress, route: RouteId | n
     : { traveler: 'cleaver', aman: 'fists', 'chen-da': 'fists' };
   const weapon = initialEquipment[id] ?? profile.weapon;
   const { level, xp, attributes } = progress;
-  const bonus = attributeBonuses(effectiveAttributes(id, attributes, attributeVersion, progress.bondBonus));
+  const bonus = attributeBonuses(effectiveAttributes(id, attributes, attributeVersion, progress.bondBonus), attributeVersion);
   const maxHp = WEAPONS[weapon].hp + (level - 1) * 2 + bonus.hp + (route === 'liu' ? 1 : 0);
   return { id, name: profile.name, team: 'party', x, y, hp: maxHp, maxHp, weapon, level, xp, speed: profile.speed, morale: 80,
     attack: WEAPONS[weapon].attack + Math.floor((level - 1) / 2) + bonus.attack + (route === 'cao' && id === 'traveler' ? 1 : 0), guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge,
@@ -77,7 +78,7 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
   if (deployed.length < 1 || deployed.length > 5 || new Set(deployed).size !== deployed.length ||
       deployed.some(id => !recruitProfile(id) || recruitProfile(id)!.readOnly || !Object.hasOwn(party, id))) throw new Error('Invalid battle deployment');
   const makeEnemy = (id: string, name: string, x: number, y: number, weapon: WeaponId, hp: number, attack: number): CombatUnit => {
-    const bonus = attributeBonuses(baseAttributes(id));
+    const bonus = attributeBonuses(effectiveAttributes(id, createAttributes()));
     return { id: deployed.includes(id) ? `enemy:${id}` : id, name, team: 'enemy', x, y, hp: hp + bonus.hp, maxHp: hp + bonus.hp,
       attack: attack + bonus.attack, speed: id === 'bandit-leader' ? 11 : id === 'bandit-scout-a' ? 13 : 9,
       weapon, level: mode === 'route' ? 2 : 1, xp: 0, guarded: false, defense: bonus.defense, dodgeRate: bonus.dodge, morale: 80,
@@ -91,7 +92,7 @@ export function createCombatState(route: RouteId | null, party: PartyProgress = 
   }));
   const seed = (options.seed ?? (0x6d2b79f5 ^ (mode === 'ambush' ? 17 : 53) ^ (route?.charCodeAt(0) ?? 0))) >>> 0;
   return advanceTurn({
-    attributeVersion: 2, width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: seed,
+    attributeVersion: 3, troopRuleVersion: 2, width: 16, height: 10, terrain: createTerrain(mode), selectedId: null, turn: 'party', route, round: 1, movedIds: [], actedIds: [], randomSeed: seed,
     environment: createEnvironment(options.month ?? 3, seed), fires: [], scorched: [],
     units: [
       ...deployed.map((id, index) => makePartyUnit(id, party[id], route, mode, allyPositions[index][0], allyPositions[index][1])),
@@ -156,7 +157,8 @@ export function updateUnitHp(unit: CombatUnit, hp: number): CombatUnit {
     return { ...unit, ...morale, hp: Math.max(0, Math.min(hp, troop.baseMaxHp + count * 2)), troop, ...troopStats(troop) };
   }
   if (!unit.formation) return { ...unit, hp, ...morale };
-  const formation = formationStrength(unit.formation.initialTroops, hp, unit.formation.attributeVersion ?? 1);
+  const limitedHp = unit.formation.troopRuleVersion === 2 ? Math.min(hp, unit.formation.troops * 2) : hp;
+  const formation = formationStrength(unit.formation.initialTroops, limitedHp, unit.formation.attributeVersion ?? 1, unit.formation.troopRuleVersion ?? 1);
   return { ...unit, ...morale, hp: formation.hp, attack: formation.attack, defense: formation.defense, formation };
 }
 export function endAction(state: CombatState, id: string): CombatState {
@@ -271,7 +273,7 @@ export function performAttack(state: CombatState, attackerId: string, targetId: 
   return { ...acted, randomSeed: random.seed, lastEvent: { kind: dodged ? 'dodge' : 'attack', actorId: attackerId, targetId, damage } };
 }
 function attackDamage(state: CombatState, attacker: CombatUnit, target: CombatUnit): number {
-  const power = Math.max(1, attackPower(attacker) - defensePower(target));
+  const power = damageAfterDefense(state, attacker, target);
   const guarded = state.route === 'liu' && target.team === 'party' ? Math.floor(power / 2) : Math.ceil(power / 2);
   const cover = (attacker.weapon === 'bow' || attacker.troop?.kind === 'bow' || attacker.troop?.kind === 'crossbow') && terrainAt(state, target.x, target.y) === 'woods' ? 1 : 0;
   const reduced = Math.min(target.guarded ? guarded : power, power * (1 - effectValue(target, 'reduction', .5)));
@@ -424,7 +426,7 @@ export function resolveEnemyTurn(state: CombatState, chooseAbility?: (state: Com
       // Occupied enemy fuel offers immediate pressure; don't burn oneself or clustered allies.
       const benefit = occupant?.team === 'party' ? burnDamage(occupant, 1) * fireChance(next, tile.x, tile.y) / 100 - (friendlyRisk > 1 ? friendlyRisk * 4 : 0) : 0;
       return { tile, benefit };
-    }).filter(c => c.benefit > (target ? Math.max(1, attackPower(enemy) - target.defense) : 1)).sort((a, b) => b.benefit - a.benefit);
+    }).filter(c => c.benefit > (target ? damageAfterDefense(next, enemy, target) : 1)).sort((a, b) => b.benefit - a.benefit);
     if (!choices.length) return false;
     next = setFire(next, id, choices[0].tile.x, choices[0].tile.y);
     if (next.lastEvent) events.push(next.lastEvent);
