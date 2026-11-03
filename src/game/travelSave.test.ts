@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createInitialState, loadState, saveState, STORAGE_KEY } from './state';
-import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, resolveTravelEvent, startTravel, cityContact } from './travel';
+import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, resolveTravelEvent, startTravel, cityContact, turnBackTravel, redirectTravel, journeyLeg, isJourney } from './travel';
 import { withWorldDate } from './worldTime';
 
 beforeEach(() => {
@@ -13,6 +13,38 @@ beforeEach(() => {
 const begin = () => startTravel({ ...createInitialState(() => 0), currentCityId: 'yingchuan', phase: 'overworld' }, 'nanhai', 9);
 
 describe('travel saves and historical choices', () => {
+  it('restores unversioned physical progress and events without rewriting their random stream', () => {
+    const s = begin();
+    // Explicit pre-2.5 schema, including an already completed road and pending encounter.
+    const oldJourney = { path: ['yingchuan', 'nanyang', 'xiangyang'], legIndex: 1, legDay: 1,
+      elapsed: 7, seed: 3198765432, serial: 1, event: { id: 7, kind: 'rain' as const, cgSeen: true } };
+    expect(isJourney(oldJourney, 'yingchuan', 'overworld')).toBe(true);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...s, journey: oldJourney }));
+    const restored = loadState()!;
+    expect(restored.journey).toEqual(oldJourney);
+    expect(turnBackTravel(restored)).toBe(restored);
+  });
+  it('round trips partial reversed roads and deterministic continuation', () => {
+    const s = begin(), leg = journeyLeg(s.journey!);
+    const forward = { ...s, journey: { ...s.journey!, legDay: 2, elapsed: 2 } };
+    const back = turnBackTravel(forward);
+    expect(back.journey!.legDay).toBe(leg.days - 2);
+    saveState(back);
+    const restored = loadState()!;
+    expect(restored.journey).toEqual(back.journey);
+    expect(advanceTravel(restored, 1)).toEqual(advanceTravel(back, 1));
+    expect(turnBackTravel(restored).journey!.legDay).toBe(2);
+  });
+  it('restores revisited cities and rejects corrupt versioned checkpoints', () => {
+    const s = begin(), leg = journeyLeg(s.journey!);
+    const rerouted = redirectTravel({ ...s, journey: { ...s.journey!, legDay: 2, elapsed: 2 } }, leg.from);
+    saveState(rerouted);
+    expect(loadState()!.journey).toEqual(rerouted.journey);
+    const j = rerouted.journey!, nav = j.navigation!;
+    for (const patch of [{ version: 3 }, { startElapsed: -1 }, { startLegDay: 999 }, { startElapsed: 1 }, { anchorCityId: leg.to }]) {
+      expect(isJourney({ ...j, navigation: { ...nav, ...patch } }, s.currentCityId, s.phase)).toBe(false);
+    }
+  });
   it('migrates a 0.1 save from its birthplace without losing resources or growth', () => {
     const { currentCityId: _city, travelCount: _count, ...old } = createInitialState(() => .9999);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...old, date: { year: 184, month: 4 } }));

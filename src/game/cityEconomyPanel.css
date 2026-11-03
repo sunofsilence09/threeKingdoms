@@ -1,0 +1,34 @@
+.finance-summary { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #a7b19a80; }
+.finance-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 16px; margin: 12px 0 16px; font-variant-numeric: tabular-nums; }
+.finance-metrics > div { min-width: 0; }
+.finance-metrics dt { font-size: 11px; color: #627260; margin-bottom: 2px; }
+.finance-metrics dd { margin: 0; font-size: 19px; font-weight: 600; color: #293d35; overflow-wrap: anywhere; }
+.finance-summary .finance-metrics dd, .camp-finance .finance-metrics dd { font-size: 17px; }
+.finance-summary .trade-button { width: 100%; font-size: 12px; }
+.finance-warning { border-left: 3px solid #985141; padding: 9px 12px; background: #f0dfca; color: #813b29; font-size: 12px; line-height: 1.7; }
+.finance-rule { background: #e3e9d8; padding: 12px 14px; color: #456048; font-size: 13px; line-height: 1.8; }
+.finance-field, .finance-city-choice { display: grid; gap: 6px; font-size: 12px; color: #526355; min-width: 0; }
+.finance-field .trade-input { width: 100%; }
+.finance-city-choice { grid-template-columns: auto minmax(0,300px); align-items: center; margin-bottom: 12px; }
+.finance-city-choice select { font-size: 13px; }
+.finance-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 15px 0; font-variant-numeric: tabular-nums; }
+.finance-table th { text-align: left; font-weight: 400; }
+.finance-table td { text-align: right; }
+.finance-table th, .finance-table td { border-bottom: 1px solid #b8c4ae; padding: 10px 7px; }
+.finance-table thead { background: #e3e9d8; }
+.finance-table thead th:not(:first-child) { text-align: right; }
+.finance-table tbody tr:last-child { font-weight: 600; background: #ecebdc; }
+.finance-management { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: end; gap: 10px; margin: 20px 0; }
+.finance-records { margin-top: 20px; border-top: 1px solid #a7b19a; padding-top: 12px; }
+.finance-records summary { cursor: pointer; min-height: 36px; font-weight: 600; color: #45634d; }
+.finance-record { padding: 10px 0; border-bottom: 1px solid #b8c4ae80; }
+.finance-record h3 { font-size: 14px; margin: 0; }
+.finance-record p { margin: 7px 0; font-size: 12px; line-height: 1.8; }
+.city-finance-panel .city-body > .finance-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
+.city-finance-panel .trade-card h2 { color: #45634d; font: 24px 'STKaiti','KaiTi',serif; margin-top: 0; }
+@media (max-width: 680px) {
+  .city-finance-panel .city-body > .finance-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .finance-metrics dd { font-size: 18px; }
+  .finance-city-choice { grid-template-columns: auto minmax(0,1fr); }
+  .finance-management { grid-template-columns: minmax(0,1fr); }
+}

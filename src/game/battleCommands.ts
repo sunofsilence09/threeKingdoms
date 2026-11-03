@@ -89,7 +89,10 @@ export function createBattleCommands(callbacks: {
     content.append(details);
     const moraleRules = document.createElement('details');
     add('summary','士气与兵战规则',moraleRules);
-    add('p','各部队士气0—120，80时攻击、防御、速度为标准值。攻击命中+3，受伤降低士气（每次最多20）；守势+10。低于10时每轮末流失当前士兵10%，向上取整。兵战技消耗士气，射程和移动由带领兵种决定；已损失士兵无法用治疗补回，战后须重新配兵。',moraleRules); content.append(moraleRules);
+    const moraleIntro = combat.troopRuleVersion === 3
+      ? '部队士气0—100，攻防速度系数为0.5+士气÷200；80士气为0.9倍，100为1倍。开战士气承接钱粮供给状态。'
+      : '本场沿用旧制：部队士气0—120，80时攻击、防御、速度为标准值。';
+    add('p',`${moraleIntro}攻击命中+3，受伤降低士气（每次最多20）；守势+10。低于10时每轮末流失当前士兵10%，向上取整。兵战技消耗士气，射程和移动由带领兵种决定；已损失士兵无法用治疗补回，战后须重新配兵。`,moraleRules); content.append(moraleRules);
     if (combat.fires?.length) {
       const fires = document.createElement('details');
       add('summary', `当前火格 · ${combat.fires.length}处`, fires);

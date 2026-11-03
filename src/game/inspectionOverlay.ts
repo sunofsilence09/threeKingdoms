@@ -35,12 +35,14 @@ export function openInspection(panel: HTMLElement, onClose?: () => void): () => 
     else if (!document.activeElement || document.activeElement === document.body) {
       // A parent dialog may rebuild its controls in onClose. Recover the same
       // member/action rather than trying to focus a detached pre-render button.
-      const scope = focusKey ? root.querySelector(`[${focusKey[0]}="${CSS.escape(focusKey[1])}"]`) ?? root : root;
-      const controls = [...scope.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), a[href]')];
+      const surface = root.childElementCount ? root : document.querySelector<HTMLElement>('#world-root') ?? root;
+      const scope = focusKey ? surface.querySelector(`[${focusKey[0]}="${CSS.escape(focusKey[1])}"]`) ?? surface : surface;
+      const controls = [...scope.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), input:not(:disabled), a[href]')]
+        .filter(node => node.getClientRects().length > 0 && !node.closest('[inert]'));
       const replacement = controls.find(node => focus?.id && node.id === focus.id) ??
         controls.find(node => focusAria && node.getAttribute('aria-label') === focusAria) ??
         controls.find(node => node.tagName === focus?.tagName && node.textContent?.trim() === focusLabel) ??
-        root.querySelector<HTMLElement>('.company-header button, button:not(:disabled)');
+        controls.find(node => node.matches('.company-header button')) ?? controls[0];
       replacement?.focus({ preventScroll: true });
     }
   };

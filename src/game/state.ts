@@ -1,3 +1,4 @@
+import {initializeCityEconomy, isCityEconomy, repairCityEconomy, type CityEconomy} from './cityEconomy';
 import {migrateHistory,type HistoryProgress} from './historicalEvents';
 import { isGiftInventory, type GiftInventory } from './social';
 import { effectiveAttributes } from './characterTalents';
@@ -27,6 +28,8 @@ export type RouteId = 'cao' | 'sun' | 'liu';
 export type DemoPhase = 'prologue' | 'overworld' | 'route-choice' | 'battle' | 'ending';
 
 export interface GameState {
+  cityEconomy?: CityEconomy;
+  cityEconomyRecovery?: boolean;
   history?: HistoryProgress;
   gifts?: GiftInventory;
   troopAssignments?: Record<string, TroopAssignment>;
@@ -75,7 +78,7 @@ export function createInitialState(random: () => number = Math.random): GameStat
   const date = { year: 184, month: 3, day: 1 };
   const life = createLifeState(date);
   const worldConflict=createWorldConflict(date,PARTY_IDS,undefined,life);
-  return {
+  return initializeCityEconomy({
     life:ensureLifePeople(life,Object.values(worldConflict.cities).flatMap(c=>c.governorId?[c.governorId]:[])),
     history: {version:1,entries:[{id:"yellow",read:false,legacy:false},{id:"peachNovel",read:false,legacy:false}]},
     martial: createMartialProgress(),
@@ -94,7 +97,7 @@ export function createInitialState(random: () => number = Math.random): GameStat
     economy: createEconomy(),
     travelDays: 3,
     worldConflict,
-  };
+  });
 }
 
 export function selectRoute(state: GameState, route: RouteId): GameState {
@@ -216,6 +219,7 @@ export function loadState(): GameState | null {
       const w = restored.worldConflict;
       restored.worldConflict = { ...w, playerReserve: (w.playerReserve ?? 0) + w.playerAssigned!, playerAssigned: 0 };
     }
+    if(parsed.cityEconomy!==undefined&&!isCityEconomy(parsed.cityEconomy,restored)) {backup('city-economy',parsed.cityEconomy);restored.cityEconomy=repairCityEconomy(parsed.cityEconomy,restored);restored.cityEconomyRecovery=true;}
     let initialized=reconcileTroops(withWorldDate(restored, restored.date));
     if(initialized.duel&&!isAliveAt(initialized.life,initialized.duel.teacherId,initialized.date,true)) {
       backup('duel-life',parsed.duel);backup('active-battle-life',parsed.activeBattle);

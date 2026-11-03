@@ -30,13 +30,15 @@ with sync_playwright() as p:
    const {createProgress}=await import('/src/game/growth.ts');
    const {createLifeState}=await import('/src/game/personLife.ts');
    const s=createInitialState(()=>0);s.date={year:200,month:5,day:1};s.life=createLifeState(s.date,23);
-   s.heroName='验收旅人';s.phase='overworld';s.currentCityId='xiangyang';delete s.worldConflict;
+   s.heroName='验收旅人';s.phase='overworld';s.currentCityId='xiangyang';delete s.worldConflict;delete s.cityEconomy;
    s.party['cai-yan']=createProgress();s.party['guan-yu']=createProgress();s.party['aman']=createProgress();
    s.relationships['cai-yan']={affinity:95};s.relationships['guan-yu']={affinity:100};s.relationships.aman={affinity:0};
    s.economy.coins=3000;localStorage.setItem(STORAGE_KEY,JSON.stringify(s));return s;
   }""")
    FIXTURE.write_text(json.dumps(initial,ensure_ascii=False),encoding='utf-8')
   page.reload(wait_until='networkidle');page.get_by_role('button',name='继续游戏',exact=True).click()
+  page.locator('#world-root').wait_for()
+  if page.locator('#world-nav-city').count(): page.locator('#world-nav-city').click()
   page.get_by_role('button',name='进入城池',exact=True).click()
   page.get_by_role('button',name='礼品铺',exact=True).click()
   page.get_by_role('button',name='购买玉佩',exact=True).click()

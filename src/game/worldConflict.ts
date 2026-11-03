@@ -192,12 +192,12 @@ function startSiege(world:WorldConflict,army:ConflictArmy):void {
   reportArmy(world,army,'siege',`${factionAt(army.factionId).name}围攻${cityNameAt(army.targetCityId,dateAt(world.lastDay))}，预计${army.phaseDays}日。`,{opponentFactionId:world.cities[army.targetCityId].factionId});
 }
 /** Equivalent ordinary formations scale together; HP, attack, defense and six attributes all contribute. */
-function power(troops:number):number {return troops*(10+3+1+6*10);}
+function power(troops:number,morale=80):number {return troops*(10+3+1+6*10)*(0.5+morale/200);}
 function battle(world:WorldConflict,army:ConflictArmy,captured:Set<string>):void {
   const city=world.cities[army.targetCityId];
   if(city.factionId===army.factionId) {merge(world,army);return;}
   if(captured.has(army.targetCityId)) {retreat(world,army);return;}
-  const enemy=city.factionId, attack=power(army.troops)*(army.commanderId||army.factionId==='player'?1.06:1)*(.9+random(world)*.2),defense=power(city.troops)*1.15*(.9+random(world)*.2);
+  const enemy=city.factionId, attack=power(army.troops,world.armyMorale?.[army.id])*(army.commanderId||army.factionId==='player'?1.06:1)*(.9+random(world)*.2),defense=power(city.troops,world.cityMorale?.[army.targetCityId])*1.15*(.9+random(world)*.2);
   if(attack>defense) {
     const lost=Math.min(army.troops-1,Math.ceil(city.troops*(.25+random(world)*.2))),defenders=city.troops;
     army.troops-=lost;world.ledger.losses+=lost+defenders;
@@ -242,17 +242,18 @@ function moveArmies(world:WorldConflict):void {
     }
   }
 }
-export function advanceWorldConflict(world:WorldConflict,date:GameDate,partyIds:readonly string[]=[],life?:LifeState):WorldConflict {
+/** owned=true is reserved for the world clock's private cloned campaign during an elapsed-day loop. */
+export function advanceWorldConflict(world:WorldConflict,date:GameDate,partyIds:readonly string[]=[],life?:LifeState,owned=false):WorldConflict {
   const target=conflictDay(date);if(target<world.lastDay)return world;
-  const clean=reconcileWorldPeople(world,dateAt(world.lastDay),partyIds,life);
+  const clean=owned?world:reconcileWorldPeople(world,dateAt(world.lastDay),partyIds,life);
   if(target===world.lastDay)return clean;
-  const next=structuredClone(clean);
+  const next=owned?clean:structuredClone(clean);
   // Adding a campaign commander to the party relinquishes their NPC commission immediately.
   for(const army of next.armies) if(army.commanderId&&partyIds.includes(army.commanderId)) delete army.commanderId;
   for(let day=next.lastDay+1;day<=target;day++) {
     next.lastDay=day;
     for(const army of next.armies) if(army.commanderId&&!eligibleCommander(army.commanderId,army.factionId,dateAt(day),life))delete army.commanderId;
-    if(day%30===0) for(const city of Object.values(next.cities)) {const raised=Math.min(50,20000-city.troops);city.troops+=raised;next.ledger.recruited+=raised;}
+
     foundations(next,partyIds,false,life);moveArmies(next);assignGovernors(next,partyIds,life);decisions(next,partyIds,life);assignGovernors(next,partyIds,life);
   }
   return next;

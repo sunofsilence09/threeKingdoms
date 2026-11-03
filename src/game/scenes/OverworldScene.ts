@@ -10,7 +10,7 @@ import { clearOverlay, setStatus, showPanel } from '../ui';
 import { showLocalOfficials } from '../localOfficialPanel';
 import { createWorldMap } from '../worldMapView';
 import { cityAt, cityNameAt, planRoute, WORLD_CITIES } from '../world';
-import { advanceTravel, cityContact, journeyLeg, remainingDays, resolveTravelEvent, restInCity, ROAD_NAMES, startTravel, workInCity } from '../travel';
+import { advanceTravel, cityContact, journeyLeg, remainingDays, resolveTravelEvent, restInCity, ROAD_NAMES, startTravel, workInCity, redirectTravel, turnBackTravel, stopAtNextCity, previewTravelChange } from '../travel';
 import { createCityWorkControls } from '../cityWorkControls';
 import '../worldScreen.css';
 import { showPartyPanel, showRecruitmentPanel } from '../partyPanel';
@@ -28,6 +28,9 @@ import { personName } from '../heroName';
 import { routePrincipalId, routePrincipalName } from '../politicalPresentation';
 import {createMusicControls} from '../musicControls';
 import {showPlayerMilitary} from '../playerMilitaryPanel';
+import { createWorldWorkspace, type WorldSection } from '../worldWorkspace';
+import { renderCityEconomySummary, renderCampFinance, showCityEconomy, pendingFundingMessage } from '../cityEconomyPanel';
+import { campFinanceSummary } from '../cityEconomy';
 
 type NodeId = 'ambush' | 'recovery' | 'hub';
 type EventChoice = Parameters<typeof resolveTravelEvent>[1];
@@ -37,6 +40,10 @@ export class OverworldScene extends Phaser.Scene {
   private map?: ReturnType<typeof createWorldMap>;
   private hud?: ReturnType<typeof createHeroHud>;
   private selectedId?: string;
+  private section: WorldSection = 'travel';
+  private mapExpanded = false;
+  private renderedSection: WorldSection = 'travel';
+  private sectionScroll: Partial<Record<WorldSection, number>> = {};
   private refreshAfterInspection = false;
   constructor() { super('Overworld'); }
   create(): void {
@@ -67,11 +74,12 @@ export class OverworldScene extends Phaser.Scene {
   }
   private render(focusId?: string): void {
     if (!this.root) return;
+    this.sectionScroll[this.renderedSection] = this.root.querySelector('.world-sidebar')?.scrollTop ?? 0;
     this.map?.destroy(); this.hud?.destroy(); this.root.replaceChildren();
     const state = getState(), city = cityAt(state.currentCityId), journey = state.journey;
     const leg = journey ? journeyLeg(journey) : undefined;
-    if (journey) this.selectedId = journey.path.at(-1);
-    else if (this.selectedId === city.id) this.selectedId = undefined;
+    if (journey && !this.selectedId) this.selectedId = journey.path.at(-1);
+    else if (!journey && this.selectedId === city.id) this.selectedId = undefined;
     const planned = this.selectedId ? planRoute(city.id, this.selectedId) : undefined;
     setStatus(dateLabel(state.date));
     const el = <T extends keyof HTMLElementTagNameMap>(tag: T, className: string, text?: string, parent: HTMLElement = this.root!) => {
@@ -84,7 +92,7 @@ export class OverworldScene extends Phaser.Scene {
     };
     const header = el('header', 'world-header');
     const heading = el('div', 'world-header-title', undefined, header);
-    el('span', 'world-eyebrow', `${themeFor(state.date).season} · 2.4.0 群英百维`, heading);
+    el('span', 'world-eyebrow', `三国行旅 · 2.5.0 城府军政 · ${themeFor(state.date).season}`, heading);
     el('h1', '', journey ? `${cityNameAt(leg!.from,state.date)} → ${cityNameAt(leg!.to,state.date)}` : `${cityNameAt(city.id,state.date)} · ${city.prefecture}`, heading);
     el('p', 'world-date', dateLabel(state.date), heading);
     const world = state.conflictRecovery ? undefined : state.worldConflict;
@@ -94,18 +102,33 @@ export class OverworldScene extends Phaser.Scene {
     el('p', '', `军需 ${state.supplies}　士气 ${state.morale}`, stats);
     el('p', '', `铜钱 ${state.economy.coins}　货舱 ${cargoUsed(state.economy)}/${state.economy.capacity}`, stats);
     if(world?.playerReserve!==undefined)el('p','','随行预备兵 '+world.playerReserve,stats);
-    el('p', '', state.route ? `归属 · ${routePrincipalName(state.route,state)}` : '无所属 · 独自行旅', stats);
+    el('p', 'world-affiliation', state.route ? `归属 · ${routePrincipalName(state.route,state)}` : '无所属 · 独自行旅', stats);
     el('small', '', `出生地：${originAt(state.originId).name}`, stats);
-    this.root.append(createMusicControls());
-    const layout = el('div', 'world-layout');
-    const mapColumn = el('div', 'world-map-column', undefined, layout);
+    const messages = el('div', 'world-message-bar');
+    const unread = state.history?.entries.filter(entry => !entry.read).length ?? 0;
+    const fundingMessage = pendingFundingMessage(state);
+    const message = fundingMessage ?? state.travelNotice ?? (state.life?.notices.length ? `收到${state.life.notices.length}条离世消息，请查看消息簿。` : world?.reports.at(-1)?.text ?? `史事未读${unread} · ${chapterAt(state.date.year).context}`);
+    const messageText = el('p', '', message, messages); messageText.setAttribute('role', 'status'); messageText.title = message;
+    const messageButton = el('button', '', fundingMessage ? '查看军费' : '消息簿', messages); messageButton.type = 'button';
+    messageButton.addEventListener('click', () => { this.section = fundingMessage ? 'army' : 'more'; this.mapExpanded = false; this.render(`world-nav-${this.section}`); });
+    const workspace = createWorldWorkspace(this.root, {
+      section: this.section, mapExpanded: this.mapExpanded,
+      onSection: section => { this.section = section; this.mapExpanded = false; this.render(`world-nav-${section}`); },
+      onMap: () => { this.mapExpanded = !this.mapExpanded; this.render('world-map-toggle'); },
+      onPeople: () => { if (!getState().journey) showRecruitmentPanel(() => this.render()); },
+      onHistory: () => showHistoryPanel(() => this.render()),
+      onConflict: () => showConflictPanel(() => this.render()),
+      onParty: () => showPartyPanel(() => this.render('world-nav-party')),
+      peopleDisabled: !!journey, conflictDisabled: !!state.conflictRecovery,
+    });
+    const mapColumn = workspace.mapColumn;
     this.map = createWorldMap({ currentId:city.id, selectedId:this.selectedId, path: journey?.path ?? planned?.path,
       ...(journey && leg ? {progress:{from:leg.from,to:leg.to,fraction:journey.legDay/leg.days}} : {}),
-      year:state.date.year, date:state.date, worldConflict:world, onSelect:id=>{ if (getState().journey) return; this.selectedId=id; this.render(); } });
+      year:state.date.year, date:state.date, worldConflict:world, onSelect:id=>{ this.selectedId=id; this.section='travel'; this.mapExpanded=false; this.render(getState().journey?'redirect-destination':'world-destination'); } });
     this.map.element.dataset.season = ({春:'spring',夏:'summer',秋:'autumn',冬:'winter'} as Record<string,string>)[themeFor(state.date).season];
     mapColumn.append(this.map.element);
     el('p', 'world-context', chapterAt(state.date.year).context, mapColumn);
-    const side = el('aside','world-sidebar',undefined,layout);
+    const side = workspace.commands;
     if(state.life?.notices.length){
       const notices=el('section','world-notice life-notices',undefined,side);notices.dataset.lifeNotices='';notices.setAttribute('role','status');
       el('h2','',`离世消息 · ${state.life.notices.length} 人`,notices);
@@ -149,6 +172,7 @@ export class OverworldScene extends Phaser.Scene {
       else this.renderSchedule(travelCard);
       const details=el('details','world-route-details',undefined,travelCard); el('summary','','查看完整行程',details);
       el('p','',journey.path.map(id=>cityNameAt(id,state.date)).join(' → '),details);
+      this.renderNavigationChanges(travelCard);
     } else {
       const label=el('label','world-destination-label','选择目的地',travelCard); label.htmlFor='world-destination';
       const select=el('select','world-destination-select',undefined,travelCard); select.id='world-destination';
@@ -172,6 +196,7 @@ export class OverworldScene extends Phaser.Scene {
       } else el('p','world-muted','选一座城，查看路线和预计行期。途中遇事可处理后继续赶路。',travelCard);
     }
     const local=el('section','world-card',undefined,side); el('h2','',`城中事务${journey ? ' · 抵达后开放' : ''}`,local);
+    if (!journey) local.append(renderCityEconomySummary(state, city.id, () => showCityEconomy(city.id, () => this.render('world-nav-city'))));
     const localActions=el('div','world-action-grid',undefined,local);
     button('进入城池',()=>showCityPanel(()=>this.render('enter-city')),localActions,false,!!journey,'enter-city');
     button(`历史大事 · 未读${state.history?.entries.filter(e=>!e.read).length??0} · ${HISTORY_EVENTS.find(e=>e.id===state.history?.entries.at(-1)?.id)?.title??''}`,()=>showHistoryPanel(()=>this.render('world-history')),localActions,true,false,'world-history');
@@ -185,13 +210,94 @@ export class OverworldScene extends Phaser.Scene {
     const rest=el('div','world-action-grid',undefined,local);
     button('安居一月 · 30日',()=>{setState(restInCity(getState(),30));this.render();},rest,true,!!journey);
     button('长期停留 · 一年',()=>this.confirmLongRest(),rest,true,!!journey);
-    el('p','world-muted','历法简化为每月30日，可行旅至310年。休整与行旅推进日期，也会结算人物寿命。',local);
+    el('p','world-muted','每月30日。行旅与停留会推进战争、钱粮军饷和人物寿命。',local);
     if (!state.route && availableRoutes(state).length) button('查看可投奔的阵营',()=>this.scene.start('RouteChoice'),side,true);
     button(`队伍 · 出战 ${state.deployed.length}/5`,()=>showPartyPanel(()=>this.render('world-party')),side,true,false,'world-party');
+    const army = el('section', 'world-sheet', undefined, side);
+    el('h2', '', '军务案牍', army);
+    army.append(renderCampFinance(state, () => this.render('world-nav-army')));
+    button('募兵 / 调拨 / 攻城', () => showPlayerMilitary(() => this.render('world-nav-army')), army, false, !!journey || !!state.conflictRecovery, 'world-army-open');
+    button('主角与同行配兵', () => showPartyPanel(() => this.render('world-nav-army')), army, true);
+    el('p', 'world-notice', '每人领兵上限随统率增长，最高10000人。预备兵与角色所部合计最多20000人；扩军前请留意每月军费。', army);
+    const party = el('section', 'world-sheet', undefined, side);
+    el('h2', '', '同行名册', party);
+    const partyCard = el('section', 'world-card', undefined, party);
+    el('p', '', `当前出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length}人`, partyCard);
+    el('p', 'world-route-path', state.deployed.map(id => personName(id, state)).join(' · '), partyCard);
+    button('管理队伍 · 成长 / 配兵', () => showPartyPanel(() => this.render('world-nav-party')), partyCard);
+    button('寻访人物', () => showRecruitmentPanel(() => this.render('world-nav-party')), partyCard, true, !!journey);
+    const more = document.createElement('section'); more.className = 'world-sheet';
+    const moreTitle = el('h2', '', '消息与纪事', more);
+    moreTitle.id = 'world-messages-title';
+    const links = el('div', 'world-action-grid', undefined, more);
+    button(`历史大事 · 未读${unread}`, () => showHistoryPanel(() => this.render('world-nav-more')), links, true);
+    button('天下局势', () => showConflictPanel(() => this.render('world-nav-more')), links, true, !!state.conflictRecovery);
+    button('地方官员', showLocalOfficials, links, true, !!journey);
+    button('寻访人物', () => showRecruitmentPanel(() => this.render('world-nav-more')), links, true, !!journey);
+    const travelSheet = el('section', 'world-sheet', undefined, side); travelSheet.append(travelCard);
+    if (!journey && !this.selectedId) {
+      const nearby = el('section', 'world-card', undefined, travelSheet);
+      el('h2', '', `${cityNameAt(city.id,state.date)} · 城府`, nearby);
+      nearby.append(renderCityEconomySummary(state, city.id, () => showCityEconomy(city.id, () => this.render())));
+      const quick = el('div', 'world-action-grid', undefined, nearby);
+      button('入城办事', () => showCityPanel(() => this.render()), quick);
+      button('寻访人物', () => showRecruitmentPanel(() => this.render()), quick, true);
+      const camp = campFinanceSummary(state);
+      el('p', 'world-muted', `随行月费 ${camp.dueCoins}钱 / ${camp.fundingCityId ? `${camp.dueGrain}粮` : `${camp.dueSupplies}军需`} · 军队士气${camp.morale}`, nearby);
+    }
+    for (const child of [...side.children]) if (![travelSheet, local, army, party].includes(child as HTMLElement)) more.append(child);
+    more.append(createMusicControls()); side.append(more);
+    for (const [id, sheet] of [['travel', travelSheet], ['city', local], ['army', army], ['party', party], ['more', more]] as const) {
+      sheet.hidden = id !== this.section; sheet.dataset.worldSheet = id;
+    }
+    side.scrollTop = this.sectionScroll[this.section] ?? 0; this.renderedSection = this.section;
+    const footer = el('footer', 'world-footer');
     this.hud=createHeroHud(state.route,undefined,state.party);
-    const hudNode=document.querySelector<HTMLElement>('#hud-root .hero-hud'); if(hudNode) side.append(hudNode);
+    const hudNode=document.querySelector<HTMLElement>('#hud-root .hero-hud'); if(hudNode) footer.append(hudNode);
     if(focusId) (this.root.querySelector<HTMLElement>(`#${focusId}`) ?? this.root.querySelector<HTMLElement>('.world-travel-event button'))?.focus({preventScroll:true});
     if(journey?.event && !journey.event.cgSeen)showEventCg(()=>this.render('continue-travel'));
+  }
+  private renderNavigationChanges(parent: HTMLElement): void {
+    const state = getState(), journey = state.journey!;
+    const section = document.createElement('details'); section.className = 'world-replan';
+    section.open = !!this.selectedId && this.selectedId !== journey.path.at(-1);
+    const summary = document.createElement('summary'); summary.textContent = '改道 / 停止原路线'; section.append(summary);
+    const label = document.createElement('label'); label.className = 'world-destination-label'; label.htmlFor = 'redirect-destination'; label.textContent = '新的目的地';
+    const select = document.createElement('select'); select.id = 'redirect-destination'; select.className = 'world-destination-select';
+    for (const province of PROVINCES) {
+      const group = document.createElement('optgroup'); group.label = province.name;
+      for (const city of WORLD_CITIES.filter(c => c.provinceId === province.id)) {
+        const option = document.createElement('option'); option.value = city.id; option.textContent = cityNameAt(city.id, state.date); group.append(option);
+      }
+      select.append(group);
+    }
+    select.value = this.selectedId ?? journey.path.at(-1)!;
+    select.disabled = !!journey.event;
+    const preview = document.createElement('p'); preview.className = 'world-muted';
+    const redirect = document.createElement('button'); redirect.type = 'button'; redirect.className = 'world-button'; redirect.id = 'redirect-travel'; redirect.textContent = '确认改道';
+    const update = () => {
+      const quote = previewTravelChange(getState(), 'redirect', select.value);
+      preview.textContent = quote.allowed ? `先到${cityNameAt(quote.effectiveCity!, state.date)}，再前往${cityNameAt(select.value, state.date)}；剩余${quote.remainingDays}日。` : quote.reason ?? '暂不可改道。';
+      redirect.disabled = !quote.allowed;
+    };
+    select.addEventListener('change', () => { this.selectedId = select.value; update(); }); update();
+    const commit = (change: () => ReturnType<typeof getState>) => {
+      const previous = getState(), next = change();
+      if (next !== previous) { setState(next); this.selectedId = next.journey?.path.at(-1); this.render(next.journey ? 'continue-travel' : 'world-destination'); }
+    };
+    redirect.addEventListener('click', () => commit(() => redirectTravel(getState(), select.value)));
+    section.append(label, select, preview, redirect);
+    const alternatives = document.createElement('div'); alternatives.className = 'world-action-grid';
+    for (const [action, text, apply] of [
+      ['next-city', '下一城停下', stopAtNextCity], ['turn-back', '折返上一城', turnBackTravel],
+    ] as const) {
+      const quote = previewTravelChange(state, action);
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'world-button is-quiet'; button.id = action === 'next-city' ? 'stop-next-city' : 'turn-back-travel';
+      button.textContent = quote.allowed ? `${text} · ${quote.remainingDays}日` : text; button.disabled = !quote.allowed;
+      button.title = quote.allowed ? cityNameAt(quote.destination, state.date) : quote.reason;
+      button.addEventListener('click', () => commit(() => apply(getState()))); alternatives.append(button);
+    }
+    section.append(alternatives); parent.append(section);
   }
   private renderSchedule(parent:HTMLElement):void {
     const form=document.createElement('form');form.className='travel-schedule';form.noValidate=true;
@@ -243,7 +349,9 @@ export class OverworldScene extends Phaser.Scene {
   }
   private confirmLongRest(): void {
     if(getState().journey)return;
-    showPanel({eyebrow:'长期停留 · 明确推进时间',title:'在此安居一年？',body:'将在当前城邑停留360个游戏日，日期、季节和历史章节随之推进，并补充3军需。不会自动迁往别处。',actions:[
+    const state = getState(), camp = campFinanceSummary(state);
+    const costs = camp.fundingCityId ? `由${cityNameAt(camp.fundingCityId,state.date)}府库承担，按当前编制预计12个月需${camp.dueCoins*12}铜钱、${camp.dueGrain*12}粮草。` : `从个人财货支付，按当前编制预计12个月需${camp.dueCoins*12}铜钱、${camp.dueSupplies*12}军需；现有${state.economy.coins}钱、${state.supplies}军需。`;
+    showPanel({eyebrow:'长期停留 · 军费预览',title:'在此安居一年？',body:`将在当前城邑停留360日，并补充3军需。${costs}期间逐月结算，人员、战争与归属变化会改变实际费用；欠饷或断粮会持续降低军队士气。`,actions:[
       {label:'确认安居一年 · 推进360日',onClick:()=>{setState(restInCity(getState(),360));clearOverlay();this.render();}},
       {label:'继续眼前的行旅',variant:'quiet',onClick:clearOverlay},
     ]});

@@ -3,6 +3,8 @@ import { advanceDays } from './history';
 import { createInitialState, loadState, saveState } from './state';
 import { cityWorkQuote, maxCityWorkBlocks, restInCity, startTravel, workInCity } from './travel';
 import { gameDayNumber } from './recruitment';
+import { withWorldDate } from './worldTime';
+import { campFinanceSummary } from './cityEconomy';
 
 const cityState = () => ({ ...createInitialState(() => 0), phase: 'overworld' as const, currentCityId: 'yingchuan' });
 
@@ -11,8 +13,9 @@ describe('city work in complete five-day blocks', () => {
     const state = cityState();
     expect(restInCity(state, 1)).toBe(state);
     for (const days of [30, 360]) {
-      expect(restInCity(state, days).economy).toEqual(state.economy);
-      expect(restInCity(state, days).supplies).toBe(state.supplies + 3);
+      const rested = restInCity(state, days), clock = withWorldDate(state, advanceDays(state.date, days));
+      expect(rested.economy).toEqual(clock.economy);
+      expect(rested.supplies).toBe(clock.supplies + 3);
     }
   });
   it.each([1, 3, 72])('works %i full blocks at the existing daily rate', blocks => {
@@ -22,7 +25,9 @@ describe('city work in complete five-day blocks', () => {
     expect(gameDayNumber(next.date) - gameDayNumber(state.date)).toBe(days);
     expect(next.date).toEqual(advanceDays(state.date, days));
     expect(next.supplies).toBe(state.supplies + days);
-    expect(next.economy.coins).toBe(state.economy.coins + days * 20);
+    const monthlyPaid = next.cityEconomy!.camp.records.reduce((sum, record) => sum + record.paid.coins, 0);
+    expect(monthlyPaid).toBe(Math.floor(days / 30) * campFinanceSummary(state).dueCoins);
+    expect(next.economy.coins + monthlyPaid).toBe(state.economy.coins + days * 20);
     expect(next.currentCityId).toBe(state.currentCityId);
     expect(next.worldConflict?.lastDay).toBe(gameDayNumber(next.date));
     expect(next.travelNotice).toContain(`帮工${days}日`);

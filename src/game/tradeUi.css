@@ -11,3 +11,31 @@
 .trade-good-heading,.office-person-heading{display:flex;align-items:center;gap:16px;margin-bottom:14px}.trade-good-image{width:88px;height:88px;flex-shrink:0;object-fit:contain;border-radius:8px;background:#e8e5d7}.trade-good-heading h3{margin:0}.trade-good-image[hidden]{display:none}.office-person-image{width:78px;height:118px;object-fit:contain;flex-shrink:0;background:#e8e5d7;border-radius:7px}.office-person-heading>div{min-width:0}.office-person-heading h3{margin:0}.office-service-label,.company-office,.character-service{font-size:13px;line-height:1.7;color:#765f36}.character-service{padding:8px 10px;background:#e7e7d4;border-left:3px solid #ae8846}.city-office-roster>h3{margin-top:24px}
 @media(max-width:680px){.trade-good-image{width:70px;height:70px}.trade-good-heading,.office-person-heading{gap:12px}.office-person-image{width:64px;height:100px}.office-person-heading p{font-size:12px}}
 .garrison-summary{margin:16px 0;padding:16px;border:1px solid #a8b8a5;border-radius:10px;background:#e9ecdf}.garrison-summary h3{margin-top:0}.garrison-totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.garrison-totals div{min-width:0;padding:10px;background:#fffdf3;border-radius:6px}.garrison-totals dt{font-size:12px;color:#526455}.garrison-totals dd{font-weight:700;margin:5px 0 0;overflow-wrap:anywhere}.office-person-image[hidden]{display:none}@media(max-width:560px){.garrison-totals{grid-template-columns:repeat(2,minmax(0,1fr))}.garrison-summary{padding:12px}}
+
+/* City affairs fill the available window; decoration no longer pushes actions away. */
+.city-panel { width: min(1360px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; overflow: hidden; border-radius: 5px; }
+.city-header { flex-shrink: 0; padding: 12px 20px; }
+.city-header h1 { margin: 0 0 4px; font: 25px 'STKaiti','KaiTi',serif; }
+.city-header p { margin: 0; font-size: 12px; }
+.city-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 14px 20px; }
+.city-tools, .city-body > .trade-tabs { margin: 0 0 12px; }
+.city-body > .trade-tabs { padding-bottom: 10px; border-bottom: 1px solid #a7b19a80; }
+.city-overview { max-width: 900px; }
+.city-overview > h2 { font: 25px 'STKaiti','KaiTi',serif; color: #45634d; }
+.city-overview .finance-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; }
+.city-overview .finance-summary { border: 0; }
+.city-overview .finance-summary .trade-button { width: auto; }
+.world-travel-card .travel-shortcuts { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); }
+.world-travel-card .travel-shortcuts .world-button { min-height: 40px; }
+@media (min-width: 1200px) { .city-body > .trade-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (max-width: 680px) {
+  .city-panel { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+  .city-header { padding: 11px 12px; align-items: flex-start; }
+  .city-header h1 { font-size: 22px; }
+  .city-header p { font-size: 11px; }
+  .city-header > .trade-button { flex-shrink: 0; padding: 7px 9px; }
+  .city-body { padding: 12px; }
+  .city-tools { display: grid; grid-template-columns: 1fr 1fr; }
+  .city-body > .trade-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .city-overview .finance-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+}

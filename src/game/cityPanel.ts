@@ -14,6 +14,7 @@ import { renderCityOffice } from './cityOfficeView';
 import { factionAt } from './worldConflictData';
 import { showConflictPanel } from './conflictPanel';
 import { showPlayerMilitary } from './playerMilitaryPanel';
+import { renderCityEconomySummary, showCityEconomy } from './cityEconomyPanel';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K] {
   const node=document.createElement(tag);node.textContent=text;node.className=className;return node;
@@ -29,17 +30,24 @@ export function showCityPanel(onClose?:()=>void):void {
   const exit=button('出城 · 返回地图',()=>close());header.append(heading,exit);
   const body=el('div','','city-body');panel.append(header,body);
   const close=openInspection(panel,onClose);
-  let tab:'market'|'cargo'|'office'|'gifts'='market',feedback='';
+  let tab:'overview'|'market'|'cargo'|'office'|'gifts'='overview',feedback='';
   function render():void {
     const state=getState(),economy=state.economy,city=cityAt(state.currentCityId),day=gameDayNumber(state.date);
     const owner=state.conflictRecovery?undefined:state.worldConflict?.cities[city.id];
     title.textContent=`${cityNameAt(city.id,state.date)} · ${owner?factionAt(owner.factionId).name:'城内'}`;
-    summary.textContent=`${dateLabel(state.date)} · 铜钱 ${economy.coins} · 货舱 ${cargoUsed(economy)}/${economy.capacity}`;
+    summary.textContent=`${dateLabel(state.date)} · 个人铜钱 ${economy.coins} · 货舱 ${cargoUsed(economy)}/${economy.capacity}`;
     body.replaceChildren();
-    const banner=el('img','','city-banner');banner.src=imageAssetUrl('/assets/events/event-merchant-v1.png');banner.alt='汉末城邑市集与货担';banner.loading='lazy';banner.addEventListener('error',()=>banner.hidden=true);body.append(banner);
     const tools=el('div','','city-tools');tools.append(button('寻访人物',()=>showRecruitmentPanel(render),false,true),button('地方官员',showLocalOfficials,false,true),button('军务 / 攻城',()=>showPlayerMilitary(render),!!state.conflictRecovery,true),button('天下局势',()=>showConflictPanel(render),!!state.conflictRecovery,true));body.append(tools);
     const nav=el('nav','','trade-tabs');nav.setAttribute('aria-label','城市事务');
-    for(const [id,label] of [['market','市集买卖'],['gifts','礼品铺'],['cargo','行囊与账本'],['office','府署名册']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}body.append(nav);
+    for(const [id,label] of [['overview','城市总览'],['market','市集买卖'],['gifts','礼品铺'],['cargo','行囊与账本'],['office','府署名册']] as const){const b=button(label,()=>{tab=id;feedback='';render();},false,true);b.setAttribute('aria-pressed',String(tab===id));nav.append(b);}
+    nav.append(button('府库 / 商农发展',()=>showCityEconomy(city.id,render),!!state.conflictRecovery,true));body.append(nav);
+    if(tab==='overview'){
+      const overview=el('section','','city-overview');overview.append(el('h2',`${cityNameAt(city.id,state.date)}城府`));
+      overview.append(renderCityEconomySummary(state,city.id,()=>showCityEconomy(city.id,render)));
+      overview.append(el('p',`守军 ${owner?.troops??0}人 · ${owner?.factionId==='player'?'主角军府所属，可管理钱粮与发展。':'可查看本城府库与收支，府库管理由本城势力负责。'}`,'trade-muted'));
+      overview.append(el('p','商业决定月度铜钱收入，农业决定月度粮草产出。每月发放军饷与角色俸禄；府库钱粮耗尽会逐日降低士气。','finance-rule'));
+      body.append(overview);return;
+    }
     if(tab==='gifts'){
       body.append(el('p','各城礼品铺均有售。礼品存入礼物行囊，购买不消耗日期；前往人物详情或寻访人物赠送。','trade-muted'));
       const grid=el('div','','trade-grid');body.append(grid);

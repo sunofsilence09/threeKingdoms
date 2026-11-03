@@ -14,7 +14,11 @@ import { isAliveAt } from './personLife';
 
 export type TravelEventKind = 'rain' | 'merchant' | 'refugees' | 'ferry' | 'bandits' | 'contact' | 'market-news' | 'wolves';
 export interface TravelEvent { id: number; kind: TravelEventKind; contact?: RouteId; inBattle?: boolean; cgSeen?: boolean; news?: MarketNews }
-export interface Journey { path: string[]; legIndex: number; legDay: number; elapsed: number; seed: number; serial: number; event?: TravelEvent }
+export interface Journey {
+  path: string[]; legIndex: number; legDay: number; elapsed: number; seed: number; serial: number; event?: TravelEvent;
+  /** Versioned route checkpoint: elapsed is lifetime walking, legDay is physical road position. */
+  navigation?: { version: 2; anchorCityId: string; startElapsed: number; startLegDay: number };
+}
 export const ROAD_NAMES = { road: '陆路', water: '水路', mountain: '山道' };
 export function journeyLeg(journey: Journey) {
   return directRoadLeg(journey.path[journey.legIndex], journey.path[journey.legIndex + 1])!;
@@ -52,6 +56,45 @@ export function startTravel(state: GameState, destination: string, seed = Math.f
     journey: { path: route.path, legIndex: 0, legDay: 0, elapsed: 0, seed: seed >>> 0, serial } };
 }
 
+export type TravelChange = 'redirect' | 'turn-back' | 'next-city';
+export type TravelChangePreview = { allowed: false; reason: string } | {
+  allowed: true; destination: string; effectiveCity: string; remainingDays: number; path: string[]; legDay: number;
+};
+
+/** Read-only quote; commands never advance the date or consume the saved random stream. */
+export function previewTravelChange(state: GameState, action: TravelChange, destination?: string): TravelChangePreview {
+  if (state.phase === 'battle') return { allowed: false, reason: '先结束战斗，再变更行程。' };
+  const j = state.journey;
+  if (!j) return { allowed: false, reason: '当前没有行程。' };
+  if (j.event) return { allowed: false, reason: '先处理途中见闻，再变更行程。' };
+  const leg = journeyLeg(j);
+  if (action === 'turn-back' || action === 'next-city' && j.legDay === 0) {
+    return { allowed: true, destination: leg.from, effectiveCity: leg.from, remainingDays: j.legDay,
+      path: j.legDay === 0 ? [leg.from] : [leg.to, leg.from], legDay: j.legDay === 0 ? 0 : leg.days - j.legDay };
+  }
+  const target = action === 'next-city' ? leg.to : destination;
+  if (!target || !WORLD_CITIES.some(city => city.id === target)) return { allowed: false, reason: '请选择有效的目的地。' };
+  const tail = planRoute(leg.to, target);
+  if (!tail) return { allowed: false, reason: '下一城没有通往该目的地的道路。' };
+  return { allowed: true, destination: target, effectiveCity: leg.to, remainingDays: leg.days - j.legDay + tail.days,
+    path: [leg.from, ...tail.path], legDay: j.legDay };
+}
+
+function changeTravel(state: GameState, action: TravelChange, destination?: string): GameState {
+  const quote = previewTravelChange(state, action, destination);
+  if (!quote.allowed) return state;
+  const j = state.journey!;
+  if (quote.remainingDays === 0) return { ...state, journey: undefined, currentCityId: quote.destination,
+    travelNotice: `已在${cityNameAt(quote.destination, state.date)}停下；此行赶路${j.elapsed}日。` };
+  return { ...state, journey: { ...j, path: quote.path, legIndex: 0, legDay: quote.legDay,
+    navigation: { version: 2, anchorCityId: state.currentCityId, startElapsed: j.elapsed, startLegDay: quote.legDay } },
+    travelNotice: `${action === 'turn-back' ? '折返' : '改道'}至${cityNameAt(quote.destination, state.date)}，还需赶路${quote.remainingDays}日。` };
+}
+
+export function redirectTravel(state: GameState, destination: string): GameState { return changeTravel(state, 'redirect', destination); }
+export function turnBackTravel(state: GameState): GameState { return changeTravel(state, 'turn-back'); }
+export function stopAtNextCity(state: GameState): GameState { return changeTravel(state, 'next-city'); }
+
 function nextSeed(seed: number): number { return (Math.imul(seed, 1664525) + 1013904223) >>> 0; }
 function createTravelNews(journey: Journey, date: GameDate): MarketNews {
   // Derive every detail from the saved event seed, without consuming another travel day.
@@ -69,7 +112,7 @@ export function advanceTravel(state: GameState, days = 3): GameState {
   if (!Number.isInteger(days) || days < 1 || days > 30 || !state.journey || state.journey.event || state.phase === 'battle') return state;
   let journey: Journey = { ...state.journey };
   let date = state.date;
-  let economy = state.economy, actualDays = 0;
+  let actualDays = 0;
   let simulation=state;
   for (let day = 0; day < days; day++) {
     const leg = journeyLeg(journey);
@@ -82,7 +125,7 @@ export function advanceTravel(state: GameState, days = 3): GameState {
     if (journey.legDay >= leg.days) {
       if (journey.legIndex === journey.path.length - 2) {
         const destination = journey.path.at(-1)!;
-        return withWorldDate({ ...simulation, economy, travelDays: days, journey: undefined, currentCityId: destination, travelNotice: `本次赶路${actualDays}日；抵达${cityNameAt(destination,date)}，此行赶路${journey.elapsed}日。沿途耽搁已计入日期。` }, date);
+        return withWorldDate({ ...simulation, travelDays: days, journey: undefined, currentCityId: destination, travelNotice: `本次赶路${actualDays}日；抵达${cityNameAt(destination,date)}，此行赶路${journey.elapsed}日。沿途耽搁已计入日期。` }, date);
       }
       journey = { ...journey, legIndex: journey.legIndex + 1, legDay: 0 };
     }
@@ -96,11 +139,11 @@ export function advanceTravel(state: GameState, days = 3): GameState {
       const kind = pool[journey.seed % pool.length];
       const news = kind === 'market-news' ? createTravelNews(journey, date) : undefined;
       journey.event = { id: journey.elapsed, kind, cgSeen: false, ...(kind === 'contact' ? { contact } : {}), ...(news ? { news } : {}) };
-      if (news) economy = applyMarketNews(economy, news);
+      if (news) simulation = { ...simulation, economy: applyMarketNews(simulation.economy, news) };
       break;
     }
   }
-  return withWorldDate({ ...simulation, economy, journey, travelDays: days,
+  return withWorldDate({ ...simulation, journey, travelDays: days,
     travelNotice: `本次赶路${actualDays}日。${journey.event ? '途中遇到见闻，处理后可继续行程。' : actualDays < days ? '已达游戏日期上限，行程暂停。' : '可继续赶路。'}` }, date);
 }
 
@@ -196,14 +239,21 @@ export function isJourney(value: unknown, currentCityId: string, phase: string):
   if (!value || typeof value !== 'object') return false;
   const j = value as Journey;
   const integer = (n: number) => Number.isSafeInteger(n) && n >= 0;
-  if (!Array.isArray(j.path) || j.path.length < 2 || j.path.length > WORLD_CITIES.length || j.path[0] !== currentCityId || new Set(j.path).size !== j.path.length || !j.path.every(id => WORLD_CITIES.some(c => c.id === id)) || !integer(j.legIndex) || j.legIndex >= j.path.length - 1 || !integer(j.legDay) || !integer(j.elapsed) || !integer(j.seed) || j.seed > 0xffffffff || !integer(j.serial) || j.serial < 1) return false;
+  const nav = j.navigation;
+  if (nav !== undefined && (!nav || nav.version !== 2 || nav.anchorCityId !== currentCityId || !integer(nav.startElapsed) || !integer(nav.startLegDay))) return false;
+  if (!Array.isArray(j.path) || j.path.length < 2 || j.path.length > WORLD_CITIES.length + (nav ? 1 : 0)
+    || !nav && (j.path[0] !== currentCityId || new Set(j.path).size !== j.path.length)
+    || !j.path.every(id => WORLD_CITIES.some(c => c.id === id)) || !integer(j.legIndex) || j.legIndex >= j.path.length - 1 || !integer(j.legDay) || !integer(j.elapsed) || !integer(j.seed) || j.seed > 0xffffffff || !integer(j.serial) || j.serial < 1) return false;
   let elapsed = j.legDay;
   for (let i = 0; i < j.path.length - 1; i++) {
     const leg = directRoadLeg(j.path[i], j.path[i + 1]);
     if (!leg || i === j.legIndex && j.legDay >= leg.days) return false;
     if (i < j.legIndex) elapsed += leg.days;
   }
-  if (elapsed !== j.elapsed) return false;
+  if (nav) {
+    if (nav.startLegDay >= directRoadLeg(j.path[0], j.path[1])!.days || elapsed < nav.startLegDay
+      || nav.startElapsed + elapsed - nav.startLegDay !== j.elapsed) return false;
+  } else if (elapsed !== j.elapsed) return false;
   if (j.event !== undefined) {
     const e = j.event;
     if (!e || !integer(e.id) || e.id !== j.elapsed || !['rain', 'merchant', 'refugees', 'ferry', 'bandits', 'contact', 'market-news', 'wolves'].includes(e.kind) || e.inBattle !== undefined && typeof e.inBattle !== 'boolean' || e.cgSeen !== undefined && typeof e.cgSeen !== 'boolean' || e.contact !== undefined && !['cao', 'sun', 'liu'].includes(e.contact)) return false;

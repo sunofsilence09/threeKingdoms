@@ -8,6 +8,7 @@ import { acknowledgeTravelCg, advanceTravel, finishTravelBattle, isJourney, jour
 import { WORLD_CITIES } from './world';
 import { createMartialProgress } from './martial';
 import { createLifeState } from './personLife';
+import { withWorldDate } from './worldTime';
 
 const cityState = (): GameState => ({
   life: createLifeState({year:184,month:3,day:1},42),
@@ -190,7 +191,7 @@ describe('wolves and city work income', () => {
     const result = resolveTravelEvent(state, 'safe');
     expect(result.date).toEqual(advanceDays(state.date, 3));
     expect(result.morale).toBe(state.morale - 1);
-    expect(result.economy).toBe(state.economy);
+    expect(result.economy).toEqual(state.economy);
     expect(result.journey?.event).toBeUndefined();
   });
   it('starts persistent wolf ambush and pays only actual fighters once after victory', () => {
@@ -211,7 +212,7 @@ describe('wolves and city work income', () => {
     expect(won.travelNotice).toContain('狼');
     expect(finishTravelBattle(won, true)).toBe(won);
     const lost = finishTravelBattle(recorded, false);
-    expect(lost.economy).toBe(recorded.economy);
+    expect(lost.economy).toEqual(recorded.economy);
     expect(lost.party).toEqual(recorded.party);
     expect(lost.date).toEqual(advanceDays(recorded.date, 3));
     expect(lost.morale).toBe(recorded.morale - 1);
@@ -221,7 +222,8 @@ describe('wolves and city work income', () => {
     expect(workInCity(state, 1).economy.coins).toBe(state.economy.coins + 100);
     expect(workInCity(state, 1).supplies).toBe(state.supplies + 5);
     for (const days of [30, 360]) {
-      expect(restInCity(state, days).economy).toEqual(state.economy);
+      // Long stays now pay regular monthly camp costs through the same world clock.
+      expect(restInCity(state, days).economy).toEqual(withWorldDate(state, advanceDays(state.date, days)).economy);
       expect(restInCity(state, days).supplies).toBe(state.supplies + 3);
     }
   });

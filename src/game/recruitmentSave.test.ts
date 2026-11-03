@@ -31,7 +31,8 @@ const datedWorld = (state: GameState): GameState => {
   const worldConflict = createWorldConflict(state.date, Object.keys(state.party),undefined,life);
   // This roster fixture uses institution-led armies, leaving named people available in town.
   worldConflict.armies = worldConflict.armies.map(army => { const { commanderId: _commander, ...institution } = army; return institution; });
-  return withWorldDate({ ...state, life, worldConflict }, state.date);
+  // A dated scenario is a fresh snapshot, including its one-time treasury initialization.
+  return withWorldDate({ ...state, life, worldConflict, cityEconomy: undefined }, state.date);
 };
 const atXiapi = (patch: Partial<GameState> = {}): GameState => {
   const state = datedWorld({ ...stateInZhuo(), currentCityId: 'xiapi', date: { year: 196, month: 6, day: 1 }, ...patch });

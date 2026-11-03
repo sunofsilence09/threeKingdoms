@@ -18,8 +18,10 @@ export interface TroopContingent extends TroopAssignment {
 export const isTroopKind = (value: unknown): value is TroopKind => typeof value === 'string' && Object.hasOwn(TROOP_TYPES, value);
 export const moraleFactor = (morale = 80): number => .5 + Math.max(0, Math.min(120, morale)) / 160;
 export const moraleOf = (unit: CombatUnit): number => unit.morale ?? 80;
-export const defensePower = (unit: CombatUnit): number => unit.defense * moraleFactor(unit.morale);
-export const speedPower = (unit: CombatUnit): number => Math.max(1, Math.round(unit.speed * moraleFactor(unit.morale)));
+export const moraleLimit = (unit: CombatUnit): number => unit.moraleRuleVersion === 2 ? 100 : 120;
+export const unitMoraleFactor = (unit: CombatUnit): number => unit.moraleRuleVersion === 2 ? .5 + Math.max(0, Math.min(100, moraleOf(unit))) / 200 : moraleFactor(unit.morale);
+export const defensePower = (unit: CombatUnit): number => unit.defense * unitMoraleFactor(unit);
+export const speedPower = (unit: CombatUnit): number => Math.max(1, Math.round(unit.speed * unitMoraleFactor(unit)));
 export const fortificationFactor = (unit: CombatUnit): number => unit.guarded && unit.troop?.kind === 'infantry' && unit.effects?.some(e=>e.kind==='reduction'&&e.value===.5&&e.sourceId===unit.id) ? .5 : 1;
 export function troopStats(troop: TroopContingent) {
   const command = troop.ruleVersion === 2 ? Math.max(0, attributeContribution(troop.command!, troop.attributeVersion ?? 2)) : 0;
@@ -29,7 +31,7 @@ export function troopStats(troop: TroopContingent) {
 }
 /** Snapshot commander talents so casualties never rebase a running battle from mutable RPG progress. */
 export function attachTroops(unit: CombatUnit, kind: TroopKind, count: number, commander: { command: number; strength: number } = { command: 50, strength: 50 }, attributeVersion: 1 | 2 | 3 = 3): CombatUnit {
-  if (!isTroopKind(kind) || !Number.isSafeInteger(count) || count < 1 || count > 1000 || unit.troop || unit.formation) return unit;
+  if (!isTroopKind(kind) || !Number.isSafeInteger(count) || count < 1 || count > 10000 || unit.troop || unit.formation) return unit;
   const troop: TroopContingent = { kind, count, initial: count, baseMaxHp: unit.maxHp, baseAttack: unit.attack, baseDefense: unit.defense,
     ruleVersion: 2, ...(attributeVersion === 3 ? { attributeVersion: 3 as const } : {}), command: commander.command, strength: commander.strength };
   return { ...unit, troop, morale: unit.morale ?? 80, ...troopStats(troop), maxHp: unit.maxHp + count * 2, hp: unit.hp + count * 2 };
@@ -37,11 +39,11 @@ export function attachTroops(unit: CombatUnit, kind: TroopKind, count: number, c
 /** Shared ordinary attack, martial, troop skill and AI defense calculation. Pure duels retain subtraction. */
 export function damageAfterDefense(combat: CombatState, attacker: CombatUnit, target: CombatUnit, power = attackPower(attacker)): number {
   const defense = defensePower(target);
-  return Math.max(1, combat.troopRuleVersion === 2 && (attacker.troop || attacker.formation || target.troop || target.formation)
+  return Math.max(1, (combat.troopRuleVersion === 2 || combat.troopRuleVersion === 3) && (attacker.troop || attacker.formation || target.troop || target.formation)
     ? power * 100 / (100 + defense) : power - defense);
 }
 export function troopContribution(unit: CombatUnit): string {
-  if (!unit.troop) return '未携兵；可在城内从预备兵配属，主角与同行每人最多1000兵。';
+  if (!unit.troop) return '未携兵；可在城内从预备兵配属，个人上限为有效统率×100，最多10000兵。';
   const t = unit.troop;
   return `人物本体攻 ${t.baseAttack} / 防 ${t.baseDefense} · 存活${t.count}兵贡献攻 ${Number((unit.attack - t.baseAttack).toFixed(2))} / 防 ${Number((unit.defense - t.baseDefense).toFixed(2))}${t.ruleVersion === 2 ? ` · 统率${t.command} / 武力${t.strength}` : ' · 本场沿用2.2旧领兵规则'}；再按士气修正。`;
 }
@@ -49,7 +51,7 @@ export function troopRange(unit: CombatUnit): { min: number; max: number } {
   return unit.troop?.count ? TROOP_TYPES[unit.troop.kind] : unit.formation ? { min: unit.formation.minRange, max: unit.formation.maxRange } : WEAPONS[unit.weapon];
 }
 export function troopStatus(unit: CombatUnit): string {
-  return `${unit.troop ? `${TROOP_TYPES[unit.troop.kind].name} ${unit.troop.count}兵 · ` : ''}士气 ${moraleOf(unit)}/120${moraleOf(unit) < 10 ? ' · 溃散中' : ''} · 属性${Math.round(moraleFactor(unit.morale) * 100)}%`;
+  return `${unit.troop ? `${TROOP_TYPES[unit.troop.kind].name} ${unit.troop.count}兵 · ` : ''}士气 ${moraleOf(unit)}/${moraleLimit(unit)}${moraleOf(unit) < 10 ? ' · 溃散中' : ''} · 属性${Math.round(unitMoraleFactor(unit) * 100)}%`;
 }
 export function troopAvailability(combat: CombatState, id: string): { available: boolean; reason: string } {
   const actor = combat.units.find(u => u.id === id);

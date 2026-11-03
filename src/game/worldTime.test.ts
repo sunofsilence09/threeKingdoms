@@ -9,7 +9,7 @@ import { withWorldDate } from './worldTime';
 describe('one game clock for journeys and the strategic world', () => {
   it('initializes a legacy world at its current date and advances days deterministically', () => {
     const original = createInitialState(() => 0);
-    const legacy = { ...original, date: { year: 200, month: 9, day: 1 }, worldConflict: undefined };
+    const legacy = { ...original, date: { year: 200, month: 9, day: 1 }, worldConflict: undefined, cityEconomy: undefined };
     const now = withWorldDate(legacy, legacy.date);
     expect(now.worldConflict?.lastDay).toBe(conflictDay(legacy.date));
     expect(withWorldDate(now, now.date)).toBe(now);
@@ -17,7 +17,7 @@ describe('one game clock for journeys and the strategic world', () => {
     let daily = now;
     for (let index = 0; index < 30; index++) daily = withWorldDate(daily, advanceDays(daily.date, 1));
     expect(direct.worldConflict).toEqual(daily.worldConflict);
-    expect(direct.economy).toBe(original.economy); expect(direct.party).toBe(original.party);
+    expect(direct.economy.coins).toBe(original.economy.coins - direct.cityEconomy!.camp.records.reduce((sum, record) => sum + record.paid.coins, 0)); expect(direct.party).toBe(original.party);
   });
   it('uses the actual days spent resting, interacting, doing work and escorting', () => {
     const initial = { ...createInitialState(() => 0), phase: 'overworld' as const, currentCityId: 'yingchuan' };

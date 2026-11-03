@@ -50,7 +50,7 @@ describe('game state', () => {
   const eligible = () => {
     const state=createInitialState(),date={year:200,month:9,day:1};
     const life=createLifeState(date,23);
-    return withWorldDate({...state,date,life,worldConflict:createWorldConflict(date,Object.keys(state.party),undefined,life),flags:{ambushWon:true,recovered:true}}, date);
+    return withWorldDate({...state,date,life,cityEconomy:undefined,worldConflict:createWorldConflict(date,Object.keys(state.party),undefined,life),flags:{ambushWon:true,recovered:true}}, date);
   };
   it('starts in 184 with a random origin that survives saves', () => {
     const first = createInitialState(() => 0);
@@ -222,7 +222,7 @@ describe('game state', () => {
     expect(initial.party.traveler.level).toBe(1);
     const date={year:200,month:9};
     const life=createLifeState(date,23);
-    const dated = withWorldDate({ ...rewarded, date, life, worldConflict:createWorldConflict(date,Object.keys(rewarded.party),undefined,life), flags: { ...rewarded.flags, ambushWon: true, recovered: true } }, date);
+    const dated = withWorldDate({ ...rewarded, date, life, cityEconomy:undefined, worldConflict:createWorldConflict(date,Object.keys(rewarded.party),undefined,life), flags: { ...rewarded.flags, ambushWon: true, recovered: true } }, date);
     const route = rewardVictory(selectRoute(dated, 'liu'), 'route');
     for (const id of dated.deployed) expect(route.party[id]).toEqual(grantExperience(dated.party[id], victoryExperience(45, effectiveAttributes(id, dated.party[id].attributes))));
     saveState(route);

@@ -5,7 +5,7 @@ import { getState } from './runtime';
 import { themeFor, hex } from './theme';
 import { addText } from './text';
 import { drawUnitModel } from './unitModel';
-import { moraleOf, TROOP_TYPES } from './troopCombat';
+import { moraleOf, moraleLimit, TROOP_TYPES } from './troopCombat';
 
 export const BATTLE_VIEW = { x: 24, y: 118, width: 630, height: 360 };
 const BASE_CELL = 48;
@@ -176,7 +176,7 @@ export class BattleBoard {
       this.layer.add(addText(this.scene, x, y + 27, unit.troop ? `${name} ${unit.troop.count}兵` : `${name} ${unit.hp}/${unit.maxHp}`, { color: hex(theme.ink), fontSize: unit.troop ? '10px' : '11px', backgroundColor: hex(theme.paper) }).setOrigin(0.5));
       this.layer.add(this.scene.add.rectangle(x, y + 20, 38, 3, 0x142423));
       this.layer.add(this.scene.add.rectangle(x - 19, y + 20, 38 * unit.hp / unit.maxHp, 3, 0x9dc5a2).setOrigin(0, 0.5));
-      this.layer.add(this.scene.add.rectangle(x-19,y+16,38*moraleOf(unit)/120,2,moraleOf(unit)<10?0xd95345:0xc79d4f).setOrigin(0,.5));
+      this.layer.add(this.scene.add.rectangle(x-19,y+16,38*moraleOf(unit)/moraleLimit(unit),2,moraleOf(unit)<10?0xd95345:0xc79d4f).setOrigin(0,.5));
       if(moraleOf(unit)<10) this.layer.add(addText(this.scene,x,y-16,'溃散',{color:'#b12e20',fontSize:'10px',backgroundColor:'#fff4da'}).setOrigin(.5));
       if (unit.empowered) this.layer.add(this.scene.add.triangle(x - 16, y - 17, 0, 8, 4, 0, 8, 8, 0xffd487));
       if (unit.guarded) this.layer.add(this.scene.add.circle(x + 16, y - 17, 4, 0xd5e7dd));

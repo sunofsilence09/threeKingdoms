@@ -192,15 +192,15 @@ describe('persistent world conflict', () => {
     const full=campaign();full.armies=ids.map((f,i)=>({id:`army-${100+i}`,factionId:f,sourceCityId:'henan',targetCityId:'henan',troops:100,contributions:[],phase:'camped',path:['henan'],legIndex:0,legDay:0,phaseDays:0}));full.nextArmyId=200;full.ledger.initial=total(full);
     expect(dispatchConflictArmy(full,'chenliu','dongjun').armies).toHaveLength(12);conserved(full);
   });
-  it('applies monthly +50 once and never applies future legacy historical deductions',()=>{
+  it('does not create unfunded monthly soldiers or apply future legacy historical deductions',()=>{
     const w=createWorldConflict({year:184,month:10,day:30});
     w.ledger.losses+=w.armies.reduce((n,a)=>n+a.troops,0);w.armies=[];
     for(const f of Object.keys(w.nextDecision))w.nextDecision[f]=w.lastDay+100;
     w.cities.ye.troops=20000;w.ledger.initial+=20000-5350;
     const next=advanceWorldConflict(w,{year:184,month:11,day:1});
-    expect(next.cities.julu.troops).toBe(w.cities.julu.troops+50);
+    expect(next.cities.julu.troops).toBe(w.cities.julu.troops);
     expect(next.cities.ye.troops).toBe(20000);
-    expect(next.ledger.recruited-w.ledger.recruited).toBe(59*50);
+    expect(next.ledger.recruited-w.ledger.recruited).toBe(0);
     expect(advanceWorldConflict(next,{year:184,month:11,day:1})).toBe(next);conserved(next);
   });
   it('does not resurrect an eliminated faction when its later historical leader becomes available',()=>{

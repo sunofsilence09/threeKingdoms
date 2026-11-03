@@ -21,6 +21,7 @@ import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { lifeStatus } from './personLife';
 import { attachTroops, defensePower, speedPower, troopContribution, troopRange, troopStatus } from './troopCombat';
 import { createTroopControls } from './troopControls';
+import { armyMoraleForParty } from './cityEconomy';
 import { showRelationshipNetwork } from './relationshipView';
 import { relationshipPersonId } from './relationshipNetwork';
 
@@ -43,7 +44,7 @@ export function showCharacterDetails(id: string = 'traveler', combat?: CombatSta
   const profiles = allRecruitProfiles(state);
   const encounter = combat ?? createCombatState(state.route, state.party, state.route ? 'route' : 'ambush', state.deployed);
   const units = combat ? encounter.units : Object.entries(state.party).map(([key, progress]) => {
-    const unit = makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'), t = state.troopAssignments?.[key];
+    const unit = { ...makePartyUnit(key, progress, state.route, state.route ? 'route' : 'ambush'), morale: armyMoraleForParty(state), moraleRuleVersion: 2 as const }, t = state.troopAssignments?.[key];
     return t ? attachTroops(unit,t.kind,t.count,effectiveAttributes(key,progress.attributes,3,progress.bondBonus)) : unit;
   });
   const memorialUnits=Object.values(state.life?.memorials??{}).map(record=>makePartyUnit(record.id,record.progress,state.route,state.route?'route':'ambush'));

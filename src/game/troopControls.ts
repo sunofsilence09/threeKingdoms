@@ -1,8 +1,9 @@
 import { getState, setState } from './runtime';
-import { assignTroops } from './troopManagement';
-import { attachTroops, TROOP_TYPES, troopContribution, troopStatus, type TroopKind } from './troopCombat';
+import { assignTroops, commandTroopLimit } from './troopManagement';
+import { attachTroops, defensePower, TROOP_TYPES, troopContribution, troopStatus, type TroopKind } from './troopCombat';
 import { effectiveAttributes } from './characterTalents';
-import { makePartyUnit } from './combat';
+import { attackPower, makePartyUnit } from './combat';
+import { armyMoraleForParty, campFinanceSummary } from './cityEconomy';
 import { showPlayerMilitary } from './playerMilitaryPanel';
 import { personName } from './heroName';
 import { playerMilitaryStatus } from './playerMilitary';
@@ -22,25 +23,27 @@ export function createTroopControls(id: string, unit: CombatUnit, inBattle: bool
   }
   select.value = current?.kind ?? 'infantry'; select.disabled = disabled; kindLabel.append(select);
   const countLabel = document.createElement('label'); countLabel.textContent = '士兵 ';
-  const count = document.createElement('input'); count.type = 'number'; count.min = '0'; count.max = String(Math.min(1000,status.reserve+(current?.count??0))); count.step = '1';
+  const limit = commandTroopLimit(state,id), oldCount = current?.count ?? 0;
+  const count = document.createElement('input'); count.type = 'number'; count.min = '0'; count.max = String(Math.min(Math.max(limit,oldCount),status.reserve+oldCount)); count.step = '1';
   count.inputMode = 'numeric'; count.value = String(current?.count??0); count.setAttribute('aria-label',`${name}配兵人数`); count.disabled = disabled; countLabel.append(count);
-  const note = document.createElement('small'); note.textContent = disabled ? status.reason : `已带${current?.count??0}兵 · 可用预备兵${status.reserve} · 每人上限1000`;
+  const note = document.createElement('small'); note.textContent = disabled ? status.reason : `已带${oldCount}兵 · 可用预备兵${status.reserve} · 有效统率${limit/100}×100＝上限${limit}兵${oldCount>limit?'（现有超限，可维持或减少）':''} · 随行总兵池最多20000`;
   const skill = document.createElement('small');
   const preview = document.createElement('small'); preview.setAttribute('aria-live','polite');
   const updateSkill = () => {
     const type = TROOP_TYPES[select.value as TroopKind]; skill.textContent = `${type.skill} · 消耗${type.cost}士气：${type.description}`;
     const n = count.value.trim() ? Number(count.value) : NaN, progress = state.party[id];
     if (!progress || !Number.isSafeInteger(n) || n < 0 || n > Number(count.max)) { preview.textContent = '请输入可用范围内的整数人数。'; return; }
-    const base = makePartyUnit(id,progress,state.route,state.route?'route':'ambush');
+    const base = { ...makePartyUnit(id,progress,state.route,state.route?'route':'ambush'), morale: armyMoraleForParty(state), moraleRuleVersion: 2 as const };
     const projected = attachTroops(base,select.value as TroopKind,n,effectiveAttributes(id,progress.attributes,3,progress.bondBonus));
-    preview.textContent = `80士气预览：攻${Number(projected.attack.toFixed(2))} / 防${Number(projected.defense.toFixed(2))} / 体力${projected.maxHp}。${troopContribution(projected)}`;
+    const camp = campFinanceSummary(state), cost = camp.fundingCityId ? `${camp.dueGrain}粮草（府库）` : `${camp.dueSupplies}军需（个人）`;
+    preview.textContent = `军队士气${base.morale}预览：攻${Number(attackPower(projected).toFixed(2))} / 防${Number(defensePower(projected).toFixed(2))} / 体力${projected.maxHp}。随行全队月费${camp.dueCoins}钱 / ${cost}；调整配属不改变随行总兵数。${troopContribution(projected)}`;
   };
   select.addEventListener('change',updateSkill); count.addEventListener('input',updateSkill); updateSkill();
   const save = document.createElement('button'); save.type = 'button'; save.className = 'party-action'; save.textContent = '确认配兵'; save.disabled = disabled;
   save.addEventListener('click',()=>{
     const before = getState(), n = count.value.trim() ? Number(count.value) : NaN;
     const next = assignTroops(before,id,select.value as TroopKind,n);
-    if (next === before) { note.textContent = '配兵失败：人数须为0—1000整数，且不能超过可用预备兵；途中或战斗期间不可调整。'; return; }
+    if (next === before) { note.textContent = `配兵失败：须为0—${commandTroopLimit(before,id)}整数，超限现役只可维持或减少，不能超过可用预备兵；途中或战斗期间不可调整。`; return; }
     setState(next); render();
   });
   const clear = document.createElement('button'); clear.type = 'button'; clear.className = 'party-action'; clear.textContent = '卸下士兵'; clear.disabled = disabled || !current?.count;

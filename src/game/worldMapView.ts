@@ -47,6 +47,7 @@ const mountains: { name: string; coords: Point[]; label: Point }[] = [
 const coast: Point[] = [[99,43],[125,43],[125,41.4],[124,40.1],[122.5,39.1],[121.1,38.8],[121.5,39.1],[121.2,40],[120.5,40.3],[119.8,40],[119.1,39.3],[118.2,39.2],[117.7,38.6],[118.1,38.2],[119,37.9],[119.3,37.4],[120.1,37.7],[120.9,37.6],[121.7,37.4],[122.5,37.4],[122.4,36.9],[121.6,36.7],[120.4,36.1],[119.7,35.7],[119.2,34.8],[120.2,33.4],[120.8,32.5],[121.8,31.7],[121.9,30.9],[121.2,30.6],[120.9,30.2],[121.9,29.9],[121.5,29.2],[121.6,28.4],[120.7,27.5],[120.1,26.9],[119.6,26],[119.1,25.4],[118.5,24.8],[117.4,23.9],[116.3,23.3],[115.2,22.8],[114.2,22.5],[113.6,22.7],[113.2,22],[112.1,21.8],[111.2,21.5],[110.4,20.9],[110.3,20.3],[109.9,20.2],[109.7,21.4],[108.5,21.7],[107,21.1],[105.7,19],[99,19]];
 let sequence = 0;
 let rememberedView: { x: number; y: number; width: number; height: number } | undefined;
+let rememberedFullView = false;
 let rememberedSearch = '';
 let rememberedProvince = '';
 
@@ -235,20 +236,32 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
   const button = (text: string, aria: string, action: () => void) => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = text; b.setAttribute('aria-label',aria); b.title = aria; b.addEventListener('click',action); controls.append(b);
   };
-  let view = rememberedView ? { ...rememberedView } : { x: 0, y: 0, width: WIDTH, height: HEIGHT };
+  const focusCity = cityAt(options.progress?.from ?? options.currentId), focusPoint = project([focusCity.lon, focusCity.lat]);
+  let fullView = rememberedFullView;
+  let view = rememberedView ? { ...rememberedView } : { x: focusPoint[0] - 360, y: focusPoint[1] - 240, width: 720, height: 480 };
   const applyView = () => {
     view.x = Math.max(-WIDTH*.12, Math.min(WIDTH-view.width+WIDTH*.12,view.x));
     view.y = Math.max(-HEIGHT*.12, Math.min(HEIGHT-view.height+HEIGHT*.12,view.y));
     svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.width} ${view.height}`);
     host.classList.toggle('is-zoomed', view.width < WIDTH*.74);
     rememberedView = { ...view };
+    rememberedFullView = fullView;
   };
   const zoom = (factor: number, at: Point = [view.x+view.width/2,view.y+view.height/2]) => {
     const w = Math.max(WIDTH/3.5,Math.min(WIDTH,view.width*factor)), ratio = w/view.width;
-    view = { x: at[0]-(at[0]-view.x)*ratio, y: at[1]-(at[1]-view.y)*ratio, width:w, height:w*HEIGHT/WIDTH }; applyView();
+    fullView = false;
+    const rect = viewport.getBoundingClientRect(), h = rect.width > 0 && rect.height > 0 ? w * rect.height / rect.width : view.height * ratio;
+    view = { x: at[0]-(at[0]-view.x)*ratio, y: at[1]-(at[1]-view.y)*ratio, width:w, height:h }; applyView();
   };
   button('＋','放大地图',()=>zoom(.8)); button('−','缩小地图',()=>zoom(1.25));
-  button('全图','复位至完整地图',()=>{view={x:0,y:0,width:WIDTH,height:HEIGHT};applyView();});
+  button('全图','复位至完整地图',()=>{fullView=true;view={x:0,y:0,width:WIDTH,height:HEIGHT};applyView();});
+  const resize = new ResizeObserver(() => {
+    const rect = viewport.getBoundingClientRect();
+    if (fullView || !rect.width || !rect.height) return;
+    const centerY = view.y + view.height / 2;
+    view.height = view.width * rect.height / rect.width; view.y = centerY - view.height / 2; applyView();
+  });
+  resize.observe(viewport);
   viewport.append(controls);
   const footer = document.createElement('div'); footer.className = 'world-map-footer';
   footer.innerHTML = '<div class="world-map-legend"><span><i class="legend-city"></i>城邑</span><span><i class="legend-current"></i>所在</span><span><i class="legend-road"></i>道路</span><span><i class="legend-water"></i>水路</span><span><i class="legend-mountain"></i>山道</span><span><i class="legend-route"></i>行程</span></div><p>城邑依地理方位定位 · 山川与线路概绘<br>拖动平移，缩放查看城名；Tab 与方向键选城</p>';
@@ -312,7 +325,9 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
       choice.setAttribute('aria-pressed',String(city.id===options.selectedId));
       choice.addEventListener('click',()=>{
         const [x,y]=project([city.lon,city.lat]);
-        const width=Math.min(view.width,WIDTH*.65);view={x:x-width/2,y:y-width*HEIGHT/WIDTH/2,width,height:width*HEIGHT/WIDTH};applyView();
+        const width=Math.min(view.width,WIDTH*.65), rect=viewport.getBoundingClientRect();
+        const height=rect.width>0&&rect.height>0?width*rect.height/rect.width:width*HEIGHT/WIDTH;
+        fullView=false;view={x:x-width/2,y:y-height/2,width,height};applyView();
         options.onSelect(city.id);
       });item.append(choice);results.append(item);
     }
@@ -320,5 +335,5 @@ export function createWorldMap(options: WorldMapOptions): { element: HTMLElement
   search.addEventListener('input',updateSearch);region.addEventListener('change',updateSearch);
   updateSearch();
   applyView();
-  return {element:host,destroy:()=>{ svg.removeEventListener('wheel',wheel); host.remove(); }};
+  return {element:host,destroy:()=>{ resize.disconnect(); svg.removeEventListener('wheel',wheel); host.remove(); }};
 }

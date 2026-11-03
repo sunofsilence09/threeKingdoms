@@ -21,7 +21,7 @@ describe('2.3 commander and troop rules', () => {
     expect(hero.attack).toBeCloseTo(base.attack + Math.ceil(count / 10) * (1 + .02 * Math.max(attributeContribution(attrs.command,3), 0) + .01 * Math.max(attributeContribution(attrs.strength,3), 0)));
     expect(hero.defense).toBeCloseTo(base.defense + Math.ceil(count / 40) * (1 + .02 * Math.max(attributeContribution(attrs.command,3), 0)));
     expect(hero.hp).toBe(base.hp + count * 2);
-    expect(combat.troopRuleVersion).toBe(2);
+    expect(combat.troopRuleVersion).toBe(3);
   });
   it('recalculates commander bonuses from survivors, without healing resurrecting soldiers', () => {
     const unit = attachTroops(createCombatState(null).units[0], 'spear', 1000, { command: 30, strength: 20 }, 2);

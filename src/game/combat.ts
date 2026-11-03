@@ -1,5 +1,5 @@
 import { attributeBonuses, createAttributes } from './attributes';
-import { moraleFactor, moraleOf, damageAfterDefense, speedPower, fortificationFactor, troopStats, troopRange, TROOP_TYPES, resolveTroopAI, type TroopContingent } from './troopCombat';
+import { unitMoraleFactor, moraleLimit, moraleOf, damageAfterDefense, speedPower, fortificationFactor, troopStats, troopRange, TROOP_TYPES, resolveTroopAI, type TroopContingent } from './troopCombat';
 import { effectiveAttributes, type AttributeVersion } from './characterTalents';
 import type { RouteId } from './state';
 import { createPartyProgress, PARTY_IDS, type Progress, type PartyProgress } from './growth';
@@ -42,12 +42,12 @@ export interface CombatUnit {
   weapon: WeaponId; level: number; xp: number; defense: number; dodgeRate: number;
   ultimate: UltimateId; ultimateUsed: boolean; empowered: boolean;
   formation?: FormationStrength;
-  morale?: number; troop?: TroopContingent;
+  morale?: number; moraleRuleVersion?: 2; troop?: TroopContingent;
   martialIds?: string[]; martialReady?: Record<string, number>; effects?: CombatEffect[];
 }
 export interface CombatState {
   attributeVersion?: AttributeVersion;
-  troopRuleVersion?: 1 | 2;
+  troopRuleVersion?: 1 | 2 | 3;
   width: number; height: number; terrain: TerrainTile[]; units: CombatUnit[];
   selectedId: string | null; turn: CombatTeam; route: RouteId | null;
   round: number; movedIds: string[]; actedIds: string[]; randomSeed: number; lastEvent?: CombatEvent; turnEvents?: CombatEvent[];
@@ -167,7 +167,7 @@ export function endAction(state: CombatState, id: string): CombatState {
 export function applyGuard(state: CombatState, unitId: string): CombatState {
   const unit = state.units.find(u => u.id === unitId);
   if (!unit || !canAct(state, unit)) return state;
-  return endAction(updateUnit(state, unitId, u => ({ ...u, guarded: true, morale: Math.min(120, moraleOf(u) + 10) })), unitId);
+  return endAction(updateUnit(state, unitId, u => ({ ...u, guarded: true, morale: Math.min(moraleLimit(u), moraleOf(u) + 10) })), unitId);
 }
 function neighbors(tile: Tile): Tile[] {
   return [{ x: tile.x + 1, y: tile.y }, { x: tile.x - 1, y: tile.y }, { x: tile.x, y: tile.y + 1 }, { x: tile.x, y: tile.y - 1 }];
@@ -247,7 +247,7 @@ export function canAttack(state: CombatState, attacker: CombatUnit, target: Comb
   return attacker.hp > 0 && target.hp > 0 && attacker.team !== target.team && gap >= range.min && gap <= range.max && clearSight(state, attacker, target);
 }
 function effectValue(unit: CombatUnit, kind: CombatEffect['kind'], cap: number): number { return Math.min(cap, Math.max(0, ...((unit.effects ?? []).filter(e => e.kind === kind).map(e => e.value)))); }
-export function attackPower(unit: CombatUnit): number { return unit.attack * moraleFactor(unit.morale) * Math.max(unit.empowered ? 1.5 : 1, 1 + effectValue(unit, 'attack-up', .5)) * (1 - effectValue(unit, 'attack-down', .2)); }
+export function attackPower(unit: CombatUnit): number { return unit.attack * unitMoraleFactor(unit) * Math.max(unit.empowered ? 1.5 : 1, 1 + effectValue(unit, 'attack-up', .5)) * (1 - effectValue(unit, 'attack-down', .2)); }
 export function ultimateAvailability(state: CombatState, unit: CombatUnit): { available: boolean; reason: string } {
   if (unit.ultimateUsed) return { available: false, reason: '本场已用' };
   if (!canAct(state, unit)) return { available: false, reason: unit.hp <= 0 ? '无法行动' : '本回合已行动' };
@@ -269,7 +269,7 @@ export function performAttack(state: CombatState, attackerId: string, targetId: 
   const dodged = random.roll < Math.max(0, Math.min(0.4, target.dodgeRate));
   const damage = dodged ? 0 : attackDamage(state, attacker, target);
   const next = dodged ? state : updateUnit(state, targetId, u => ({ ...updateUnitHp(u, Math.max(0, u.hp - damage)), guarded: false }));
-  const acted = endAction(updateUnit(next, attackerId, u => ({ ...u, guarded: false, empowered: false, morale: Math.min(120, moraleOf(u) + (dodged ? 0 : 3)), ...(u.effects ? { effects: u.effects.filter(e => e.kind !== 'attack-up') } : {}) })), attackerId);
+  const acted = endAction(updateUnit(next, attackerId, u => ({ ...u, guarded: false, empowered: false, morale: Math.min(moraleLimit(u), moraleOf(u) + (dodged ? 0 : 3)), ...(u.effects ? { effects: u.effects.filter(e => e.kind !== 'attack-up') } : {}) })), attackerId);
   return { ...acted, randomSeed: random.seed, lastEvent: { kind: dodged ? 'dodge' : 'attack', actorId: attackerId, targetId, damage } };
 }
 function attackDamage(state: CombatState, attacker: CombatUnit, target: CombatUnit): number {
@@ -350,7 +350,7 @@ export function resolveRoundEnd(state: CombatState): CombatState {
     if (unit.hp <= 0 || moraleOf(unit) >= 10) continue;
     const count = unit.troop?.count ?? unit.formation?.troops ?? 0;
     if (!count) continue;
-    const lost = Math.ceil(count * .1), damage = lost * (unit.troop ? 2 : 10);
+    const lost = Math.ceil(count * .1), damage = lost * (unit.troop || state.troopRuleVersion === 3 && unit.formation?.troopRuleVersion === 2 ? 2 : 10);
     // Rout removes soldiers, never the commander's remaining personal HP.
     const hurt = updateUnitHp(unit, Math.max(unit.troop?.baseMaxHp ?? 0, unit.hp - damage));
     units[i] = { ...hurt, morale: unit.morale };

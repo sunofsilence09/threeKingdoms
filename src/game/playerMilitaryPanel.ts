@@ -8,6 +8,7 @@ import { gameDayNumber } from './recruitment';
 import { cityNameAt } from './world';
 import { factionAt } from './worldConflictData';
 import { showPartyPanel } from './partyPanel';
+import { renderCampFinance } from './cityEconomyPanel';
 import {
   COST_PER_SOLDIER, PLAYER_MAX_RESERVE, RECRUIT_UNIT,
   playerMilitaryStatus, playerSiegePreview, recruitPlayerTroops,
@@ -74,12 +75,13 @@ export function showPlayerMilitary(onChange?: () => void): void {
       ['角色所部', `${state.worldConflict?.playerAssigned??0} 人（已从预备兵调出）`],
       ['本城归属', status.currentOwned ? '我方' : stock ? factionAt(stock.factionId).name : '天下局势暂停'],
       ['本城守军', `${status.currentTroops} 人`],
-      ['铜钱 / 粮草', `${state.economy.coins} / ${state.supplies}`],
+      ['个人铜钱 / 军需', `${state.economy.coins} / ${state.supplies}`],
     ]) {
       const item = element('div'); item.append(element('dt', title), element('dd', value)); totals.append(item);
     }
-    summary.append(totals, element('p', '预备兵随主角行旅。主角与同行可在「我的队伍」各配属0—1000兵，进入棋盘战；攻防受存活兵数、统率、武力与士气影响。战略攻城由预备兵另行出征，按天下围城规则自动结算。', 'trade-muted'),button('为主角与同行配兵',()=>showPartyPanel(render),true));
+    summary.append(totals, element('p', '预备兵随主角行旅。个人领兵上限为有效统率×100，最高10000人；随行预备兵与角色所部合计最多20000人。攻防受存活兵数、统率、武力与军队士气影响；战略攻城由预备兵另行出征。', 'trade-muted'),button('为主角与同行配兵',()=>showPartyPanel(render),true));
     body.append(summary);
+    body.append(renderCampFinance(state,render));
     const notice = element('p', feedback, 'trade-feedback'); notice.setAttribute('role', 'status'); notice.setAttribute('aria-live', 'polite'); body.append(notice);
     if (!status.canOperate) body.append(element('p', status.reason, 'military-lock'));
 

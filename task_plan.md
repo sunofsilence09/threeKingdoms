@@ -354,3 +354,9 @@ The first slice's per-action enemy response allowed three enemy actions for each
 - [x] 完成属性战斗、资源打包、历史人物存档三路独立复核。
 - [x] 全量测试、构建、开发/离线三尺寸及资源完整性验证。
 - [x] 提交并合并main，复验推送并确认同步（41532cb；714测试与构建/本地测试通过）。
+
+## 2026-11-03 2.5合并前复查
+- [x] 确认6b8aefa基线及codex/interface-city-economy-2-5未提交范围。
+- [x] 完成财政、行旅导航、领兵战斗三路独立复核。
+- [x] 全量测试、构建、开发/离线四尺寸及资源完整性验证。
+- [ ] 提交并合并main，复验推送并确认同步。

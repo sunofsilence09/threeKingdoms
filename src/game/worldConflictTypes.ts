@@ -9,6 +9,9 @@ export interface ConflictReport {
   armyId?: string; troops?: number; losses?: number; text: string;
 }
 export interface WorldConflict {
+  /** Ephemeral finance projections; supplied by the daily clock. */
+  cityMorale?:Record<string,number>;
+  armyMorale?:Record<string,number>;
   version: 3; lastDay: number; seed: number; nextArmyId: number; nextReportId: number; nextPrefectId:number;prefectIds:string[];
   cities: Record<string, ConflictCity>; armies: ConflictArmy[]; founded: string[]; nextDecision: Record<string, number>;
   reports: ConflictReport[]; ledger: { initial: number; recruited: number; raised: number; losses: number; expansion?: number };

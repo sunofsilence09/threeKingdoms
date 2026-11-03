@@ -21,6 +21,7 @@ import { filterRecruitProfiles, type LifeFilter, type PersonFilter } from './rec
 import { lifeAccessNote, lifeReferenceText } from './lifeView';
 import { showMartialPanel } from './martialPanel';
 import { createTroopControls } from './troopControls';
+import { armyMoraleForParty } from './cityEconomy';
 import { showPlayerMilitary } from './playerMilitaryPanel';
 import { attachTroops, defensePower } from './troopCombat';
 
@@ -79,7 +80,8 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
     const state = getState(); const locked = !canManageParty(state); body.replaceChildren();
     body.append(element('p', `出战 ${state.deployed.length}/5 · 同行 ${Object.keys(state.party).length} 人 · ${heroName(state)}固定上阵`, 'company-summary'));
     body.append(element('p', '候补保留成长与装备，仅本场出战成员获得战斗经验。', 'company-note'));
-    body.append(element('p', `预备兵 ${state.worldConflict?.playerReserve??0} · 已配兵 ${state.worldConflict?.playerAssigned??0}。先在军务募兵，再为角色分配；士气80为标准，低于10每轮流失10%士兵。`, 'company-note'));
+    const moraleNote = combat && combat.troopRuleVersion !== 3 ? '本场沿用旧士气尺度，80为标准' : `军队士气${armyMoraleForParty(state)}/100，供给状态会影响战力`;
+    body.append(element('p', `预备兵 ${state.worldConflict?.playerReserve??0} · 已配兵 ${state.worldConflict?.playerAssigned??0}。先募兵再配属，个人上限由统率决定。${moraleNote}；低于10每轮流失10%士兵。`, 'company-note'));
     if (combat && combatAttributeVersion(combat) !== 3) body.append(element('p', LEGACY_ATTRIBUTE_NOTE, 'company-notice'));
     if (lockedNote(state)) body.append(element('p', lockedNote(state), 'company-notice'));
     const tools = element('div', '', 'party-actions');
@@ -99,7 +101,7 @@ export function showPartyPanel(onChange?: () => void, combat?: CombatState): voi
       const ids = deployed ? state.deployed : Object.keys(state.party).filter(id => !state.deployed.includes(id));
       for (const id of ids) {
         const profile = recruitProfile(id), progress = state.party[id];
-        const baseUnit = makePartyUnit(id, progress, state.route, state.route ? 'route' : 'ambush');
+        const baseUnit = { ...makePartyUnit(id, progress, state.route, state.route ? 'route' : 'ambush'), morale: armyMoraleForParty(state), moraleRuleVersion: 2 as const };
         const assigned = state.troopAssignments?.[id];
         const unit = combat?.units.find(u => u.team === 'party' && u.id === id) ?? (assigned ? attachTroops(baseUnit,assigned.kind,assigned.count,effectiveAttributes(id,progress.attributes,3,progress.bondBonus)) : baseUnit);
         const card = element('article', '', 'company-card'); card.dataset.member = id;
