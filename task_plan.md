@@ -359,4 +359,4 @@ The first slice's per-action enemy response allowed three enemy actions for each
 - [x] 确认6b8aefa基线及codex/interface-city-economy-2-5未提交范围。
 - [x] 完成财政、行旅导航、领兵战斗三路独立复核。
 - [x] 全量测试、构建、开发/离线四尺寸及资源完整性验证。
-- [ ] 提交并合并main，复验推送并确认同步。
+- [x] 提交并合并main，复验推送并确认同步（331043a；770测试/构建/本地测试通过）。
